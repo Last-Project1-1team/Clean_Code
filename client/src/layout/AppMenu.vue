@@ -73,6 +73,11 @@ const model = ref([
                 label: 'Empty',
                 icon: 'pi pi-fw pi-circle-off',
                 to: '/pages/empty'
+            },
+            {
+                label: '자재정보',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/itemmaster'
             }
         ]
     },
