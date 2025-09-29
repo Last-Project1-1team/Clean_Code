@@ -78,6 +78,11 @@ const model = ref([
                 label: '자재정보',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/itemmaster'
+            },
+            {
+                label: '제품정보',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/modelmaster'
             }
         ]
     },
