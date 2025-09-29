@@ -4,13 +4,15 @@ const mariadb = require("mariadb/callback");
 const sqlList = require("./sqlList.js");
 // ConnectionPool 생성
 const connectionPool = mariadb.createPool({
-  // DB에 접속하는 정보
-  host: "211.188.49.138",
-  port: "3306",
-  user: "cleancode",
-  password: "",
-  database: "clean",
-  connectionLimit: "10",
+  // DV에 점속하는 정보를 별도 env파일로 처리
+  // -> 내장모듈(별도 설치가 필요없느 모듈)인
+  //    process 모듈의 env 속성으로 접근
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PWD,
+  database: process.env.DB_DB,
+  connectionLimit: process.env.DB_LIMIT,
   // Object의 필드정보(Entiry)를 Query문에 있는 '?'에 자동변환 설정
   permitSetMultiParamEntries: true,
   // DML(insert, update, delete)를 실행할 경우

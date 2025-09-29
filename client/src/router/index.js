@@ -95,7 +95,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/Empty.vue')
                 },
                 {
-                    path: '/pages/model',
+                    path: '/pages/modelmaster',
                     name: 'model',
                     component: () => import('@/views/pages/ModelMaster.vue')
                 },
