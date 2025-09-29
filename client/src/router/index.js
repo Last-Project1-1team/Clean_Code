@@ -103,7 +103,22 @@ const router = createRouter({
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/views/pages/Documentation.vue')
+                },
+                {
+                    path: '/OrderForm',
+                    name: 'OrderForm',
+                    component: () => import('@/views/pages/OrderForm.vue')
+                },
+                {
+                    path: '/OrderSelect',
+                    name: 'OrderSelect',
+                    component: () => import('@/views/pages/OrderSelect.vue')
                 }
+                // {
+                //     path: '/addrreg',
+                //     name: 'addrreg',
+                //     component: () => import('@/views/pages/addrreg.vue')
+                // }
             ]
         },
         {
