@@ -89,11 +89,9 @@ const router = createRouter({
                     name: 'timeline',
                     component: () => import('@/views/uikit/TimelineDoc.vue')
                 },
-                {
-                    path: '/pages/empty',
-                    name: 'empty',
-                    component: () => import('@/views/pages/Empty.vue')
-                },
+                //
+                // 기준정보
+                //
                 {
                     path: '/pages/commoncode',
                     name: 'commoncode',
@@ -109,21 +107,25 @@ const router = createRouter({
                     name: 'useraccount',
                     component: () => import('@/views/pages/UserAccount.vue')
                 },
+                //
+                // 자재관리
+                //
+                {
+                    path: '/pages/itemmaster',
+                    name: 'itemmaster',
+                    component: () => import('@/views/pages/ItemMaster.vue')
+                },
+                //
+                // 생산관리
+                //
                 {
                     path: '/pages/modelmaster',
                     name: 'model',
                     component: () => import('@/views/pages/ModelMaster.vue')
                 },
-                {
-                    path: '/pages/crud',
-                    name: 'crud',
-                    component: () => import('@/views/pages/Crud.vue')
-                },
-                {
-                    path: '/documentation',
-                    name: 'documentation',
-                    component: () => import('@/views/pages/Documentation.vue')
-                },
+                //
+                // 영업관리
+                //
                 {
                     path: '/OrderForm',
                     name: 'OrderForm',
@@ -134,10 +136,27 @@ const router = createRouter({
                     name: 'OrderSelect',
                     component: () => import('@/views/pages/OrderSelect.vue')
                 },
+                //
+                // 재고관리
+                //
+
+                //
+                //기타
+                //
                 {
-                    path: '/pages/itemmaster',
-                    name: 'itemmaster',
-                    component: () => import('@/views/pages/ItemMaster.vue')
+                    path: '/pages/empty',
+                    name: 'empty',
+                    component: () => import('@/views/pages/Empty.vue')
+                },
+                {
+                    path: '/pages/crud',
+                    name: 'crud',
+                    component: () => import('@/views/pages/Crud.vue')
+                },
+                {
+                    path: '/documentation',
+                    name: 'documentation',
+                    component: () => import('@/views/pages/Documentation.vue')
                 }
             ]
         },
