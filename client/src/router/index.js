@@ -95,6 +95,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/Empty.vue')
                 },
                 {
+                    path: '/pages/modelmaster',
+                    name: 'model',
+                    component: () => import('@/views/pages/ModelMaster.vue')
+                },
+                {
                     path: '/pages/crud',
                     name: 'crud',
                     component: () => import('@/views/pages/Crud.vue')
