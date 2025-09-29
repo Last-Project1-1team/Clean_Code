@@ -103,6 +103,11 @@ const router = createRouter({
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/views/pages/Documentation.vue')
+                },
+                {
+                    path: '/pages/itemmaster',
+                    name: 'itemmaster',
+                    component: () => import('@/views/pages/ItemMaster.vue')
                 }
             ]
         },
