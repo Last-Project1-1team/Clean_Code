@@ -95,6 +95,21 @@ const router = createRouter({
                     component: () => import('@/views/pages/Empty.vue')
                 },
                 {
+                    path: '/pages/commoncode',
+                    name: 'commoncode',
+                    component: () => import('@/views/pages/CommonCode.vue')
+                },
+                {
+                    path: '/pages/commongroup',
+                    name: 'commongroup',
+                    component: () => import('@/views/pages/CommonGroup.vue')
+                },
+                {
+                    path: '/pages/useraccount',
+                    name: 'useraccount',
+                    component: () => import('@/views/pages/UserAccount.vue')
+                },
+                {
                     path: '/pages/crud',
                     name: 'crud',
                     component: () => import('@/views/pages/Crud.vue')
