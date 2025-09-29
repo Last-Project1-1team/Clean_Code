@@ -95,6 +95,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/Empty.vue')
                 },
                 {
+                    path: '/pages/modelmaster',
+                    name: 'model',
+                    component: () => import('@/views/pages/ModelMaster.vue')
+                },
+                {
                     path: '/pages/crud',
                     name: 'crud',
                     component: () => import('@/views/pages/Crud.vue')
@@ -113,12 +118,12 @@ const router = createRouter({
                     path: '/OrderSelect',
                     name: 'OrderSelect',
                     component: () => import('@/views/pages/OrderSelect.vue')
+                },
+                {
+                    path: '/pages/itemmaster',
+                    name: 'itemmaster',
+                    component: () => import('@/views/pages/ItemMaster.vue')
                 }
-                // {
-                //     path: '/addrreg',
-                //     name: 'addrreg',
-                //     component: () => import('@/views/pages/addrreg.vue')
-                // }
             ]
         },
         {
