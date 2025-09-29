@@ -110,6 +110,16 @@ const router = createRouter({
                     component: () => import('@/views/pages/Documentation.vue')
                 },
                 {
+                    path: '/OrderForm',
+                    name: 'OrderForm',
+                    component: () => import('@/views/pages/OrderForm.vue')
+                },
+                {
+                    path: '/OrderSelect',
+                    name: 'OrderSelect',
+                    component: () => import('@/views/pages/OrderSelect.vue')
+                },
+                {
                     path: '/pages/itemmaster',
                     name: 'itemmaster',
                     component: () => import('@/views/pages/ItemMaster.vue')
