@@ -75,7 +75,7 @@ const modelSearch = async () => {
             <!-- 여기에 제품구분(완/반제) , LOT당 수량 -->
             <label for="email3" class="flex items-center col-span-12 mb-2 md:col-span-1 md:mb-0">제품구분</label>
             <div class="col-span-12 md:col-span-4">
-                <Select style="width: 366px" v-model="dropdownValue" :options="dropdownValues" optionLabel="model_flag" placeholder="Select" />
+                <Select style="width: 366px" v-model="dropdownValue" :options="dropdownValues" optionLabel="model_flag" />
             </div>
 
             <label for="email3" class="flex items-center col-span-12 mb-2 md:col-span-1 md:mb-0">LOT당 수량</label>
