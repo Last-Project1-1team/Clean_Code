@@ -27,3 +27,13 @@ npm run dev
 ```sh
 npm run build
 ```
+
+##
+
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+fetch(`${apiUrl}/users`)
+.then(res => res.json())
+.then(data => console.log(data));
+
+// 이렇게 사용
