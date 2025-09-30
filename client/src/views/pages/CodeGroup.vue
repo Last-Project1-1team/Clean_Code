@@ -7,7 +7,7 @@ import {} from 'vue';
         <div class="flex flex-wrap items-start gap-4 justify-between w-full">
             <div class="field flex items-center gap-10">
                 <span class="font-semibold text-xl"> 코드그룹</span>
-                <AutoComplete v-model="selectedAutoValue" :suggestions="autoFilteredValue" optionLabel="name" placeholder="Search" dropdown multiple display="chip" class="w-[600px]" @complete="searchCountry($event)" />
+                <AutoComplete v-model="selectedAutoValue" :suggestions="autoFilteredValue" optionLabel="name" dropdown multiple display="chip" class="w-[600px]" @complete="searchCountry($event)" />
             </div>
             <div class="flex gap-2">
                 <Button label="저장" :fluid="false"></Button>
