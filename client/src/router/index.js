@@ -98,9 +98,9 @@ const router = createRouter({
                     component: () => import('@/views/pages/CommonCode.vue')
                 },
                 {
-                    path: '/pages/commongroup',
-                    name: 'commongroup',
-                    component: () => import('@/views/pages/CommonGroup.vue')
+                    path: '/pages/codegroup',
+                    name: 'codegroup',
+                    component: () => import('@/views/pages/CodeGroup.vue')
                 },
                 {
                     path: '/pages/useraccount',
