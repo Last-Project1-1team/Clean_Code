@@ -5,7 +5,7 @@ const mariadb = require("../database/mapper.js");
 // 전체 조회
 const findAll = async () => {
   let list = await mariadb
-    .query("selectModelList")
+    .query("selectAllModelList")
     .catch((err) => console.log(err));
   return list;
 };

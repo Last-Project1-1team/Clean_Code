@@ -31,3 +31,19 @@ const connectionPool = mariadb.createPool({
 });
 
 // 여기서부터는 콜백함수라서 수업시간에 복사 안했던거 같은데 확인해보고 수정하기 일단은 model_service.js에서 mariadb.query 사용해야해서 적어둠.
+const query = async (alias, values) => {
+  let conn = null;
+  try {
+    conn = await connectionPool.getConnection();
+
+    const sql = sqlList[alias];
+    const result = await conn.query(sql, values);
+    return result;
+  } finally {
+    if (conn) conn.release();
+  }
+};
+
+module.exports = {
+  query,
+};
