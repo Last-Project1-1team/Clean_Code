@@ -1,3 +1,15 @@
+<script setup>
+import { ref } from 'vue';
+
+const emit = defineEmits(['submit']); // 부모에 알릴 이벤트 정의
+const itemCode = ref('');
+const itemName = ref('');
+
+// 버튼 클릭 시 부모로 데이터 전달
+const selectItem = () => {
+    emit('submit', { code: itemCode.value, name: itemName.value });
+};
+</script>
 <template>
     <Toolbar class="mb-6">
         <template #start>
@@ -18,18 +30,6 @@
         </template>
     </Toolbar>
 </template>
-<script setup>
-import { ref } from 'vue';
-
-const emit = defineEmits(['submit']); // 부모에 알릴 이벤트 정의
-const itemCode = ref('');
-const itemName = ref('');
-
-// 버튼 클릭 시 부모로 데이터 전달
-const selectItem = () => {
-    emit('submit', { code: itemCode.value, name: itemName.value });
-};
-</script>
 
 <style scoped>
 .card.flex.flex-col.gap-1 {
