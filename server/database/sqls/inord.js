@@ -1,47 +1,56 @@
-// Table : TB_MODEL_MASTER
-// 각 변수별로 SQL문을 등록할 떄 백틱(``)을 사용하는 이유는 줄바꿈 허용을 허용하기 떄문.
-// ( 따옴표는 줄을 바꿀 경우 값이 깨지면서 에러발생 )
-
 // 조건없이 전체조회
-const selectInordList = `SELECT     INORD_NO 
-            STATUS
-            CUST_CODE
-            LOT_NO
-            TOTAL_QTY
-            INORD_DATE
-            PAPRD_DATE
-            CREATED_BY
-            CREATE_DATE	
-            UPDATED_BY
-            UPDATE_DATE
-  FROM      TB_INORD_DETAIL
-  ORDER BY  INORD_NO`;
+const selectInordList = `SELECT     
+  FROM      
+  ORDER BY  `;
 // PRIMARY KEY를 활용한 단건조회 -> 제품master 관리에서 단건 조회는 pk로 하는게 아니라 제품코드, 리비전, 제품명으로 하는거니까 확인
-const selectInordOne = `SELECT   INORD_NO 
-          STATUS
-          CUST_CODE
-          LOT_NO
-          TOTAL_QTY
-          INORD_DATE
-          PAPRD_DATE
-          CREATED_BY
-          CREATE_DATE	
-          UPDATED_BY
-          UPDATE_DATE
-  FROM    TB_INORD_DETAIL
-  WHERER  CUST_CODE 업체코드
-          업체명
-          제품코드
-          리비전
-          제품명
-  ORDER BY INORD_NO`;
-// 등록
-const inserinord = `
-INSERT 	TB_INORD_DETAIL (
-		      업체코드,
+const selectInordOne = ``;
 
-          `;
+// 시퀀스 호출
+const
+
+// 등록
+const insertinordmaster = `
+INSERT INTO tb_inord_master
+        ( inord_no
+        , status
+        , cust_code
+        , total_qty
+        , inord_date
+        , paprd_date) 
+VALUES
+        ( ?
+        , ?
+        , ?
+        , ?
+        , ?
+        , ?);
+`;
+
+const insertinorddetail = `
+INSERT INTO tb_inord_detail
+        ( inord_detail_no
+        , inord_no
+        , model_code
+        , revision
+        , inord_qty)
+VALUES
+        ( ?
+        , ?
+        , ?
+        , ?
+        , ?)
+`;
 
 // 수정
 
-module.exports = {};
+// 삭제
+const deleteinorddetail = `DELETE TB_INORD_DETAIL
+WHERE CUST_CODE= ?`;
+
+const deleteinordmaster = `DELETE TB_INORD_MASTER
+WHERE MODEL_CODE = ?`;
+
+module.exports = {
+  inserinordmaster,
+  insertinorddetail,
+};

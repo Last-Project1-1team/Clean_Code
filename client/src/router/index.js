@@ -107,6 +107,7 @@ const router = createRouter({
                     name: 'useraccount',
                     component: () => import('@/views/pages/UserAccount.vue')
                 },
+
                 //
                 // 자재관리
                 //
@@ -132,15 +133,16 @@ const router = createRouter({
                 // 영업관리
                 //
                 {
-                    path: '/OrderForm',
+                    path: '/pages/InOrderReg',
                     name: 'OrderForm',
-                    component: () => import('@/views/pages/OrderForm.vue')
+                    component: () => import('@/views/pages/InOrderReg.vue')
                 },
                 {
                     path: '/OrderSelect',
                     name: 'OrderSelect',
                     component: () => import('@/views/pages/OrderSelect.vue')
                 },
+
                 //
                 // 재고관리
                 //
@@ -190,6 +192,11 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
+        },
+        {
+            path: '/pages/auth/custmodal',
+            name: 'custmodal',
+            component: () => import('@/views/pages/auth/custmodal.vue')
         }
     ]
 });
