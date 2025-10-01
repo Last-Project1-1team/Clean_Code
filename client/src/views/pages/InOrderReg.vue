@@ -4,6 +4,8 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import Dialog from 'primevue/dialog';
+import CustomModal from '@/views/pages/auth/custmodal.vue';
+// import ModelModal  from
 // import 제품모달창 from '';
 // import 업체모달창 from '';
 // import axios from 'axios';
@@ -28,20 +30,22 @@ const selectinord = ref([
 
 const selectedRows = ref([]);
 
-const custopen = ref(false);
 const modelopen = ref(false);
 
 const saveinord = ref([]);
+
+const modalopen = ref(false);
 </script>
 
 <template>
-    <div class="card flex flex-col gap-4">
+    <div class="card flex flex-col gap-4" style="height: 100vh">
         <div class="grid grid-cols-12 gap-2">
             <label for="CUST_CODE" class="flex items-center">업체코드</label>
             <div class="col-span-2">
                 <div class="grid grid-cols-[1fr_auto] gap-2">
                     <InputText v-model="value" class="w-full" />
-                    <Button @click="custopen = true" icon="pi pi-search" class="flex-none" style="width: 2.5rem; height: 2.5rem" />
+                    <Button @click="modalopen = true" icon="pi pi-search" class="flex-none" style="width: 2.5rem; height: 2.5rem" />
+                    <CustomModal v-model:visible="modalopen" />
                 </div>
             </div>
             <label for="CEO_PHONE" class="flex items-center">담당자 연락처</label>
@@ -50,6 +54,7 @@ const saveinord = ref([]);
             </div>
             <Button click="" type="submit" class="col-start-12" label="저장" />
         </div>
+
         <div class="grid grid-cols-12 gap-2">
             <label for="CUST_NAME" class="flex items-center">업체명</label>
             <div class="col-start-2 col-end-7">
@@ -57,7 +62,6 @@ const saveinord = ref([]);
             </div>
         </div>
 
-        <!-- <div class="card flex flex-col gap-4"> -->
         <div class="grid grid-cols-12 gap-2">
             <label for="MODEL_CODE" class="flex items-center">제품코드</label>
             <div class="col-span-2">
@@ -80,24 +84,19 @@ const saveinord = ref([]);
             <Button class="col-start-12" label="Submit">삭제</Button>
         </div>
 
-        <div>
-            <div class="card">
-                <DataTable :value="selectinord" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
-                    <Column selectionMode="multiple" style="width: 3rem"></Column>
-                    <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
-                    <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>
-                    <Column field="REVISION" header="리비전" sortable style="min-width: 3em"></Column>
-                    <!-- 수주량 인풋박스 -->
-                    <Column field="INORD_QTY" header="수주량" sortable style="min-width: 3em">
-                        <template #body="{ data }">
-                            <input v-model.number="data.INORD_QTY" type="number" min="0" step="1" class="w-24 border p-1" />
-                        </template>
-                    </Column>
+        <DataTable :value="selectinord" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
+            <Column selectionMode="multiple" style="width: 3rem"></Column>
+            <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
+            <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>
+            <Column field="REVISION" header="리비전" sortable style="min-width: 3em"></Column>
+            <!-- 수주량 인풋박스 -->
+            <Column field="INORD_QTY" header="수주량" sortable style="min-width: 3em">
+                <template #body="{ data }">
+                    <input v-model.number="data.INORD_QTY" type="number" min="0" step="1" class="w-24 border p-1" />
+                </template>
+            </Column>
 
-                    <Column field="UNIT" header="단위" sortable style="min-width: 3em"></Column>
-                </DataTable>
-            </div>
-        </div>
+            <Column field="UNIT" header="단위" sortable style="min-width: 3em"></Column>
+        </DataTable>
     </div>
-    <!-- </div> -->
 </template>
