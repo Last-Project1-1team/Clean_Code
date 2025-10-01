@@ -4,18 +4,30 @@
 
 // 조건없이 전체조회
 const selectAllModelList = `
-SELECT model_code,
-		    revision,
-        model_name,
-        model_flag,
-        lot_p_qty,
-        model_class,
-        spec,
-        wid,
-        hei
-FROM tb_model_master
-ORDER BY model_code;
+SELECT m.model_code modelCode,
+		    m.revision,
+        m.model_name modelName,
+       c1.code_name modelFlag,
+        m.lot_p_qty lotPQty,
+        m.model_class modelClass,
+        m.spec,
+        m.wid width,
+        m.hei height
+FROM tb_model_master m
+JOIN tb_code c1
+  ON (m.model_flag = c1.common_code
+ AND c1.group_code = 'model_flag')
+WHERE m.model_code like ?
+  AND m.revision like ?
+  AND m.model_name like ?
+ORDER BY m.model_code
 `;
+
+const selectModelFlag = `SELECT common_code code,
+        code_name name
+  FROM tb_code
+  WHERE group_code = 'model_flag'`;
+
 // PRIMARY KEY를 활용한 단건조회 -> 제품master 관리에서 단건 조회는 pk로 하는게 아니라 제품코드, 리비전, 제품명으로 하는거니까 확인
 const selectModelOne = ``;
 // 등록
@@ -25,6 +37,7 @@ const ModelUpdate = ``;
 
 module.exports = {
   selectAllModelList,
+  selectModelFlag,
   selectModelOne,
   ModelInsert,
   ModelUpdate,

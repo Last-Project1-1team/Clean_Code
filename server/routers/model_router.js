@@ -12,12 +12,24 @@ const modelService = require("../services/model_service.js");
 router.get("/modelMaster", async (req, res) => {
   // 해당 엔드포인트(URL+METHOD)로 접속할 경우 제공되는 서비스를 실행
   // -> 서비스가 DB에 접속하므로 비동기 작업, await/async를 활용해서 동기식으로 동작하도록 진행
-  let modelList = await modelService.findAll().catch((err) => console.log(err));
+  let modelCode = req.query.modelCode;
+  let revision = req.query.revision;
+  let modelName = req.query.modelName;
+
+  let modelList = await modelService
+    .findAll(modelCode, revision, modelName)
+    .catch((err) => console.log(err));
   // res(Http Response에 대응되는 변수)의 응답메소드를 호출해 데이터를 반환하거나 통신을 종료
   // 주의) res(Http Response에 대응되는 변수)의 응답메소드를 호출하지 않으면
   //       통신이 종료되지 않음
   // res.send()는 데이터를 반환하는 응답 메소드며 객체를 반환하므로 JSON으로 자동 변환
   res.send(modelList);
+});
+
+router.get("/modelMaster/modelFlag", async (req, res) => {
+  let FlagList = await modelService.findFlag().catch((err) => console.log(err));
+
+  res.send(FlagList);
 });
 
 // 해당 javascript 파일의 마지막 코드, 모듈화

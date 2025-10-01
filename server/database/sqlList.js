@@ -2,7 +2,8 @@
 const models = require("./sqls/models.js");
 
 const items = require("./sqls/items.js");
+
 module.exports = {
-    ...models,
-    ...items,
+  ...models,
+  ...items,
 };
