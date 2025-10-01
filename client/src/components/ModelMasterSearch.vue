@@ -1,21 +1,20 @@
 <script setup>
 import { ref } from 'vue';
 
+// 부모에게 알림만 보냄
+const emit = defineEmits(['search']);
 const modelCode = ref('');
 const revision = ref('');
 const modelName = ref('');
-
-// 부모에게 알림만 보냄
-const emit = defineEmits(['search']);
-
-function modelSearch() {
+const modelSearch = () => {
+    //console.log('🔍 자식: 조회 버튼 클릭됨', modelCode.value, revision.value, modelName.value);
     // 입력값을 부모한테 전달
     emit('search', {
-        modelCode: modelCode.value,
+        code: modelCode.value,
         revision: revision.value,
-        modelName: modelName.value
+        name: modelName.value
     });
-}
+};
 </script>
 
 <template>
@@ -26,7 +25,7 @@ function modelSearch() {
                 <!-- 제품코드 -->
                 <label for="modelCode" class="grid grid-cols-2 flex items-center">제품코드</label>
                 <div class="col-span-3">
-                    <InputText v-model="modelCode" type="text" class="w-full" />
+                    <InputText v-model="modelCode" id="modelCode" type="text" class="w-full" />
                 </div>
 
                 <div class="col-span-1"></div>
@@ -34,7 +33,7 @@ function modelSearch() {
                 <!-- 리비전 -->
                 <label for="revision" class="grid grid-cols-2 flex items-center">리비전</label>
                 <div class="col-span-3">
-                    <InputText v-model="revision" type="text" class="w-full" />
+                    <InputText v-model="revision" id="revision" type="text" class="w-full" />
                 </div>
 
                 <div class="col-span-3"></div>
@@ -42,14 +41,13 @@ function modelSearch() {
                 <!-- 제품명 -->
                 <label for="modelName" class="flex items-center">제품명</label>
                 <div class="col-span-8">
-                    <InputText v-model="modelName" type="text" class="w-full" />
+                    <InputText v-model="modelName" id="modelName" type="text" class="w-full" />
                 </div>
             </div>
         </template>
         <template #end>
             <!-- 조회버튼 -->
             <Button label="조회" icon="pi pi-search" @click="modelSearch"></Button>
-            <!--<Button label="조회" icon="pi pi-search" @click="modelSearch" class="p-button-success px-6 py-3 text-lg font-bold" />-->
         </template>
     </Toolbar>
 </template>

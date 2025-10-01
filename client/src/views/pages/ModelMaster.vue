@@ -1,23 +1,30 @@
 <script setup>
-import { ref } from 'vue';
-import ModelSearch from '@/components/ModelSearch.vue';
-//import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import ModelMasterSearch from '@/components/ModelMasterSearch.vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
-const searchResult = ref([]);
+const router = useRouter(); // root 컴포넌트에 등록된 라우터를 불러오는 함수
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-const dropdownValues = ref([
-    { label: '완제품', value: '완제품' },
-    { label: '반제품', value: '반제품' }
-]);
+// 컴포넌트가 마운트될 때 options 데이터 로드
+onMounted(async () => {
+    const response = await axios.get(`${apiUrl}/modelMaster/modelFlag`);
+    flagDropdown.value = response.data.map((model) => ({
+        label: model.name, // 보여줄 이름
+        value: model.code // 실제 값
+    }));
+});
 
+const modelMaster = ref([]);
 const selectedModel = ref({});
-
+const flagDropdown = ref([]);
 const formData = ref({
     modelCode: '',
     revision: '',
     modelName: '',
     modelFlag: '',
-    lotPQty: null,
+    lotPQty: '',
     spec: '',
     width: '',
     height: ''
@@ -25,7 +32,7 @@ const formData = ref({
 
 // 초기화 버튼
 function onClearItem() {
-    console.log('초기화버튼클릭됨');
+    // console.log('초기화버튼클릭됨');
     formData.value = {
         modelCode: '',
         revision: '',
@@ -38,45 +45,38 @@ function onClearItem() {
     };
 }
 
-function modelSearch(payload) {
-    console.log('검색 조건:', payload);
-}
-
-/*
-const modelSearch = async () => {
-    try {
-        const response = await axios.get('http://localhost:3000/api/modelmaster', {
-            params: {
-                model_code: modelCode.value,
-                revision: revision.value,
-                model_name: modelName.value
-            }
-        });
-        result.value = response.data;
-    } catch (error) {
-        console.error('조회 실패:', error);
-    }
+const modelSearch = (model) => {
+    //console.log('📩 부모: 자식이 보낸 검색값', model);
+    getModelList(model.code, model.revision, model.name);
 };
-*/
+
+const getModelList = async (code, revision, name) => {
+    //console.log('🌐 서버 요청 보냄', code, revision, name);
+    let result = await axios
+        .get(`${apiUrl}/modelMaster?`, {
+            params: {
+                modelCode: code || '',
+                revision: revision || '',
+                modelName: name || ''
+            }
+        })
+        .catch((err) => {
+            console.error('제품 조회 실패:', err);
+            modelMaster.value = result.data;
+        });
+    // console.log('✅ 서버 응답', result);
+    // console.log('📦 응답 데이터 타입:', typeof result?.data, result?.data);
+    modelMaster.value = result.data;
+};
 </script>
 
 <template>
     <div class="card" style="padding: 30px">
-        <ModelSearch @search="modelSearch" />
+        <ModelMasterSearch @search="modelSearch" />
 
         <!-- 제품 그리드 -->
 
-        <DataTable
-            :value="searchResult"
-            v-model:selection="selectedModel"
-            selectionMode="single"
-            datakey="modelCode"
-            scrollable
-            scrollHeight="400px"
-            class="mt-6"
-            style="height: 40vh; border: 1px solid #ddd"
-            @rowSelect="formData = { ...$event.data }"
-        >
+        <DataTable :value="modelMaster" v-model:selection="selectedModel" selectionMode="single" datakey="modelCode" scrollable scrollHeight="400px" class="mt-6" style="height: 40vh; border: 1px solid #ddd" @rowSelect="formData = { ...$event.data }">
             <Column field="modelCode" header="제품코드" style="min-width: 200px"></Column>
             <Column field="modelName" header="제품명" style="min-width: 300px"></Column>
             <Column field="revision" header="리비전" style="min-width: 150px"></Column>
@@ -116,7 +116,7 @@ const modelSearch = async () => {
             <!-- 여기에 제품구분(완/반제) , LOT당 수량 -->
             <label for="modelFlag" class="flex items-center col-span-1 mb-2 md:mb-0">제품구분</label>
             <div class="col-span-3">
-                <Select class="w-full" v-model="formData.modelFlag" :options="dropdownValues" optionLabel="label" optionValue="value" />
+                <Select class="w-full" v-model="formData.modelFlag" :options="flagDropdown" optionLabel="label" optionValue="value" />
             </div>
 
             <div class="col-span-1"></div>
