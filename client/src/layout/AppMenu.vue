@@ -80,6 +80,11 @@ const model = ref([
                 to: '/pages/itemmaster'
             },
             {
+                label: '발주등록',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/outorderreg'
+            },
+            {
                 label: '제품정보',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/modelmaster'

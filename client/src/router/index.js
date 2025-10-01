@@ -115,6 +115,11 @@ const router = createRouter({
                     name: 'itemmaster',
                     component: () => import('@/views/pages/ItemMaster.vue')
                 },
+                {
+                    path: '/pages/outorderreg',
+                    name: 'outorderreg',
+                    component: () => import('@/views/pages/OutOrderReg.vue')
+                },
                 //
                 // 생산관리
                 //
