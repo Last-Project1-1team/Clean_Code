@@ -68,6 +68,29 @@ const getModelList = async (code, revision, name) => {
     // console.log('📦 응답 데이터 타입:', typeof result?.data, result?.data);
     modelMaster.value = result.data;
 };
+
+const saveButton = async () => {
+    const payload = {
+        model_code: formData.value.modelCode,
+        revision: formData.value.revision,
+        model_name: formData.value.modelName,
+        model_flag: formData.value.modelFlag,
+        lotPQty: formData.value.lotPQty,
+        spec: formData.value.spec,
+        width: formData.value.width,
+        height: formData.value.height
+    };
+
+    console.log('저장 payload:', payload);
+
+    let result = await axios.post(`${apiUrl}/modelMaster`, payload).catch((err) => console.log(err));
+    let addRes = result.data;
+    if (addRes.isSuccessed) {
+        toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
+    } else {
+        toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
+    }
+};
 </script>
 
 <template>
@@ -104,7 +127,7 @@ const getModelList = async (code, revision, name) => {
             <div class="col-span-1"></div>
 
             <Button label="초기화" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem" />
-            <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" />
+            <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton" />
 
             <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품명</label>
             <div class="col-span-8">

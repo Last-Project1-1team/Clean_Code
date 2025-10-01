@@ -23,22 +23,49 @@ WHERE m.model_code like ?
 ORDER BY m.model_code
 `;
 
+// 완/반제 model_flag
 const selectModelFlag = `SELECT common_code code,
         code_name name
   FROM tb_code
   WHERE group_code = 'model_flag'`;
 
-// PRIMARY KEY를 활용한 단건조회 -> 제품master 관리에서 단건 조회는 pk로 하는게 아니라 제품코드, 리비전, 제품명으로 하는거니까 확인
-const selectModelOne = ``;
 // 등록
-const ModelInsert = ``;
-// 수정
-const ModelUpdate = ``;
+const insertModel = `
+INSERT INTO tb_model_master
+(model_code,
+revision,
+model_name,
+model_flag,
+lot_p_qty,
+model_class,
+spec,
+wid,
+hei)
+VALUES
+(?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?)
+ON DUPLICATE KEY UPDATE
+revision = VALUES(revision),
+model_name = VALUES(model_name),
+model_flag = VALUES(model_flag),
+lot_p_qty = VALUES(lot_p_qty),
+model_class = VALUES(model_class),
+spec = VALUES(spec),
+wid = VALUES(wid),
+hei = VALUES(hei),
+hei = VALUES(hei)
+`;
 
 module.exports = {
   selectAllModelList,
   selectModelFlag,
-  selectModelOne,
-  ModelInsert,
-  ModelUpdate,
+  insertModel,
 };

@@ -32,6 +32,17 @@ router.get("/modelMaster/modelFlag", async (req, res) => {
   res.send(FlagList);
 });
 
+// 등록    : 자원(데이터) -> books / 등록 -> POST
+router.post("/modelMaster", async (req, res) => {
+  // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
+  let modelInfo = req.body;
+  console.log(modelInfo);
+  let result = await modelService
+    .addNewItem(modelInfo)
+    .catch((err) => console.log(err));
+  res.send(result);
+});
+
 // 해당 javascript 파일의 마지막 코드, 모듈화
 // 위에 선언한 기능(변수, 함수 등)들 중 외부로 노출할 대상을 설정
 // => 다른 파일에서 require()을 통해 가져옴
