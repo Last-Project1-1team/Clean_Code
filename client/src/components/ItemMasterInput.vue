@@ -1,3 +1,4 @@
+<script setup></script>
 <template>
     <div class="card flex flex-col gap-1">
         <div class="grid grid-cols-12 gap-2">
@@ -56,7 +57,6 @@
         </div>
     </div>
 </template>
-<script setup></script>
 
 <style scoped>
 .card.flex.flex-col.gap-1 {
