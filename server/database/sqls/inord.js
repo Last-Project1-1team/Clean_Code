@@ -1,15 +1,16 @@
-// 조건없이 전체조회
-const selectInordList = `SELECT     
-  FROM      
-  ORDER BY  `;
+// 조건없이 업체 전체조회
+const selectInordList = `SELECT    CUST_CODE
+        ,  CUST_NAME
+        ,  PSCH_PHONE
+  FROM     TB_CUST
+  ORDER BY CUST_CODE`;
 // PRIMARY KEY를 활용한 단건조회 -> 제품master 관리에서 단건 조회는 pk로 하는게 아니라 제품코드, 리비전, 제품명으로 하는거니까 확인
 const selectInordOne = ``;
 
 // 시퀀스 호출
-const
 
 // 등록
-const insertinordmaster = `
+const inserinordmaster = `
 INSERT INTO tb_inord_master
         ( inord_no
         , status
@@ -51,6 +52,7 @@ const deleteinordmaster = `DELETE TB_INORD_MASTER
 WHERE MODEL_CODE = ?`;
 
 module.exports = {
+  selectInordList,
   inserinordmaster,
   insertinorddetail,
 };

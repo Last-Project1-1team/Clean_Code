@@ -2,9 +2,10 @@
 import { ProductService } from '@/service/ProductService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onBeforeMount, shallowRef, computed } from 'vue';
 import Dialog from 'primevue/dialog';
 import CustomModal from '@/views/pages/auth/custmodal.vue';
+import axios from 'axios';
 // import ModelModal  from
 // import 제품모달창 from '';
 // import 업체모달창 from '';
@@ -12,6 +13,7 @@ import CustomModal from '@/views/pages/auth/custmodal.vue';
 // import { onBeforeMount, shallowRef, computed } from 'vue';
 // import useDateUtils from '@/utils/useDates.js';
 
+//
 const selectinord = ref([
     { MODEL_CODE: 'MODEL-0001', MODEL_NAME: '휴지1', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
     { MODEL_CODE: 'MODEL-0002', MODEL_NAME: '휴지2', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
