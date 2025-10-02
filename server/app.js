@@ -18,7 +18,9 @@ app.listen(3000, () => {
 // 라우팅 등록 영역
 const modelRouter = require("./routers/model_router.js");
 const itemRouter = require("./routers/item_router.js");
+const accountRouter = require("./routers/account_router.js");
 const workOrderRouter = require("./routers/workOrder_router.js");
+
 
 // 기본 라우팅
 app.get("/", (req, res) => {
@@ -27,4 +29,6 @@ app.get("/", (req, res) => {
 // 라우터 모듈 등록
 app.use("/", modelRouter);
 app.use("/", itemRouter);
+app.use("/", accountRouter);
 app.use("/", workOrderRouter);
+
