@@ -15,6 +15,7 @@ const findAll = async (modelCode, revision, modelName) => {
     .catch((err) => console.log(err));
   return list;
 };
+
 const findFlag = async () => {
   let list = await mariadb
     .query("selectModelFlag")
@@ -68,4 +69,5 @@ module.exports = {
   // 해당 객체에 등록해야지 외부로 노출
   findAll,
   findFlag,
+  addNewModel,
 };
