@@ -2,6 +2,32 @@
 import axios from 'axios';
 import Dialog from 'primevue/dialog';
 import { ref, watch } from 'vue';
+import { onBeforeMount, shallowRef, computed } from 'vue'; //반응형 객체
+
+// 1) 데이터가 필요
+const custList = shallowRef([]); // <- 반응형 객체
+const count = computed(() => {
+    return custList.value.length;
+});
+
+// VueRouter 사용
+import { useRouter } from 'vue-router';
+const router = useRouter();
+const goToDetail = (custNo) => {
+    router.push({ name: 'custInfo', params: { cno: custNo } });
+};
+
+// 2) server로부터 데이터 가져오기 => axios API
+const getBookList = async () => {
+    let result = await axios.get('/api/custselect').catch((err) => console.log(err)); // 경로 풀네임이 api로 변경됨.
+    custList.value = result.data;
+};
+
+// 3) 컴포넌트가 화면에 보여지기 직전에
+// Server로부터 데이터를 가져오기
+onBeforeMount(() => {
+    getBookList();
+});
 
 const custmodal = defineModel('inordmodal', { type: Boolean });
 

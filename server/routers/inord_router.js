@@ -5,26 +5,38 @@ const router = express.Router();
 const inordService = require("../services/inord_service.js");
 // 라우팅  = 사용자의 요청(URL+METHOD) + Service + 응답형태(View or Data)
 
-// 수주마스터등록    : 자원(데이터) -> books / 등록 -> POST
-router.post("/inordMaster", async (req, res) => {
-  // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
-  let inordmasterinfo = req.body;
-  console.log(inordinfo);
-  let result = await inordService
-    .addNewinord(inordinfo)
+//업체전제조회
+// 전체조회 : 자원(데이터) -> books / 조회 -> GET
+router.get("/custselect", async (req, res) => {
+  // 해당 엔드포인트(URL+METHOD)로 접속할 경우 제공되는 서비스를 실행
+  // -> 서비스가 DB에 접속하므로 비동기 작업, await/async를 활용해서 동기식으로 동작하도록 진행
+  let custlist = await inordService
+    .findinordAll()
     .catch((err) => console.log(err));
-  res.send(result);
+  // res(Http Response에 대응되는 변수)의 응답메소드를 호출해 데이터를 반환하거나 통신을 종료
+  // 주의) res(Http Response에 대응되는 변수)의 응답메소드를 호출하지 않으면
+  //       통신이 종료되지 않음
+  // res.send()는 데이터를 반환하는 응답 메소드며 객체를 반환하므로 JSON으로 자동 변환
+  res.send(custlist);
 });
-
-// 수주디테이일등록
-router.post("/inorddetail", async (req, res) => {
+//
+//
+// 수주마스터등록    : 자원(데이터) -> books / 등록 -> POST
+router.post("/insertinsert", async (req, res) => {
   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
-  let inorddetailinfo = req.body;
-  console.log(inordinfo);
+  let masterinfo = req.body;
+  // console.log(inordinfo);
   let result = await inordService
-    .addNewinord(inordinfo)
+    .addNewinord(masterinfo)
     .catch((err) => console.log(err));
   res.send(result);
+
+  const detailinfo = req.body;
+  // console.log(inordinfo);
+  let result1 = await inordService
+    .addNewinord(detailinfo)
+    .catch((err) => console.log(err));
+  res.send(result1);
 });
 
 // 해당 javascript 파일의 마지막 코드, 모듈화

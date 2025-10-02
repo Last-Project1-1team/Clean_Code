@@ -12,17 +12,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 // Server 실행
 app.listen(3000, () => {
-    console.log("Server Start");
-    console.log("http://localhost:3000");
+  console.log("Server Start");
+  console.log("http://localhost:3000");
 });
 // 라우팅 등록 영역
 const modelRouter = require("./routers/model_router.js");
 const itemRouter = require("./routers/item_router.js");
+const inordRouter = require("./routers/inord_router.js");
 
 // 기본 라우팅
 app.get("/", (req, res) => {
-    res.send("Welcome!!");
+  res.send("Welcome!!");
 });
 // 라우터 모듈 등록
 app.use("/", modelRouter);
 app.use("/", itemRouter);
+app.use("/", inordRouter);
