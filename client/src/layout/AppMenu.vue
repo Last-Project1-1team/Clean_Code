@@ -88,6 +88,21 @@ const model = ref([
                 label: '제품정보',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/modelmaster'
+            },
+            {
+                label: 'BOM',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/bom'
+            },
+            {
+                label: 'BOM이력관리',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/bomhistory'
+            },
+            {
+                label: '작업지시',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/workorder'
             }
         ]
     },

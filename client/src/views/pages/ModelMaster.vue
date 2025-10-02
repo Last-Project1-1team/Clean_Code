@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import ModelMasterSearch from '@/components/ModelMasterSearch.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
 
 const router = useRouter(); // root 컴포넌트에 등록된 라우터를 불러오는 함수
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -19,6 +20,7 @@ onMounted(async () => {
 const modelMaster = ref([]);
 const selectedModel = ref({});
 const flagDropdown = ref([]);
+const toast = useToast();
 const formData = ref({
     modelCode: '',
     revision: '',
@@ -68,6 +70,30 @@ const getModelList = async (code, revision, name) => {
     // console.log('📦 응답 데이터 타입:', typeof result?.data, result?.data);
     modelMaster.value = result.data;
 };
+
+const saveButton = async () => {
+    const payload = {
+        model_code: formData.value.modelCode,
+        revision: formData.value.revision,
+        model_name: formData.value.modelName,
+        model_flag: formData.value.modelFlag,
+        lot_p_qty: formData.value.lotPQty,
+        spec: formData.value.spec,
+        wid: formData.value.width,
+        hei: formData.value.height
+    };
+
+    console.log('저장 payload:', payload);
+
+    let result = await axios.post(`${apiUrl}/modelMaster`, payload).catch((err) => console.log(err));
+    let addRes = result.data;
+    if (addRes.isSuccessed) {
+        toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
+    } else {
+        toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
+    }
+    getModelList();
+};
 </script>
 
 <template>
@@ -80,7 +106,7 @@ const getModelList = async (code, revision, name) => {
             <Column field="modelCode" header="제품코드" style="min-width: 200px"></Column>
             <Column field="modelName" header="제품명" style="min-width: 300px"></Column>
             <Column field="revision" header="리비전" style="min-width: 150px"></Column>
-            <Column field="modelFlag" header="제품구분" style="min-width: 150px"></Column>
+            <Column field="modelFlagName" header="제품구분" style="min-width: 150px"></Column>
             <Column field="lotPQty" header="LOT당 수량" style="min-width: 150px"></Column>
             <Column field="spec" header="규격" style="min-width: 200px"></Column>
             <Column field="width" header="폭" style="min-width: 100px"></Column>
@@ -104,7 +130,7 @@ const getModelList = async (code, revision, name) => {
             <div class="col-span-1"></div>
 
             <Button label="초기화" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem" />
-            <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" />
+            <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton" />
 
             <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품명</label>
             <div class="col-span-8">

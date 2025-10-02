@@ -129,6 +129,21 @@ const router = createRouter({
                     name: 'model',
                     component: () => import('@/views/pages/ModelMaster.vue')
                 },
+                {
+                    path: '/pages/bom',
+                    name: 'bom',
+                    component: () => import('@/views/pages/BOM.vue')
+                },
+                {
+                    path: '/pages/bomhistory',
+                    name: 'bomhistory',
+                    component: () => import('@/views/pages/BOMHistory.vue')
+                },
+                {
+                    path: '/pages/workorder',
+                    name: 'workorder',
+                    component: () => import('@/views/pages/WorkOrder.vue')
+                },
                 //
                 // 영업관리
                 //
