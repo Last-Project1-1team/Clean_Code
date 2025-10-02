@@ -38,7 +38,7 @@ router.post("/modelMaster", async (req, res) => {
   let modelInfo = req.body;
   console.log(modelInfo);
   let result = await modelService
-    .addNewItem(modelInfo)
+    .addNewModel(modelInfo)
     .catch((err) => console.log(err));
   res.send(result);
 });
