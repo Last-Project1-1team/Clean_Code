@@ -7,7 +7,8 @@ const selectAllModelList = `
 SELECT m.model_code modelCode,
 		    m.revision,
         m.model_name modelName,
-       c1.code_name modelFlag,
+        m.model_flag modelFlag,
+       c1.code_name modelFlagName,
         m.lot_p_qty lotPQty,
         m.model_class modelClass,
         m.spec,
@@ -50,7 +51,6 @@ VALUES
 ?,
 ?,
 ?,
-?,
 ?)
 ON DUPLICATE KEY UPDATE
 revision = VALUES(revision),
@@ -60,7 +60,6 @@ lot_p_qty = VALUES(lot_p_qty),
 model_class = VALUES(model_class),
 spec = VALUES(spec),
 wid = VALUES(wid),
-hei = VALUES(hei),
 hei = VALUES(hei)
 `;
 

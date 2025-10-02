@@ -2,12 +2,12 @@
 import { ref } from 'vue';
 
 const emit = defineEmits(['submit', 'toss']); // 부모에 알릴 이벤트 정의
-const itemCode = ref('');
-const itemName = ref('');
+const custCode = ref('');
+const custName = ref('');
 
 // 버튼 클릭 시 부모로 데이터 전달
 const selectItem = () => {
-    emit('submit', { code: itemCode.value, name: itemName.value });
+    emit('submit', { code: custCode.value, name: custName.value });
 };
 const tossItem = () => {
     emit('toss');
@@ -17,20 +17,20 @@ const tossItem = () => {
     <Toolbar class="mb-6">
         <template #start>
             <div class="grid grid-cols-12 gap-2">
-                <label for="itemCode" class="flex items-center">자재코드</label>
+                <label for="itemCode" class="flex items-center">업체코드</label>
                 <div class="col-span-4">
-                    <InputText id="itemCode" type="text" class="w-full" v-model="itemCode" />
+                    <InputText id="custCode" type="text" class="w-full" v-model="custCode" />
                 </div>
 
-                <label for="itemName" class="flex items-center">자재명</label>
+                <label for="itemName" class="flex items-center">업체명</label>
                 <div class="col-span-4">
-                    <InputText id="itemName" type="text" class="w-full" v-model="itemName" />
+                    <InputText id="custName" type="text" class="w-full" v-model="custName" />
                 </div>
             </div>
         </template>
         <template #end>
             <Button label="저장" @click="tossItem"></Button>
-            <Button label="조회" @click="selectItem"></Button>
+            <Button label="조회" @click="selectCust"></Button>
         </template>
     </Toolbar>
 </template>

@@ -1,28 +1,49 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import axios from 'axios';
 import ItemMasterSearchSaveVue from './ItemMasterSearchSave.vue';
 
 const emit = defineEmits(['register']);
 
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 const items = ref([]);
 const selectedItems = ref([]);
 const keyword = ref('');
-
-const searchItems = async () => {
-    const res = await axios.get('/api/items', { params: { name: keyword.value } });
-    items.value = res.data;
-};
+onMounted(async () => {
+    getItemList('', '');
+});
 
 const registerItems = () => {
     // 부모로 선택된 데이터 전달
     emit('register', selectedItems.value);
 };
+
+const handleSubmit = (item) => {
+    getItemList(item.code, item.name);
+};
+const handleToss = () => {
+    registerItems();
+};
+
+const getItemList = async (code, name) => {
+    let result = await axios
+        .get(`${apiUrl}/outorderitem?`, {
+            params: {
+                itemCode: code || '',
+                itemName: name || ''
+            }
+        })
+        .catch((err) => {
+            console.error('아이템 조회 실패:', err);
+            items.value = [];
+        });
+    items.value = result.data;
+};
 </script>
 
 <template>
     <div>
-        <ItemMasterSearchSaveVue />
+        <ItemMasterSearchSaveVue @submit="handleSubmit" @toss="handleToss" />
         <!-- <Toolbar class="mb-6">
             <template #start>
                 <div class="grid grid-cols-12 gap-2">
@@ -48,7 +69,8 @@ const registerItems = () => {
             <Column field="itemCode" style="width: 100px" header="자재코드" />
             <Column field="itemName" style="width: 150px" header="자재명" />
             <Column field="spec" style="width: 150px" header="규격" />
-            <Column field="unit" style="width: 50px" header="단위" />
+            <Column field="unit" style="width: 50px" header="단위" :hidden="true" />
+            <Column field="unitName" style="width: 50px" header="단위" />
             <Column field="toalStockQty" style="width: 50px" header="총재고수량" />
             <Column field="itemStockQty" style="width: 50px" header="자재창고 재고" />
             <Column field="prodStockQty" style="width: 50px" header="현장재고" />

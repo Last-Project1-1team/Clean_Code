@@ -4,12 +4,12 @@ const express = require("express");
 const router = express.Router();
 // 해당 라우터를 통해 제공할 서비스를 가져옴
 
-const modelService = require("../services/model_service.js");
+const accountService = require("../services/account_service.js");
 // 라우팅  = 사용자의 요청(URL+METHOD) + Service + 응답형태(View or Data)
 
 // 실제 라우팅 등록 영역
 
-router.get("/modelMaster", async (req, res) => {
+router.get("/account", async (req, res) => {
   // 해당 엔드포인트(URL+METHOD)로 접속할 경우 제공되는 서비스를 실행
   // -> 서비스가 DB에 접속하므로 비동기 작업, await/async를 활용해서 동기식으로 동작하도록 진행
   let modelCode = req.query.modelCode;
@@ -30,17 +30,6 @@ router.get("/modelMaster/modelFlag", async (req, res) => {
   let FlagList = await modelService.findFlag().catch((err) => console.log(err));
 
   res.send(FlagList);
-});
-
-// 등록    : 자원(데이터) -> books / 등록 -> POST
-router.post("/modelMaster", async (req, res) => {
-  // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
-  let modelInfo = req.body;
-  console.log(modelInfo);
-  let result = await modelService
-    .addNewModel(modelInfo)
-    .catch((err) => console.log(err));
-  res.send(result);
 });
 
 // 해당 javascript 파일의 마지막 코드, 모듈화

@@ -4,8 +4,11 @@ const models = require("./sqls/models.js");
 const items = require("./sqls/items.js");
 const inords = require("./sqls/inord.js");
 
+const account = require("./sqls/account.js");
+
 module.exports = {
   ...models,
   ...items,
   ...inords,
+  ...account,
 };

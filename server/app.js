@@ -19,6 +19,8 @@ app.listen(3000, () => {
 const modelRouter = require("./routers/model_router.js");
 const itemRouter = require("./routers/item_router.js");
 const inordRouter = require("./routers/inord_router.js");
+const accountRouter = require("./routers/account_router.js");
+const workOrderRouter = require("./routers/workOrder_router.js");
 
 // 기본 라우팅
 app.get("/", (req, res) => {
@@ -28,3 +30,5 @@ app.get("/", (req, res) => {
 app.use("/", modelRouter);
 app.use("/", itemRouter);
 app.use("/", inordRouter);
+app.use("/", accountRouter);
+app.use("/", workOrderRouter);

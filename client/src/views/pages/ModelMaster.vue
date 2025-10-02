@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import ModelMasterSearch from '@/components/ModelMasterSearch.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
 
 const router = useRouter(); // root 컴포넌트에 등록된 라우터를 불러오는 함수
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -19,6 +20,7 @@ onMounted(async () => {
 const modelMaster = ref([]);
 const selectedModel = ref({});
 const flagDropdown = ref([]);
+const toast = useToast();
 const formData = ref({
     modelCode: '',
     revision: '',
@@ -75,10 +77,10 @@ const saveButton = async () => {
         revision: formData.value.revision,
         model_name: formData.value.modelName,
         model_flag: formData.value.modelFlag,
-        lotPQty: formData.value.lotPQty,
+        lot_p_qty: formData.value.lotPQty,
         spec: formData.value.spec,
-        width: formData.value.width,
-        height: formData.value.height
+        wid: formData.value.width,
+        hei: formData.value.height
     };
 
     console.log('저장 payload:', payload);
@@ -90,6 +92,7 @@ const saveButton = async () => {
     } else {
         toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
     }
+    getModelList();
 };
 </script>
 
@@ -103,7 +106,7 @@ const saveButton = async () => {
             <Column field="modelCode" header="제품코드" style="min-width: 200px"></Column>
             <Column field="modelName" header="제품명" style="min-width: 300px"></Column>
             <Column field="revision" header="리비전" style="min-width: 150px"></Column>
-            <Column field="modelFlag" header="제품구분" style="min-width: 150px"></Column>
+            <Column field="modelFlagName" header="제품구분" style="min-width: 150px"></Column>
             <Column field="lotPQty" header="LOT당 수량" style="min-width: 150px"></Column>
             <Column field="spec" header="규격" style="min-width: 200px"></Column>
             <Column field="width" header="폭" style="min-width: 100px"></Column>
