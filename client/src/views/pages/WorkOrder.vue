@@ -11,9 +11,9 @@ const selectedModels = ref([]);
             <template #start>
                 <!-- 화면 상단 제품 검색 부분-->
                 <div class="grid grid-cols-12 gap-2">
-                    <label for="modelCode" class="flex items-center col-3 mb-2 md:mb-0">생산계획코드</label>
+                    <label for="prodPlanNo" class="flex items-center col-3 mb-2 md:mb-0">생산계획코드</label>
                     <div class="col-1"></div>
-                    <AutoComplete class="col-span-6" v-model="selectedAutoValue" :suggestions="autoFilteredValue" optionLabel="name" placeholder="Search" dropdown display="chip" @complete="searchCountry($event)" />
+                    <AutoComplete id="prodPlanNo" class="col-span-6" v-model="selectedAutoValue" :suggestions="autoFilteredValue" optionLabel="name" placeholder="Search" dropdown display="chip" @complete="searchCountry($event)" />
                 </div>
             </template>
             <template #end>

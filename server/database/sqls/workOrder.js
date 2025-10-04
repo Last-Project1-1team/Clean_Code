@@ -2,7 +2,7 @@
 
 // 생산계획번호를 조회해서 그리드에 출력 = WHERE prod_plan_no = ?
 const selectWorkOrder = `
-SELECT p.create_date prod_plan_date,
+SELECT p.create_date prodPlanDate,
         p.model_code modelCode,
         p.revision,
         p.model_name modelName,
@@ -14,3 +14,7 @@ JOIN tb_prod_plan p
   ON (p.prod_plan_no = ord.prod_plan_no)
 WHERE prod_plan_no = ?
 `;
+
+module.exports = {
+  selectWorkOrder,
+};
