@@ -10,7 +10,7 @@ const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 // 컴포넌트가 마운트될 때 options 데이터 로드
 onMounted(async () => {
-    const response = await axios.get(`${apiUrl}/modelMaster/modelFlag`);
+    const response = await axios.get(`${apiUrl}/modelmaster/modelFlag`);
     flagDropdown.value = response.data.map((model) => ({
         label: model.name, // 보여줄 이름
         value: model.code // 실제 값
@@ -55,7 +55,7 @@ const modelSearch = (model) => {
 const getModelList = async (code, revision, name) => {
     //console.log('🌐 서버 요청 보냄', code, revision, name);
     let result = await axios
-        .get(`${apiUrl}/modelMaster?`, {
+        .get(`${apiUrl}/modelmaster?`, {
             params: {
                 modelCode: code || '',
                 revision: revision || '',

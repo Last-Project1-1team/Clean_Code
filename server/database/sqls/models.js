@@ -18,9 +18,9 @@ FROM tb_model_master m
 JOIN tb_code c1
   ON (m.model_flag = c1.common_code
  AND c1.group_code = 'model_flag')
-WHERE m.model_code like ?
-  AND m.revision like ?
-  AND m.model_name like ?
+WHERE m.model_code LIKE ?
+  AND m.revision LIKE ?
+  AND m.model_name LIKE ?
 ORDER BY m.model_code
 `;
 
