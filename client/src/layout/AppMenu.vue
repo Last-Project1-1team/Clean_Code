@@ -103,6 +103,11 @@ const model = ref([
                 label: '작업지시',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/workorder'
+            },
+            {
+                label: '사용자관리',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/useraccount'
             }
         ]
     },
