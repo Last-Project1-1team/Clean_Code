@@ -17,9 +17,8 @@ const findinordAll = async () => {
 // 수주MASTER등록
 const { convertObjToAry } = require("../utils/converts.js");
 const addNewinord = async (masterinfo, detailinfo) => {
-  // 1) 수주번호 발급
+  // 1) 수주번호 발급. [변수명]으로 변수를 선언함.이렇게 하면 호출할 때 첫행 결과값을 바로 꺼내 쓸 수 있음.
   const [masterseqRow] = await conn.query(
-    // [변수명]으로 변수를 선언함.이렇게 하면 호추할 때 첫행 결과값을 바로 꺼내 쓸 수 있음.
     "SELECT fn_next_inord_no() AS inord_no;" // 시퀀스문을 실행해서 결과값을 배열로 반환
   );
   const inordNo = masterseqRow.inord_no; //첫행 바로 호출
