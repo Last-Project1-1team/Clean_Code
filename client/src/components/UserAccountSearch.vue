@@ -1,9 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import Toolbar from 'primevue/toolbar';
-import InputText from 'primevue/inputtext';
-import AutoComplete from 'primevue/autocomplete';
-import Button from 'primevue/button';
 import axios from 'axios';
 
 // 부모에게 알림만 보냄
@@ -15,27 +11,11 @@ const name = ref('');
 const department = ref([]);
 const workGrade = ref([]);
 
-// === AutoComplete 관련 ===
-const departmentSuggestions = ref([]);
-const gradeSuggestions = ref([]);
+const departmentOptions = ref([]);
+const workGradeOptions = ref([]);
+// const userAccount = ref([]);
 
-// //부서 자동완성 (예시)
-// const searchDepartment = (event) => {
-//     const query = event.query.toLowerCase();
-//     const departments = ['총무부', '인사부', '영업부', '생산부', '품질부'];
-//     departmentSuggestions.value = departments
-//         .filter( c=> c.toLowerCase().includes(query))
-//         .map((c) => ({ name: c }))
-// };
-
-// // 직급 자동완성 (예시)
-// const searchWorkGrade = (event) => {
-//     const query = event.query.toLowerCase();
-//     const grades = ['사원', '주임', '대리', '과장', '차장', '부장'];
-//     gradeSuggestions.value = grades
-//         .filter(g => g.toLowerCase().includes(query))
-//         .map(g => ({ name: g }))
-// };
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 // 조회 버튼 클릭 시 부모 컴포넌트에 검색 조건 전달
 const userAccountSearch = () => {
@@ -46,17 +26,22 @@ const userAccountSearch = () => {
         workGrade: workGrade.value
     });
 };
+
 onMounted(async () => {
-    const response = await axios.get(`${apiUrl}/userAccount/department`);
-    flagDropdown.value = response.data.map((department) => ({
-        label: department.name, // 보여줄 이름
-        value: department.code // 실제 값
+    const deptRes = await axios.get(`${apiUrl}/useraccount/department`);
+    departmentOptions.value = deptRes.data.map((dept) => ({
+        label: dept.name,
+        value: dept.code
+    }));
+
+    const gradeRes = await axios.get(`${apiUrl}/useraccount/workGrade`);
+    workGradeOptions.value = gradeRes.data.map((grade) => ({
+        label: grade.name,
+        value: grade.code
     }));
 });
-const apiUrl = import.meta.env.VITE_API_BASE_URL;
-const flagDropdown = ref([]);
-const userAccount = ref([]);
 </script>
+
 <template>
     <Toolbar class="mb-6">
         <template #start>
@@ -78,17 +63,16 @@ const userAccount = ref([]);
                 <div class="col-span-3"></div>
 
                 <!--단락 start-->
-
-                <label for="department" class="grid grid-cols-2 flex items-center">부서</label>
+                <label for="workGrade" class="grid grid-cols-2 flex items-center">직급</label>
                 <div class="col-span-3">
-                    <InputText v-model="department" id="department" type="text" class="w-full" />
+                    <Select class="w-full" v-model="workGrade" :options="workGradeOptions" optionLabel="label" optionValue="value" />
                 </div>
 
                 <div class="col-span-1"></div>
 
-                <label for="workGrade" class="grid grid-cols-2 flex items-center">직급</label>
+                <label for="department" class="grid grid-cols-2 flex items-center">부서</label>
                 <div class="col-span-3">
-                    <InputText v-model="workGrade" id="workGrade" type="text" class="w-full" />
+                    <Select class="w-full" v-model="department" :options="departmentOptions" optionLabel="label" optionValue="value" />
                 </div>
             </div>
             <!--단락 end-->

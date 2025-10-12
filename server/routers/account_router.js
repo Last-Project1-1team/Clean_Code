@@ -27,37 +27,27 @@ router.get("/useraccount", async (req, res) => {
   res.send(accountList);
 });
 
-router.get("/useraccount/userInfo", async (req, res) => {
-  let userInfoList = await accountService.findUserInfo().catch((err) => console.log(err));
+router.get("/useraccount/department", async (req, res) => {
+  let deptList = await accountService.findDept().catch((err) => console.log(err));
 
-  res.send(userInfoList);
+  res.send(deptList);
 });
 
+router.get("/useraccount/workGrade", async (req, res) => {
+  let gradeList = await accountService.findGrade().catch((err) => console.log(err));
 
-// 부서 목록 조회
-router.get("/department", async (req, res) => {
-    try {
-        const conn = await pool.getConnection();
-        const rows = await conn.query("SELECT dept_id, dept_name FROM department");
-        conn.release();
-        res.json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "DB 오류" });
-    }
+  res.send(gradeList);
 });
 
-// 직급 목록 조회
-router.get("/workGrade", async (req, res) => {
-    try {
-        const conn = await pool.getConnection();
-        const rows = await conn.query("SELECT grade_id, grade_name FROM work_grade");
-        conn.release();
-        res.json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "DB 오류" });
-    }
+// 등록    : 자원(데이터) -> books / 등록 -> POST
+router.post("/userAccount", async (req, res) => {
+  // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
+  let accountInfo = req.body;
+  console.log(accountInfo);
+  let result = await accountService
+    .addNewUser(accountInfo)
+    .catch((err) => console.log(err));
+  res.send(result);
 });
 
 // 해당 javascript 파일의 마지막 코드, 모듈화

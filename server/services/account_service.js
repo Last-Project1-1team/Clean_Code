@@ -18,18 +18,16 @@ const findAll = async (userId, name, department, workGrade) => {
   return list;
 };
 
-// 직급 목록 조회
-const findWorkGrade = async () => {
+const findDept = async () => {
   let list = await mariadb
-    .query("selectWorkGrade")
+    .query("selectDepartment")
     .catch((err) => console.log(err));
   return list;
 };
 
-// 부서 목록 조회
-const findDepartment = async () => {
+const findGrade = async () => {
   let list = await mariadb
-    .query("selectDepartment")
+    .query("selectWorkGrade")
     .catch((err) => console.log(err));
   return list;
 };
@@ -44,7 +42,7 @@ const findDepartment = async () => {
 // };
 
 // 북정보(name, writer, publisher, publication_date, info)를 기반으로 등록
-const addNewItem = async (accountInfo) => {
+const addNewUser = async (accountInfo) => {
   // bookInfo : 사용자가 전달한 북정보, Object 타입
 
   // t_book_01 테이블에 등록하는 insert문에 정의된 컬럼들
@@ -61,9 +59,9 @@ const addNewItem = async (accountInfo) => {
     "retire_date",
   ];
   // 사용자가 전달한 북정보 중 insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
-  let data = convertObjToAry(itemInfo, insertColumns);
+  let data = convertObjToAry(accountInfo, insertColumns);
   let resInfo = await mariadb
-    .query("inord", data)
+    .query("insertUser", data)
     .catch((err) => console.log(err));
   // mariadb 모듈은 DML(insert, update, delete)의 결과를 { affectedRows: 1, insertId: 1, warningStatus: 0 } 로 반환
   // affectedRows : 실제 실행된 행수 (default : 0)
@@ -87,4 +85,7 @@ const addNewItem = async (accountInfo) => {
 
 module.exports = {
   findAll,
+  findDept,
+  findGrade,
+  addNewUser,
 };
