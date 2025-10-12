@@ -63,8 +63,16 @@ wid = VALUES(wid),
 hei = VALUES(hei)
 `;
 
+const modalSearch = `
+SELECT model_code,
+       model_name,
+       revision
+FROM tb_model_master
+`;
+
 module.exports = {
   selectAllModelList,
   selectModelFlag,
   insertModel,
+  modalSearch,
 };
