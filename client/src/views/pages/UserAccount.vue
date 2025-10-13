@@ -76,8 +76,8 @@ const getAccountList = async (userId, name, department, workGrade) => {
             params: {
                 userId: userId || '',
                 name: name || '',
-                department: department || '',
-                workGrade: workGrade || ''
+                workGrade: workGrade || '',
+                department: department || ''
             }
         })
         .catch((err) => {
@@ -102,17 +102,22 @@ onMounted(async () => {
         value: grade.code
     }));
 });
+const formatDate = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
+    return d.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+};
 const saveButton = async () => {
     const payload = {
-        user_id: formData.value.userId,
+        userId: formData.value.userId,
         name: formData.value.name,
-        work_grade: formData.value.workGrade,
+        workGrade: formData.value.workGrade,
         department: formData.value.department,
         phone: formData.value.phone,
         email: formData.value.email,
-        hire_date: formData.value.hireDate,
-        retire_yn: formData.value.retireYn,
-        retire_date: formData.value.retireDate
+        hireDate: formatDate(formData.value.hireDate),
+        retireYn: formData.value.retireYn,
+        retireDate: formatDate(formData.value.retireDate)
     };
 
     console.log('저장 payload:', payload);

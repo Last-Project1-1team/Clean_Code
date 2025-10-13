@@ -2,22 +2,23 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
-// 부모에게 알림만 보냄
 const emit = defineEmits(['search']);
-const userId = ref('');
-const name = ref('');
-
-//입력값
-const department = ref([]);
-const workGrade = ref([]);
-
-const departmentOptions = ref([]);
-const workGradeOptions = ref([]);
-// const userAccount = ref([]);
-
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-// 조회 버튼 클릭 시 부모 컴포넌트에 검색 조건 전달
+// 각각의 입력값
+const userId = ref('');
+const name = ref('');
+const department = ref('');
+const workGrade = ref('');
+const selectedAccount = ref(null);
+const selectedUnit = ref(null);
+const radioValue = ref(null);
+const departmentOptions = ref([]);
+const workGradeOptions = ref([]);
+const hireDate = ref(null);
+const retireDate = ref(null);
+
+// 부모로 검색조건 전달
 const userAccountSearch = () => {
     emit('search', {
         userId: userId.value,
@@ -27,60 +28,79 @@ const userAccountSearch = () => {
     });
 };
 
-onMounted(async () => {
-    const deptRes = await axios.get(`${apiUrl}/useraccount/department`);
-    departmentOptions.value = deptRes.data.map((dept) => ({
-        label: dept.name,
-        value: dept.code
-    }));
+// ✅ 초기화 버튼 클릭 시 모든 입력값을 비움
+const onClearItem = () => {
+    userId.value = '';
+    name.value = '';
+    department.value = '';
+    workGrade.value = '';
+    selectedAccount.value = null;
+    selectedUnit.value = null;
+    radioValue.value = null;
+    hireDate.value = null;
+    retireDate.value = null;
+};
 
-    const gradeRes = await axios.get(`${apiUrl}/useraccount/workGrade`);
-    workGradeOptions.value = gradeRes.data.map((grade) => ({
-        label: grade.name,
-        value: grade.code
-    }));
+// ✅ DB에서 부서, 직급 데이터 불러오기
+onMounted(async () => {
+    try {
+        const deptRes = await axios.get(`${apiUrl}/useraccount/department`);
+        departmentOptions.value = deptRes.data.map((dept) => ({
+            label: dept.name,
+            value: dept.code
+        }));
+
+        const gradeRes = await axios.get(`${apiUrl}/useraccount/workGrade`);
+        workGradeOptions.value = gradeRes.data.map((grade) => ({
+            label: grade.name,
+            value: grade.code
+        }));
+    } catch (err) {
+        console.error('부서/직급 데이터 로드 실패:', err);
+    }
 });
 </script>
 
 <template>
     <Toolbar class="mb-6">
         <template #start>
-            <!--단락 start-->
             <div class="grid grid-cols-12 gap-2">
-                <label for="userId" class="grid grid-cols-2 flex items-center">계정</label>
+                <!-- 계정 -->
+                <label for="userId" class="flex items-center col-span-1">계정</label>
                 <div class="col-span-3">
                     <InputText v-model="userId" id="userId" type="text" class="w-full" />
                 </div>
 
                 <div class="col-span-1"></div>
 
-                <label for="name" class="grid grid-cols-2 flex items-center">이름</label>
+                <!-- 이름 -->
+                <label for="name" class="flex items-center col-span-1">이름</label>
                 <div class="col-span-3">
                     <InputText v-model="name" id="name" type="text" class="w-full" />
                 </div>
-                <!--단락 end-->
 
                 <div class="col-span-3"></div>
 
-                <!--단락 start-->
-                <label for="workGrade" class="grid grid-cols-2 flex items-center">직급</label>
+                <!-- 직급 -->
+                <label for="workGrade" class="flex items-center col-span-1">직급</label>
                 <div class="col-span-3">
-                    <Select class="w-full" v-model="workGrade" :options="workGradeOptions" optionLabel="label" optionValue="value" />
+                    <Select v-model="workGrade" :options="workGradeOptions" optionLabel="label" optionValue="value" class="w-full" />
                 </div>
 
                 <div class="col-span-1"></div>
 
-                <label for="department" class="grid grid-cols-2 flex items-center">부서</label>
+                <!-- 부서 -->
+                <label for="department" class="flex items-center col-span-1">부서</label>
                 <div class="col-span-3">
-                    <Select class="w-full" v-model="department" :options="departmentOptions" optionLabel="label" optionValue="value" />
+                    <Select v-model="department" :options="departmentOptions" optionLabel="label" optionValue="value" class="w-full" />
                 </div>
             </div>
-            <!--단락 end-->
         </template>
-        <!-- 조회버튼 -->
+
         <template #end>
-            <div class="col-span-12 flex justify-end">
-                <Button label="조회" icon="pi pi-search" @click="userAccountSearch"></Button>
+            <div class="flex justify-end gap-2">
+                <Button label="초기화" severity="secondary" @click="onClearItem" />
+                <Button label="조회" icon="pi pi-search" @click="userAccountSearch" />
             </div>
         </template>
     </Toolbar>
