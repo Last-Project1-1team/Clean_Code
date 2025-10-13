@@ -123,6 +123,11 @@ const model = ref([
                 label: '생산계획등록',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/addprodplan'
+            },
+            {
+                label: '수주등록',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/InOrderReg'
             }
         ]
     },
