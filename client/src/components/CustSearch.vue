@@ -6,10 +6,10 @@ const custCode = ref('');
 const custName = ref('');
 
 // 버튼 클릭 시 부모로 데이터 전달
-const selectItem = () => {
+const selectCust = () => {
     emit('submit', { code: custCode.value, name: custName.value });
 };
-const tossItem = () => {
+const tossCust = () => {
     emit('toss');
 };
 </script>
@@ -29,7 +29,7 @@ const tossItem = () => {
             </div>
         </template>
         <template #end>
-            <Button label="저장" @click="tossItem"></Button>
+            <Button label="저장" @click="tossCust"></Button>
             <Button label="조회" @click="selectCust"></Button>
         </template>
     </Toolbar>
