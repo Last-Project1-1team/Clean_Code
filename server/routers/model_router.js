@@ -32,6 +32,12 @@ router.get("/modelMaster/modelFlag", async (req, res) => {
   res.send(FlagList);
 });
 
+router.get("/modelMaster/modelUnit", async (req, res) => {
+  let unitList = await modelService.findUnit().catch((err) => console.log(err));
+
+  res.send(unitList);
+});
+
 // 등록    : 자원(데이터) -> books / 등록 -> POST
 router.post("/modelMaster", async (req, res) => {
   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨

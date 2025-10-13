@@ -7,12 +7,22 @@ SELECT
         TO_CHAR(p.create_date,'YYYY-MM-dd') prodPlanDate,
         p.model_code modelCode,
         p.revision,
-        m.model_name modelName
+        m.model_name modelName,
+        r.proc_code procCode,
+        c.code_name procCodeName,
+        m.unit
 FROM tb_prod_plan p
 JOIN tb_model_master m
   ON (p.model_code = m.model_code
-  AND p.revision = m.revision)
+ AND p.revision = m.revision)
+JOIN tb_proc_routing r
+  ON (m.model_code = r.model_code
+ AND m.revision = r.revision)
+JOIN tb_code c
+  ON (c.common_code = r.proc_code)
 WHERE LOWER(p.prod_plan_no) LIKE LOWER(?)
+ORDER BY r.proc_seq DESC
+LIMIT 1
 `;
 
 const selectProdPlanNo = `
@@ -25,13 +35,15 @@ WHERE LOWER(prod_plan_no) LIKE LOWER(?)
 
 const insertWorkOrder = `
 INSERT INTO tb_work_ord
-(work_ord_qty,
-model_code,
+(model_code,
 revision,
-model_name 
+proc_code,
+work_ord_qty,
+unit
 )
 VALUES
 (?,
+?,
 ?,
 ?,
 ?)
