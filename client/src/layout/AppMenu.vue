@@ -85,6 +85,11 @@ const model = ref([
                 to: '/pages/outorderreg'
             },
             {
+                label: '자재입고',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/iteminput'
+            },
+            {
                 label: '제품정보',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/modelmaster'

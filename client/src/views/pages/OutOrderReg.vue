@@ -5,15 +5,22 @@ import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import Dialog from 'primevue/dialog';
 import ItemSearchModal from '@/components/ItemSearchModal.vue';
+import CustSearchModal from '@/components/CustSearchModal.vue';
 // import 제품모달창 from '';
 // import 업체모달창 from '';
-// import axios from 'axios';
+import axios from 'axios';
 // import { onBeforeMount, shallowRef, computed } from 'vue';
 // import useDateUtils from '@/utils/useDates.js';
 
 const selectedItems = ref([]); // 모달에서 넘어온 데이터 저장
-
-const modalVisible = ref(false);
+const selectedCusts = ref([]);
+const custCode = ref([]);
+const custName = ref([]);
+const itemCode = ref('');
+const itemmodalVisible = ref(false);
+const custmodalVisible = ref(false);
+const toast = useToast();
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 const handleItemRegister = (items) => {
     // 부모 테이블에 추가 (기존 데이터 유지 + 신규 추가)
@@ -31,13 +38,53 @@ const handleItemRegister = (items) => {
         }));
 
     selectedItems.value = [...selectedItems.value, ...mapped];
-    modalVisible.value = false; // 모달 닫기
+    itemmodalVisible.value = false; // 모달 닫기
 };
+const handleCustRegister = (custs) => {
+    // 부모 테이블에 추가 (기존 데이터 유지 + 신규 추가)
+    custCode.value = custs.custCode;
+    custName.value = custs.custName;
+
+    custmodalVisible.value = false; // 모달 닫기
+};
+
 const onDelete = () => {
     selectedItems.value = selectedItems.value.filter((item) => !selectedRows.value.includes(item));
     selectedRows.value = [];
 };
 
+const onSave = async () => {
+    if (custCode.value == '') {
+        toast.add({ severity: 'error', summary: '거래처를 먼저 선택해주세요.', life: 3000 });
+        return;
+    }
+    if (selectedItems.value == '') {
+        toast.add({ severity: 'error', summary: '자재 정보가 없습니다.', life: 3000 });
+        return;
+    }
+
+    const payload = {
+        orderDate: today.value,
+        deliveryDate: selectedDate.value,
+        custCode: custCode.value,
+        items: selectedItems.value.map((item) => ({
+            itemCode: item.ITEM_CODE,
+            qty: item.OUTORD_QTY
+        }))
+    };
+
+    try {
+        const response = await axios.post(`${apiUrl}/outord`, payload);
+        toast.add({ severity: 'success', summary: '발주가 저장되었습니다.', life: 3000 });
+        selectedItems.value = [];
+        selectedRows.value = [];
+        today.value = new Date();
+        selectedDate.value = new Date(new Date().setDate(new Date().getDate() + 7));
+    } catch (error) {
+        console.error(error);
+        toast.add({ severity: 'error', summary: '저장 중 오류가 발생했습니다.', life: 3000 });
+    }
+};
 const selectedRows = ref([]);
 
 const custopen = ref(false);
@@ -65,8 +112,8 @@ const selectedDate = ref(new Date(new Date().setDate(new Date().getDate() + 7)))
             <label for="custCode" class="flex items-center">거래처</label>
             <div class="col-span-2">
                 <div class="grid grid-cols-[1fr_auto] gap-2">
-                    <InputText v-model="custcode" name="custCode" class="w-full" />
-                    <Button @click="custopen = true" icon="pi pi-search" class="flex-none" style="width: 2.5rem; height: 2.5rem" />
+                    <InputText v-model="custCode" name="custCode" class="w-full" />
+                    <Button @click="custmodalVisible = true" icon="pi pi-search" class="flex-none" style="width: 2.5rem; height: 2.5rem" />
                 </div>
             </div>
         </div>
@@ -74,7 +121,7 @@ const selectedDate = ref(new Date(new Date().setDate(new Date().getDate() + 7)))
         <div class="grid grid-cols-12 gap-2">
             <label for="custName" class="flex items-center">거래처명</label>
             <div class="col-start-2 col-end-7">
-                <InputText id="custName" name="custName" type="text" class="w-full" readonly />
+                <InputText v-model="custName" type="text" class="w-full" readonly />
             </div>
         </div>
 
@@ -88,8 +135,8 @@ const selectedDate = ref(new Date(new Date().setDate(new Date().getDate() + 7)))
             <label for="itemCode" class="flex items-center col-span-1">자재코드</label>
             <div class="col-span-2">
                 <div class="grid grid-cols-[1fr_auto] gap-2">
-                    <InputText v-model="itemCode" name="itemCode" class="w-full" />
-                    <Button @click="modalVisible = true" icon="pi pi-search" class="flex-none" style="width: 2.5rem; height: 2.5rem" />
+                    <InputText v-model="itemCode" class="w-full" />
+                    <Button @click="itemmodalVisible = true" icon="pi pi-search" class="flex-none" style="width: 2.5rem; height: 2.5rem" />
                 </div>
             </div>
 
@@ -98,8 +145,13 @@ const selectedDate = ref(new Date(new Date().setDate(new Date().getDate() + 7)))
                 <Button label="삭제" icon="pi pi-trash" class="p-button-danger px-4 py-2 font-bold" @click="onDelete" style="width: 100px" />
             </div>
 
-            <Dialog v-model:visible="modalVisible" header="자재 검색" modal style="width: 80vw; height: 80vh">
-                <ItemSearchModal @select="handleItemSelect" @register="handleItemRegister" />
+            <Dialog v-model:visible="custmodalVisible" header="거래처 검색" modal style="width: 80vw; height: 80vh">
+                <CustSearchModal @custreg="handleCustRegister" />
+                <!-- @select="handleCustSelect"-->
+            </Dialog>
+
+            <Dialog v-model:visible="itemmodalVisible" header="자재 검색" modal style="width: 80vw; height: 80vh">
+                <ItemSearchModal @register="handleItemRegister" />
             </Dialog>
         </div>
         <!-- <div class="card flex flex-col gap-4"> -->

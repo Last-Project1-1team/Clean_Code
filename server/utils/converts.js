@@ -12,7 +12,25 @@ const convertObjToAry = (target, selected) => {
     }
     return aray;
 };
+const formatFullDate = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+};
+const formatDate = (date) => {
+    if (!date) return null;
 
+    const dateObj = new Date(date);
+    const yy = String(dateObj.getFullYear()).slice(-2);
+    const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const dd = String(dateObj.getDate()).padStart(2, "0");
+    return `${yy}${mm}${dd}`;
+};
 module.exports = {
     convertObjToAry,
+    formatFullDate,
+    formatDate,
 };

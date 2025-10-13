@@ -118,10 +118,79 @@ const itemOutordSelect = `
     AND itm.item_name like ?
 `;
 
+const custOutordSelect = `
+    SELECT cst.cust_code custCode
+         , cst.cust_name custName
+         , cst.psch_phone pschPhone
+      FROM tb_cust cst
+     WHERE cst.cust_code like ?
+       AND cst.cust_name like ?
+`;
+const insertOutordMaster = `
+    INSERT INTO tb_outord_master 
+      (outord_no
+     , outord_date
+     , cust_code
+     , delivery_date
+     , status
+     , created_by
+     , create_date)
+    VALUES 
+      (?
+     , STR_TO_DATE(?, '%Y-%m-%d')
+     , ?
+     , STR_TO_DATE(?, '%Y-%m-%d')
+     , '0'
+     , ?
+     , NOW())
+  `;
+
+const insertOutordDetail = `
+    INSERT INTO tb_outord_detail 
+      (outord_detail_no
+     , outord_no
+     , item_code
+     , outord_qty
+     , created_by
+     , create_date)
+    VALUES 
+      (?
+     , ?
+     , ?
+     , ?
+     , ?
+     , NOW())
+  `;
+
+const selectLastOutordNo = `
+    SELECT OUTORD_NO 
+      FROM TB_OUTORD_MASTER 
+     WHERE OUTORD_NO LIKE ?
+     ORDER BY OUTORD_NO DESC
+     LIMIT 1
+  `;
+
+const outordListSelect = `
+ SELECT oom.outord_no outordNo
+	  , oom.outord_date outordDate
+	  , oom.cust_code custCode
+	  , cst.cust_name custName
+	  , oom.delivery_date deliveryDate
+   FROM tb_outord_master oom
+   JOIN tb_cust cst
+	 ON oom.cust_code = cst.cust_code
+  WHERE oom.outord_date = ?
+    `;
+
 module.exports = {
     selectItemList,
     selectClass,
     selectUnit,
     insertItems,
     itemOutordSelect,
+    custOutordSelect,
+    insertOutordMaster,
+    insertOutordDetail,
+    selectLastOutordNo,
+    outordListSelect,
 };
