@@ -1,11 +1,14 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const emit = defineEmits(['submit', 'toss']); // 부모에 알릴 이벤트 정의
 const custCode = ref('');
 const custName = ref('');
 const today = ref(new Date()); // 오늘 날짜
 
+onMounted(async () => {
+    emit('submit', { date: today.value });
+});
 // 버튼 클릭 시 부모로 데이터 전달
 const selectOutord = () => {
     emit('submit', { date: today.value });

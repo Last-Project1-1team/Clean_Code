@@ -10,10 +10,6 @@ const outords = ref([]);
 const selectOutord = ref([]);
 const keyword = ref('');
 
-onMounted(async () => {
-    getOutordList('', '');
-});
-
 const registerOutords = () => {
     // 부모로 선택된 데이터 전달
     emit('register', selectOutord.value);
