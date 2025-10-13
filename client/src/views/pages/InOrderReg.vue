@@ -8,7 +8,7 @@ import CustSearchModal from '@/components/CustSearchModal.vue';
 import ModalSearchModel from '@/components/ModalSearchModel.vue';
 import axios from 'axios';
 
-const selectedinordmodel = ref([]);
+const selectedmodel = ref([]);
 const selectedmodels = ref([]);
 const custCode = ref([]);
 const custName = ref([]);
@@ -19,6 +19,8 @@ const custmodalVisible = ref(false);
 const modelmodalVisible = ref(false);
 const today = ref(new Date()); // 오늘 날짜
 const selectedDate = ref(new Date(new Date().setDate(new Date().getDate() + 7)));
+const toast = useToast();
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 const handleCustRegister = (custs) => {
     // 부모 테이블에 추가 (기존 데이터 유지 + 신규 추가)
@@ -29,12 +31,13 @@ const handleCustRegister = (custs) => {
     custmodalVisible.value = false; // 모달 닫기
 };
 
+//datatable
 const handleModelRegister = (models) => {
     // 부모 테이블에 추가 (기존 데이터 유지 + 신규 추가)
     const mapped = models
         .filter((model) => {
             // 이미 등록된 ITEM_CODE는 제외
-            return !selectedmodels.value.some((si) => si.MODEL_CODE === model.modelCode);
+            return !selectedmodel.value.some((si) => si.MODEL_CODE === model.modelCode);
         })
         .map((model) => ({
             MODEL_CODE: model.modelCode,
@@ -44,8 +47,46 @@ const handleModelRegister = (models) => {
             UNIT: model.unit
         }));
 
-    selectedmodels.value = [...selectedmodels.value, ...mapped];
+    selectedmodel.value = [...selectedmodel.value, ...mapped];
     modelmodalVisible.value = false; // 모달 닫기
+};
+
+const onDelete = () => {
+    selectedmodel.value = selectedmodel.value.filter((model) => !selectedRows.value.includes(model));
+    selectedRows.value = [];
+};
+
+const onSave = async () => {
+    if (custCode.value == '') {
+        toast.add({ severity: 'error', summary: '업체를 먼저 선택해주세요.', life: 3000 });
+        return;
+    }
+    if (selectedmodel.value == '') {
+        toast.add({ severity: 'error', summary: '제품 정보가 없습니다.', life: 3000 });
+        return;
+    }
+
+    const payload = {
+        orderDate: today.value,
+        deliveryDate: selectedDate.value,
+        custCode: custCode.value,
+        models: selectedmodel.value.map((model) => ({
+            modelCode: model.MODEL_CODE,
+            qty: model.OUTORD_QTY
+        }))
+    };
+
+    try {
+        const response = await axios.post(`${apiUrl}/outord`, payload);
+        toast.add({ severity: 'success', summary: '수주가 저장되었습니다.', life: 3000 });
+        selectedmodel.value = [];
+        selectedRows.value = [];
+        today.value = new Date();
+        selectedDate.value = new Date(new Date().setDate(new Date().getDate() + 7));
+    } catch (error) {
+        console.error(error);
+        toast.add({ severity: 'error', summary: '저장 중 오류가 발생했습니다.', life: 3000 });
+    }
 };
 </script>
 
@@ -63,7 +104,9 @@ const handleModelRegister = (models) => {
             <div class="col-span-2">
                 <InputText v-model="pschphone" type="text" class="w-full" />
             </div>
-            <Button click="" type="submit" class="col-start-12" label="저장" />
+            <div class="col-end-13 flex justify-end">
+                <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" style="width: 100px; height: 50px" @click="onSave" />
+            </div>
         </div>
 
         <div class="grid grid-cols-12 gap-2">
@@ -92,7 +135,11 @@ const handleModelRegister = (models) => {
             <div class="col-span-2">
                 <DatePicker v-model="selectedDate" class="w-full" name="paprddate" dateFormat="yy-mm-dd" showIcon showButtonBar iconDisplay="input" inputId="icondisplay" />
             </div>
-            <Button class="col-start-12" label="Submit">삭제</Button>
+
+            <!-- ✅ 삭제 버튼 (같은 줄 오른쪽 끝. end로 함) -->
+            <div class="col-end-13 flex justify-end">
+                <Button label="삭제" icon="pi pi-trash" class="p-button-danger px-4 py-2 font-bold" @click="onDelete" style="width: 100px" />
+            </div>
         </div>
 
         <Dialog v-model:visible="custmodalVisible" header="업체 검색" modal style="width: 80vw; height: 80vh">
@@ -104,7 +151,7 @@ const handleModelRegister = (models) => {
             <ModalSearchModel @register="handleModelRegister" />
         </Dialog>
 
-        <DataTable :value="selectedinordmodel" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
+        <DataTable :value="selectedmodel" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
             <Column selectionMode="multiple" style="width: 3rem"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>
