@@ -11,8 +11,8 @@ const findAll = async (userId, name, department, workGrade) => {
     .query("selectAccountInfo", [
       `%${userId || ""}%`,
       `%${name || ""}%`,
-      `%${department || ""}%`,
       `%${workGrade || ""}%`,
+      `%${department || ""}%`,
     ])
     .catch((err) => console.log(err));
   return list;
@@ -47,16 +47,15 @@ const addNewUser = async (accountInfo) => {
 
   // t_book_01 테이블에 등록하는 insert문에 정의된 컬럼들
   let insertColumns = [
-    "user_id",
-    "password",
+    "userId",
     "name",
-    "work_grade",
+    "workGrade",
     "department",
     "phone",
     "email",
-    "hire_date",
-    "retire_yn",
-    "retire_date",
+    "hireDate",
+    "retireYn",
+    "retireDate",
   ];
   // 사용자가 전달한 북정보 중 insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
   let data = convertObjToAry(accountInfo, insertColumns);

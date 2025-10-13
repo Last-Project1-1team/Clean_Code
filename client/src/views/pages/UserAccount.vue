@@ -104,15 +104,15 @@ onMounted(async () => {
 });
 const saveButton = async () => {
     const payload = {
-        userId: formData.value.userId,
+        user_id: formData.value.userId,
         name: formData.value.name,
-        workGrade: formData.value.workGrade,
+        work_grade: formData.value.workGrade,
         department: formData.value.department,
         phone: formData.value.phone,
         email: formData.value.email,
-        hireDate: formData.value.hireDate,
-        retireYn: formData.value.retireYn,
-        retireDate: formData.value.retireDate
+        hire_date: formData.value.hireDate,
+        retire_yn: formData.value.retireYn,
+        retire_date: formData.value.retireDate
     };
 
     console.log('저장 payload:', payload);
