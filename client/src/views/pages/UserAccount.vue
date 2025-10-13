@@ -69,22 +69,6 @@ const userAccountSearch = (account) => {
     getAccountList(account.userId, account.name, account.department, account.workGrade);
 };
 
-// const getAccountList = async (userId, name, department, workGrade) => {
-//     try {
-//         const result = await axios.get(`${apiUrl}/useraccount?`, {
-//             params: {
-//                 userId: userId || '',
-//                 name: name || '',
-//                 department: department || '',
-//                 workGrade: workGrade || ''
-//             }
-//         });
-//         userAccount.value = result.data;
-//     } catch (err) {
-//         console.error('조회 실패:', err);
-//     }
-// };
-
 const getAccountList = async (userId, name, department, workGrade) => {
     //console.log('🌐 서버 요청 보냄', code, revision, name);
     let result = await axios
@@ -105,18 +89,6 @@ const getAccountList = async (userId, name, department, workGrade) => {
     userAccount.value = result.data;
 };
 
-// ✅ 서버 조회 함수
-// const getAccountList = async (userId, name, department, workGrade) => {
-//     try {
-//         const result = await axios.get(`${apiUrl}/useraccount`, {
-//             params: { userId, name, department, workGrade }
-//         });
-//         userAccount.value = result.data;
-//         console.log('✅ 서버 응답:', result.data);
-//     } catch (err) {
-//         console.error('❌ 조회 실패:', err);
-//     }
-// };
 onMounted(async () => {
     const deptRes = await axios.get(`${apiUrl}/useraccount/department`);
     departmentOptions.value = deptRes.data.map((dept) => ({
@@ -133,7 +105,6 @@ onMounted(async () => {
 const saveButton = async () => {
     const payload = {
         userId: formData.value.userId,
-        password: formData.value.password || '1234',
         name: formData.value.name,
         workGrade: formData.value.workGrade,
         department: formData.value.department,
@@ -146,7 +117,7 @@ const saveButton = async () => {
 
     console.log('저장 payload:', payload);
 
-    let result = await axios.post(`${apiUrl}/userAccount`, payload).catch((err) => console.log(err));
+    let result = await axios.post(`${apiUrl}/useraccount`, payload).catch((err) => console.log(err));
     let addRes = result.data;
     if (addRes.isSuccessed) {
         toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
@@ -224,7 +195,7 @@ const saveButton = async () => {
 
             <label for="hireDate" class="flex items-center col-span-1 mb-2">입사일자</label>
             <div class="col-span-3">
-                <DatePicker class="w-full" :showIcon="true" :showButtonBar="true" v-model="formData.hireDate"></DatePicker>
+                <DatePicker class="w-full" :showIcon="true" :showButtonBar="true" v-model="formData.hireDate" dateFormat="yy-mm-dd"></DatePicker>
             </div>
         </div>
         <!--단락 end-->
@@ -258,7 +229,7 @@ const saveButton = async () => {
 
             <label for="retireDate" class="flex items-center col-span-1 mb-2">퇴사일자</label>
             <div class="col-span-3">
-                <DatePicker class="w-full" :showIcon="true" :showButtonBar="true" v-model="formData.retireDate"></DatePicker>
+                <DatePicker class="w-full" :showIcon="true" :showButtonBar="true" v-model="formData.retireDate" dateFormat="yy-mm-dd"></DatePicker>
             </div>
         </div>
     </div>
