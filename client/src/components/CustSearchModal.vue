@@ -6,7 +6,7 @@ import { onMounted, ref } from 'vue';
 import CustSearchVue from './CustSearch.vue';
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
-const emit = defineEmits(['register']);
+const emit = defineEmits(['custreg']);
 const custs = ref([]);
 const selectcusts = ref([]);
 const keyword = ref('');
@@ -17,7 +17,7 @@ onMounted(async () => {
 
 const registerCusts = () => {
     // 부모로 선택된 데이터 전달
-    emit('register', selectcusts.value);
+    emit('custreg', selectcusts.value);
 };
 
 const handleSubmit = (cust) => {
