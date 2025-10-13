@@ -15,6 +15,8 @@ app.listen(3000, () => {
   console.log("Server Start");
   console.log("http://localhost:3000");
 });
+
+
 // 라우팅 등록 영역
 const modelRouter = require("./routers/model_router.js");
 const itemRouter = require("./routers/item_router.js");

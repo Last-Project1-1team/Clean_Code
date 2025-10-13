@@ -105,6 +105,11 @@ const model = ref([
                 to: '/pages/workorder'
             },
             {
+                label: '사용자관리',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/useraccount'
+            },
+            {
                 label: '생산계획조회',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/searchprodplan'
