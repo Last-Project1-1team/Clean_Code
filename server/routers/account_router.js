@@ -12,14 +12,14 @@ const accountService = require("../services/account_service.js");
 router.get("/useraccount", async (req, res) => {
   // 해당 엔드포인트(URL+METHOD)로 접속할 경우 제공되는 서비스를 실행
   // -> 서비스가 DB에 접속하므로 비동기 작업, await/async를 활용해서 동기식으로 동작하도록 진행
-  let userId= req.query.userId;
-  let name= req.query.name;
-  let department= req.query.department;
-  let workGrade= req.query.workGrade;
+  let userId = req.query.userId;
+  let name = req.query.name;
+  let department = req.query.department;
+  let workGrade = req.query.workGrade;
 
   let accountList = await accountService
     .findAll(userId, name, department, workGrade)
-    .catch((err) => console.log(err));  
+    .catch((err) => console.log(err));
   // res(Http Response에 대응되는 변수)의 응답메소드를 호출해 데이터를 반환하거나 통신을 종료
   // 주의) res(Http Response에 대응되는 변수)의 응답메소드를 호출하지 않으면
   //       통신이 종료되지 않음
@@ -28,19 +28,23 @@ router.get("/useraccount", async (req, res) => {
 });
 
 router.get("/useraccount/department", async (req, res) => {
-  let deptList = await accountService.findDept().catch((err) => console.log(err));
+  let deptList = await accountService
+    .findDept()
+    .catch((err) => console.log(err));
 
   res.send(deptList);
 });
 
 router.get("/useraccount/workGrade", async (req, res) => {
-  let gradeList = await accountService.findGrade().catch((err) => console.log(err));
+  let gradeList = await accountService
+    .findGrade()
+    .catch((err) => console.log(err));
 
   res.send(gradeList);
 });
 
 // 등록    : 자원(데이터) -> books / 등록 -> POST
-router.post("/userAccount", async (req, res) => {
+router.post("/useraccount", async (req, res) => {
   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
   let accountInfo = req.body;
   console.log(accountInfo);

@@ -20,28 +20,24 @@ JOIN tb_code c2
  AND c2.group_code = 'DEPT')
 WHERE LOWER(u.user_id) LIKE LOWER(?)
   AND LOWER(u.name) LIKE LOWER(?)
+  AND u.work_grade LIKE ?
+  AND u.department LIKE ?
 `;
-//AND c1.work_grade LIKE ? 
-//AND c2.department LIKE ?
-//`;
 
-    // 
-const selectDepartment = 
-  `SELECT common_code code,
+//
+const selectDepartment = `SELECT common_code code,
           code_name name
   FROM tb_code
   WHERE group_code = 'DEPT'`;
-const selectWorkGrade = 
-  `SELECT common_code code,
+const selectWorkGrade = `SELECT common_code code,
           code_name name
   FROM tb_code
   WHERE group_code = 'GRADE'`;
 
-  // 등록
+// 등록
 const insertUser = `
 INSERT INTO tb_user
 (user_id,
-password,
 name,
 work_grade,
 department,
@@ -59,11 +55,8 @@ VALUES
 ?,
 ?,
 ?,
-?,
 ?)
 ON DUPLICATE KEY UPDATE
-user_id = VALUES(user_id),
-password = VALUES(password),
 name = VALUES(name),
 work_grade = VALUES(work_grade),
 department = VALUES(department),
@@ -73,10 +66,10 @@ hire_date = VALUES(hire_date),
 retire_yn = VALUES(retire_yn),
 retire_date = VALUES(retire_date)
 `;
-  
-    module.exports = {
-      selectAccountInfo,
-      selectDepartment,
-      selectWorkGrade,
-      insertUser,
-    };
+
+module.exports = {
+  selectAccountInfo,
+  selectDepartment,
+  selectWorkGrade,
+  insertUser,
+};
