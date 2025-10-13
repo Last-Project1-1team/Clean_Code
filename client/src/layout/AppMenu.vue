@@ -103,6 +103,16 @@ const model = ref([
                 label: '작업지시',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/workorder'
+            },
+            {
+                label: '생산계획조회',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/searchprodplan'
+            },
+            {
+                label: '생산계획등록',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/addprodplan'
             }
         ]
     },
