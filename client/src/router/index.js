@@ -144,6 +144,16 @@ const router = createRouter({
                     name: 'workorder',
                     component: () => import('@/views/pages/WorkOrder.vue')
                 },
+                {
+                    path: '/pages/searchprodplan',
+                    name: 'searchprodplan',
+                    component: () => import('@/views/pages/SearchProdPlan.vue')
+                },
+                {
+                    path: '/pages/addprodplan',
+                    name: 'addprodplan',
+                    component: () => import('@/views/pages/AddProdPlan.vue')
+                },
                 //
                 // 영업관리
                 //

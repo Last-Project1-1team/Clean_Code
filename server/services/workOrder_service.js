@@ -2,3 +2,65 @@
 const mariadb = require("../database/mapper.js");
 
 //const { convertObjToAry } = require("../utils/converts.js");
+
+const findPlan = async (prodPlanNo) => {
+  // 전체조회면 '%'만 사용
+  const keyword =
+    prodPlanNo && prodPlanNo.trim() !== "" ? `%${prodPlanNo}%` : "%";
+
+  // console.log("🔍 받은 prodPlanNo:", prodPlanNo);
+  // console.log("🔍 실제 검색 키워드:", keyword);
+
+  const list = await mariadb
+    .query("selectProdPlan", [keyword])
+    .catch((err) => console.log(err));
+
+  // console.log("🧾 조회 결과:", list);
+  return list;
+};
+
+const findPlanNo = async (keyword) => {
+  let list = await mariadb
+    .query("selectProdPlanNo", [`%${keyword}%`])
+    .catch((err) => console.log(err));
+  // console.log("🧾 조회 결과:", list);
+  return list;
+};
+
+// 작업지시 등록
+const addWorkOrd = async (workInfo) => {
+  // workInfo : 사용자가 전달한 작업정보, Object 타입
+
+  // tb_work_ord 테이블에 등록하는 insert문에 정의된 컬럼들
+  let insertColumns = ["work_ord_qty", "model_code", "revision", "model_name"];
+  // 사용자가 전달한 제품정보 중 insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
+  let data = convertObjToAry(workInfo, insertColumns);
+  // workInfo 는 model_router에서 옴
+
+  let resInfo = await mariadb
+    .query("insertWorkOrder", data)
+    .catch((err) => console.log(err));
+  // mariadb 모듈은 DML(insert, update, delete)의 결과를 { affectedRows: 1, insertId: 1, warningStatus: 0 } 로 반환
+  // affectedRows : 실제 실행된 행수 (default : 0)
+  // insertId     : AUTO_INCREMENT를 사용하는 경우 자동 부여된 PRIMARY KEY를 가짐, 무조건 Number 타입 (default : 0)
+  console.log(resInfo.insertId);
+  let result = null;
+  if (resInfo.insertId == 0) {
+    // 정상적으로 등록된 경우
+    result = {
+      isSuccessed: true,
+    };
+  } else {
+    // 등록되지 않은 경우
+    result = {
+      isSuccessed: false,
+    };
+  }
+  return result;
+};
+// 작업지시 등록
+module.exports = {
+  findPlan,
+  findPlanNo,
+  addWorkOrd,
+};

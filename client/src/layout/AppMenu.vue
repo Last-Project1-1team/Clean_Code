@@ -108,6 +108,16 @@ const model = ref([
                 label: '사용자관리',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/useraccount'
+            },
+            {
+                label: '생산계획조회',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/searchprodplan'
+            },
+            {
+                label: '생산계획등록',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/addprodplan'
             }
         ]
     },

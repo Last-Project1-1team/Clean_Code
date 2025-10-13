@@ -1,101 +1,3 @@
-<script setup>
-import { ref, onMounted } from 'vue';
-import ModelMasterSearch from '@/components/ModelMasterSearch.vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
-import { useToast } from 'primevue/usetoast';
-
-const router = useRouter(); // root 컴포넌트에 등록된 라우터를 불러오는 함수
-const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
-// 컴포넌트가 마운트될 때 options 데이터 로드
-onMounted(async () => {
-    const response = await axios.get(`${apiUrl}/modelMaster/modelFlag`);
-    flagDropdown.value = response.data.map((model) => ({
-        label: model.name, // 보여줄 이름
-        value: model.code // 실제 값
-    }));
-});
-
-const modelMaster = ref([]);
-const selectedModel = ref({});
-const flagDropdown = ref([]);
-const toast = useToast();
-const formData = ref({
-    modelCode: '',
-    revision: '',
-    modelName: '',
-    modelFlag: '',
-    lotPQty: '',
-    spec: '',
-    width: '',
-    height: ''
-});
-
-// 초기화 버튼
-function onClearItem() {
-    // console.log('초기화버튼클릭됨');
-    formData.value = {
-        modelCode: '',
-        revision: '',
-        modelName: '',
-        modelFlag: '',
-        lotPQty: null,
-        spec: '',
-        width: '',
-        height: ''
-    };
-}
-
-const modelSearch = (model) => {
-    //console.log('📩 부모: 자식이 보낸 검색값', model);
-    getModelList(model.code, model.revision, model.name);
-};
-
-const getModelList = async (code, revision, name) => {
-    //console.log('🌐 서버 요청 보냄', code, revision, name);
-    let result = await axios
-        .get(`${apiUrl}/modelMaster?`, {
-            params: {
-                modelCode: code || '',
-                revision: revision || '',
-                modelName: name || ''
-            }
-        })
-        .catch((err) => {
-            console.error('제품 조회 실패:', err);
-            modelMaster.value = result.data;
-        });
-    // console.log('✅ 서버 응답', result);
-    // console.log('📦 응답 데이터 타입:', typeof result?.data, result?.data);
-    modelMaster.value = result.data;
-};
-
-const saveButton = async () => {
-    const payload = {
-        model_code: formData.value.modelCode,
-        revision: formData.value.revision,
-        model_name: formData.value.modelName,
-        model_flag: formData.value.modelFlag,
-        lot_p_qty: formData.value.lotPQty,
-        spec: formData.value.spec,
-        wid: formData.value.width,
-        hei: formData.value.height
-    };
-
-    console.log('저장 payload:', payload);
-
-    let result = await axios.post(`${apiUrl}/modelMaster`, payload).catch((err) => console.log(err));
-    let addRes = result.data;
-    if (addRes.isSuccessed) {
-        toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
-    } else {
-        toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
-    }
-    getModelList();
-};
-</script>
-
 <template>
     <div class="card" style="padding: 30px">
         <ModelMasterSearch @search="modelSearch" />
@@ -175,4 +77,103 @@ const saveButton = async () => {
         </div>
     </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import ModelMasterSearch from '@/components/ModelMasterSearch.vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
+
+const router = useRouter(); // root 컴포넌트에 등록된 라우터를 불러오는 함수
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+// 컴포넌트가 마운트될 때 options 데이터 로드
+onMounted(async () => {
+    const response = await axios.get(`${apiUrl}/modelmaster/modelFlag`);
+    flagDropdown.value = response.data.map((model) => ({
+        label: model.name, // 보여줄 이름
+        value: model.code // 실제 값
+    }));
+});
+
+const modelMaster = ref([]);
+const selectedModel = ref({});
+const flagDropdown = ref([]);
+const toast = useToast();
+const formData = ref({
+    modelCode: '',
+    revision: '',
+    modelName: '',
+    modelFlag: '',
+    lotPQty: '',
+    spec: '',
+    width: '',
+    height: ''
+});
+
+// 초기화 버튼
+function onClearItem() {
+    // console.log('초기화버튼클릭됨');
+    formData.value = {
+        modelCode: '',
+        revision: '',
+        modelName: '',
+        modelFlag: '',
+        lotPQty: null,
+        spec: '',
+        width: '',
+        height: ''
+    };
+}
+
+const modelSearch = (model) => {
+    //console.log('📩 부모: 자식이 보낸 검색값', model);
+    getModelList(model.code, model.revision, model.name);
+};
+
+const getModelList = async (code, revision, name) => {
+    //console.log('🌐 서버 요청 보냄', code, revision, name);
+    let result = await axios
+        .get(`${apiUrl}/modelmaster?`, {
+            params: {
+                modelCode: code || '',
+                revision: revision || '',
+                modelName: name || ''
+            }
+        })
+        .catch((err) => {
+            console.error('제품 조회 실패:', err);
+            modelMaster.value = result.data;
+        });
+    // console.log('✅ 서버 응답', result);
+    // console.log('📦 응답 데이터 타입:', typeof result?.data, result?.data);
+    modelMaster.value = result.data;
+};
+
+const saveButton = async () => {
+    const payload = {
+        model_code: formData.value.modelCode,
+        revision: formData.value.revision,
+        model_name: formData.value.modelName,
+        model_flag: formData.value.modelFlag,
+        lot_p_qty: formData.value.lotPQty,
+        spec: formData.value.spec,
+        wid: formData.value.width,
+        hei: formData.value.height
+    };
+
+    console.log('저장 payload:', payload);
+
+    let result = await axios.post(`${apiUrl}/modelMaster`, payload).catch((err) => console.log(err));
+    let addRes = result.data;
+    if (addRes.isSuccessed) {
+        toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
+    } else {
+        toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
+    }
+    getModelList();
+};
+</script>
+
 <style scoped></style>
