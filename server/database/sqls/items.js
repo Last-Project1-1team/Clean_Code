@@ -1,6 +1,6 @@
 const selectItemList =
-    //
-    `SELECT itm.item_code itemCode
+  //
+  `SELECT itm.item_code itemCode
         , itm.item_name itemName
         , itm.spec spec
         , itm.item_class itemClass
@@ -21,14 +21,14 @@ const selectItemList =
     WHERE itm.item_code LIKE ?
       AND itm.item_name LIKE ?`;
 const selectClass =
-    //
-    `SELECT common_code code
+  //
+  `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'item_class'`;
 const selectUnit =
-    //
-    `SELECT common_code code
+  //
+  `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'unit'`;
@@ -182,15 +182,39 @@ const outordListSelect = `
   WHERE oom.outord_date = ?
     `;
 
+const outorderDetailSelect = `
+  SELECT ood.outord_detail_no outordDetailNo
+       , ood.item_code itemCode
+       , itm.item_name itemName
+       , itm.spec spec
+       , itm.unit unit
+       , ood.outord_qty outordQty
+       , 0 inputQty
+    FROM tb_outord_detail ood
+    JOIN tb_item_master itm
+      ON ood.item_code = itm.item_code
+   WHERE ood.outord_no = ?
+`;
+
+const selectLastInputdNo = `
+    SELECT input_no 
+      FROM tb_input 
+     WHERE input_no LIKE ?
+     ORDER BY input_no DESC
+     LIMIT 1
+  `;
+
 module.exports = {
-    selectItemList,
-    selectClass,
-    selectUnit,
-    insertItems,
-    itemOutordSelect,
-    custOutordSelect,
-    insertOutordMaster,
-    insertOutordDetail,
-    selectLastOutordNo,
-    outordListSelect,
+  selectItemList,
+  selectClass,
+  selectUnit,
+  insertItems,
+  itemOutordSelect,
+  custOutordSelect,
+  insertOutordMaster,
+  insertOutordDetail,
+  selectLastOutordNo,
+  outordListSelect,
+  outorderDetailSelect,
+  selectLastInputdNo,
 };
