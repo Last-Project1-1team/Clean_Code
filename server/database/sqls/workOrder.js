@@ -1,10 +1,10 @@
 // Table : tb_work_ord, tb_prod_plan
 
-// 생산계획번호를 조회해서 그리드에 출력 , 공통코드에 공정코드 그룹 만들고 나서 공정 관련 코드 다 추가해야함, 단위도
+// 공정, 생산계획 일자로 조회하는 걸로 변경 where절 수정하기
 const selectProdPlan = `
 SELECT 
         p.prod_plan_no prodPlanNo,
-        TO_CHAR(p.create_date,'YYYY-MM-dd') prodPlanDate,
+        DATE_FORMAT(p.create_date, '%Y-%m-%d') prodPlanDate,
         p.model_code modelCode,
         p.revision,
         m.model_name modelName,
@@ -20,16 +20,17 @@ JOIN tb_proc_routing r
  AND m.revision = r.revision)
 JOIN tb_code c
   ON (c.common_code = r.proc_code)
-WHERE LOWER(p.prod_plan_no) LIKE LOWER(?)
+WHERE r.proc_code LIKE ?
+  
 ORDER BY r.proc_seq DESC
-LIMIT 1
 `;
 
-const selectProdPlanNo = `
-SELECT prod_plan_no prodPlanNo
-FROM tb_prod_plan
-WHERE LOWER(prod_plan_no) LIKE LOWER(?)
-`;
+// 생산계획번호
+// const selectProdPlanNo = `
+// SELECT prod_plan_no prodPlanNo
+// FROM tb_prod_plan
+// WHERE LOWER(prod_plan_no) LIKE LOWER(?)
+// `;
 
 // 작업지시 테이블에 등록할때 작업지시번호, 중복되는 모델 row 처리 생각하기.
 
@@ -54,9 +55,17 @@ SELECT work_ord_no
  LIMIT 1
 `;
 
+// 공정 select
+const selectProc = `
+SELECT common_code code,
+       code_name name
+FROM tb_code
+WHERE group_code = 'proc'
+`;
+
 module.exports = {
   selectProdPlan,
-  selectProdPlanNo,
   insertWorkOrder,
   selectLastWorkOrdNo,
+  selectProc,
 };

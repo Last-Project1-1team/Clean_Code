@@ -7,27 +7,24 @@ const {
   formatFullDate,
 } = require("../utils/converts.js");
 
-const findPlan = async (prodPlanNo) => {
-  // 전체조회면 '%'만 사용
-  const keyword =
-    prodPlanNo && prodPlanNo.trim() !== "" ? `%${prodPlanNo}%` : "%";
-
-  // console.log("🔍 받은 prodPlanNo:", prodPlanNo);
-  // console.log("🔍 실제 검색 키워드:", keyword);
-
-  const list = await mariadb
-    .query("selectProdPlan", [keyword])
+// 전체 조회
+const findPlan = async (proc, prodPlanDate) => {
+  let list = await mariadb
+    .query("selectProdPlan", [`%${proc}%`, `%${prodPlanDate}%`])
     .catch((err) => console.log(err));
-
-  // console.log("🧾 조회 결과:", list);
   return list;
 };
 
-const findPlanNo = async (keyword) => {
-  let list = await mariadb
-    .query("selectProdPlanNo", [`%${keyword}%`])
-    .catch((err) => console.log(err));
-  // console.log("🧾 조회 결과:", list);
+// const findPlanNo = async (keyword) => {
+//   let list = await mariadb
+//     .query("selectProdPlanNo", [`%${keyword}%`])
+//     .catch((err) => console.log(err));
+//   // console.log("🧾 조회 결과:", list);
+//   return list;
+// };
+
+const findProc = async () => {
+  let list = await mariadb.query("selectProc").catch((err) => console.log(err));
   return list;
 };
 
@@ -87,7 +84,7 @@ const addWorkOrd = async (workInfo) => {
 };
 // 작업지시 등록
 module.exports = {
+  findProc,
   findPlan,
-  findPlanNo,
   addWorkOrd,
 };
