@@ -2,9 +2,10 @@
 import { ProductService } from '@/service/ProductService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref, onBeforeMount, shallowRef, computed } from 'vue';
+import { onMounted, ref, onBeforeMount, shallowRef, computed, reactive } from 'vue';
 import Dialog from 'primevue/dialog';
-import CustomModal from '@/views/pages/auth/custmodal.vue';
+// import CustomModal from '@/views/pages/auth/custmodal.vue';
+import CustModal from '@/components/CustSearchModal.vue';
 import axios from 'axios';
 // import ModelModal  from
 // import 제품모달창 from '';
@@ -13,30 +14,43 @@ import axios from 'axios';
 // import { onBeforeMount, shallowRef, computed } from 'vue';
 // import useDateUtils from '@/utils/useDates.js';
 
-//
-const selectinord = ref([
-    { MODEL_CODE: 'MODEL-0001', MODEL_NAME: '휴지1', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0002', MODEL_NAME: '휴지2', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0003', MODEL_NAME: '휴지3', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0004', MODEL_NAME: '휴지4', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0005', MODEL_NAME: '휴지5', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0006', MODEL_NAME: '휴지6', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0007', MODEL_NAME: '휴지7', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0008', MODEL_NAME: '휴지8', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0009', MODEL_NAME: '휴지9', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0010', MODEL_NAME: '휴지10', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0011', MODEL_NAME: '휴지11', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0012', MODEL_NAME: '휴지12', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' },
-    { MODEL_CODE: 'MODEL-0013', MODEL_NAME: '휴지13', REVISION: '0.0a', INORD_QTY: '2000', UNIT: 'KG' }
-]);
+// 폼 상태
+const form = reactive({
+    CUST_CODE: '',
+    CUST_NAME: '',
+    PSCH_PHONE: ''
+});
+
+const selectedinordmodel = ref([]);
 
 const selectedRows = ref([]);
 
-const modelopen = ref(false);
+const custopen = ref(false);
 
-const saveinord = ref([]);
+const handleCustRegister = (cust) => {
+    // 부모 테이블에 추가 (기존 데이터 유지 + 신규 추가)
+    const mapped = cust
+        .filter((cust) => {
+            // 이미 등록된 ITEM_CODE는 제외
+            return !selectedinordmodel.value.some((si) => si.CUST_CODE === cust.custCode);
+        })
+        .map((cust) => ({
+            custCode: cust.CUST_CODE,
+            CUST_NAME: cust.CUST_NAME,
+            PSCH_PHONE: cust.PSCH_PHONE
+        }));
 
-const modalopen = ref(false);
+    selectedinordmodel.value = [...selectedinordmodel.value, ...mapped];
+    selectedinordmodel.value = false; // 모달 닫기
+};
+
+// 모달에서 '단일' 고객 선택 이벤트 처리
+const handleCustSelect = (cust) => {
+    form.CUST_CODE = cust.CUST_CODE;
+    form.CUST_NAME = cust.CUST_NAME;
+    form.PSCH_PHONE = cust.PSCH_PHONE;
+    custopen.value = false;
+};
 </script>
 
 <template>
@@ -45,12 +59,15 @@ const modalopen = ref(false);
             <label for="CUST_CODE" class="flex items-center">업체코드</label>
             <div class="col-span-2">
                 <div class="grid grid-cols-[1fr_auto] gap-2">
-                    <InputText v-model="value" class="w-full" />
-                    <Button @click="modalopen = true" icon="pi pi-search" class="flex-none" style="width: 2.5rem; height: 2.5rem" />
-                    <CustomModal v-model:visible="modalopen" />
+                    <InputText v-model="form.CUST_CODE" class="w-full" />
+                    <Button @click="custopen = true" icon="pi pi-search" class="flex-none" style="width: 2.5rem; height: 2.5rem" />
+
+                    <Dialog v-model:visible="custopen" header="업체 검색" modal style="width: 80vw; height: 80vh">
+                        <CustModal @select="handleCustSelect" @register="handleCustRegister" />
+                    </Dialog>
                 </div>
             </div>
-            <label for="CEO_PHONE" class="flex items-center">담당자 연락처</label>
+            <label for="form.PSCH_PHONE " class="flex items-center">담당자 연락처</label>
             <div class="col-span-2">
                 <InputText id="PSCH_PHONE" type="text" class="w-full" />
             </div>
@@ -58,7 +75,7 @@ const modalopen = ref(false);
         </div>
 
         <div class="grid grid-cols-12 gap-2">
-            <label for="CUST_NAME" class="flex items-center">업체명</label>
+            <label for="form.CUST_NAME" class="flex items-center">업체명</label>
             <div class="col-start-2 col-end-7">
                 <InputText id="PSCH_PHONE" type="text" class="w-full" />
             </div>
@@ -86,7 +103,7 @@ const modalopen = ref(false);
             <Button class="col-start-12" label="Submit">삭제</Button>
         </div>
 
-        <DataTable :value="selectinord" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
+        <DataTable :value="selectedinordmodel" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
             <Column selectionMode="multiple" style="width: 3rem"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>

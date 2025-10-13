@@ -16,69 +16,61 @@ const findinordAll = async () => {
 //
 // 수주MASTER등록
 const { convertObjToAry } = require("../utils/converts.js");
-const addNewinord = async (masterinfo, detailinfo) => {
-  // 1) 수주번호 발급. [변수명]으로 변수를 선언함.이렇게 하면 호출할 때 첫행 결과값을 바로 꺼내 쓸 수 있음.
-  const [masterseqRow] = await conn.query(
-    "SELECT fn_next_inord_no() AS inord_no;" // 시퀀스문을 실행해서 결과값을 배열로 반환
-  );
-  const inordNo = masterseqRow.inord_no; //첫행 바로 호출
-  let masterColumns = [
-    "INORD_NO",
-    "STATUS",
-    "CUST_CODE",
-    "TOTAL_QTY",
-    "INORD_DATE",
-    "PAPRD_DATE",
-  ];
-  // insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
-  let masterdata = convertObjToAry(
-    //masterInfo객체에 masterColumns의 각 칼럼들을 담아서 masterdata라는 배열로 바꾸는 거임
-    { ...masterinfo, INORD_NO: inordNo }, // masterinfo?
-    masterColumns
-  );
-  let resinfomaster = await mariadb
-    .query("insertinordmaster", masterdata)
-    .catch((mastererr) => console.log(mastererr));
-  //
-  //
-  //
-  // 같은 변수 안에서 수주DETAIL등록
-  let detailColumns = [
-    "INORD_DETAIL_NO",
-    "INORD_NO",
-    "STATUS",
-    "CUST_CODE",
-    "TOTAL_QTY",
-    "INORD_DATE",
-    "PAPRD_DATE",
-  ];
-  // insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
-  const [detailSeqRow] = await mariadb.query(
-    "SELECT fn_next_inord_detail_no() AS inord_detail_no;"
-  );
-  const inordDetailNo = detailSeqRow.inord_detail_no; //[detailSeqRow]을 하면 배열 안에 첫 행을 바로 꺼내서 쓸 수 있음.
-  const row = convertObjToAry(
-    { INORD_NO: inordNo, INORD_DETAIL_NO: inordDetailNo },
-    detailColumns
-  );
-  const r = await conn.query("insertinorddetail", row);
-  if (r.affectedRows !== 1) throw new Error("DETAIL insert failed");
+// 북정보(name, writer, publisher, publication_date, info)를 기반으로 등록
+const addNewinord = async (orderDate, deliveryDate, custCode, custs) => {
+  let conn;
+  try {
+    //DB 커넥션을 가져옴.
+    //여러 SQL을 한 번에 처리하기 위해 트랜잭션 시작 (beginTransaction()).
+    conn = await mariadb.getConnection();
+    await conn.beginTransaction();
 
-  let result = null;
-  if (resinfodetail.affectedRows > 0) {
-    // 정상적으로 등록된 경우
-    result = {
-      isSuccessed: true,
-      masterno: masterdata[0], //원래는 resinfo.insertId를 쓰는데 테이블에 자동증가 PK가 없어서 배열로 INORD_NO를 직접 넣음
-      detailno: detaildata[0], //원래는 resinfo.insertId를 쓰는데 테이블에 자동증가 PK가 없어서 배열로 INORD_DETAIL_NO를 직접 넣음
-    };
-  } else {
-    // 등록되지 않은 경우
-    result = {
-      isSuccessed: false,
-    };
+    // 오늘 날짜 YYMMDD 구하기
+    const datePart = formatDate(orderDate);
+    const lastList = await conn.query(sqlList.selectLastInorddNo, [
+      `IO${datePart}%`,
+    ]);
+    let seq = 1;
+    if (lastList.length > 0) {
+      const lastNo = lastList[0].INORD_NO;
+      const lastSeq = parseInt(lastNo.slice(-5)); // 마지막 5자리 추출
+      seq = lastSeq + 1;
+    }
+    let inordDate = formatFullDate(orderDate);
+    let indelDate = formatFullDate(deliveryDate);
+
+    // 신규 수주번호 생성 (OO + YYMMDD + 5자리SEQ)
+    const inordNo = `IO${datePart}${String(seq).padStart(5, "0")}`;
+    const createdBy = "tester";
+
+    // 마스터 등록
+    let insertMaster = [inordNo, inordDate, custCode, indelDate, createdBy];
+    await conn.query(sqlList.insertOutordMaster, insertMaster);
+
+    // 상세 등록
+    let detailNo = 1;
+    // createdBy = "0000000000000000000000000000000000000000000000000000000000000000000000000000";
+    for (const item of items) {
+      let insertDetail = [
+        detailNo,
+        outordNo,
+        item.itemCode,
+        item.qty,
+        createdBy,
+      ];
+      await conn.query(sqlList.insertinordDetail, insertDetail);
+      detailNo++;
+    }
+
+    await conn.commit();
+    return { inordNo, inordount: custs.length };
+  } catch (error) {
+    if (conn) await conn.rollback();
+    console.error("수주 등록 실패:", error);
+    throw error;
+  } finally {
+    if (conn) conn.release?.();
   }
-  return result;
 };
 
 module.exports = {
