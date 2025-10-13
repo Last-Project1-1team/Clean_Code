@@ -81,9 +81,17 @@ const saveWorkOrder = () => {
             <template #start>
                 <!-- 화면 상단 생산계획 검색 부분-->
                 <div class="grid grid-cols-12 gap-2">
-                    <label for="prodPlanNo" class="flex items-center col-3 mb-2 md:mb-0">생산계획코드</label>
-                    <div class="col-1"></div>
-                    <AutoComplete id="prodPlanNo" class="col-span-6" v-model="selectedAutoValue" :suggestions="autoFilteredValue" optionLabel="prodPlanNo" placeholder="생산계획번호" dropdown display="chip" @complete="searchCountry($event)" />
+                    <label for="proc" class="grid grid-cols-1 flex items-center">공정</label>
+                    <div class="col-span-3">
+                        <Select class="w-full" v-model="dropdownValue" :options="dropdownValues" optionLabel="name" placeholder="Select" />
+                    </div>
+
+                    <div class="col-span-1"></div>
+
+                    <label for="prodPlanDate" class="grid grid-cols-1 flex items-center">생산계획일자</label>
+                    <div class="col-span-3">
+                        <DatePicker :showIcon="true" :showButtonBar="true" v-model="calendarValue" dateFormat="yy-mm-dd" class="w-full"></DatePicker>
+                    </div>
                 </div>
             </template>
             <template #end>
@@ -101,7 +109,7 @@ const saveWorkOrder = () => {
             <Column field="revision" header="리비전" sortable style="min-width: 16rem"></Column>
             <Column field="modelName" header="제품명" sortable style="min-width: 16rem"></Column>
             <Column field="procCodeName" header="공정" sortable style="min-width: 16rem"></Column>
-            <Column field="workOrderQty" header="작업지시수량" sortable style="min-width: 16rem">
+            <Column field="workOrdQty" header="작업지시수량" sortable style="min-width: 16rem">
                 <template #editor="{ data, field }">
                     <InputNumber v-model="data[field]" showButtons mode="decimal" />
                 </template>

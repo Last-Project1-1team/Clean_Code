@@ -1,7 +1,11 @@
 // Service에서 필요하면 DB에 접속할 수 있도록 mapper를 가져옴
 const mariadb = require("../database/mapper.js");
 
-//const { convertObjToAry } = require("../utils/converts.js");
+const {
+  convertObjToAry,
+  formatDate,
+  formatFullDate,
+} = require("../utils/converts.js");
 
 const findPlan = async (prodPlanNo) => {
   // 전체조회면 '%'만 사용
@@ -31,23 +35,31 @@ const findPlanNo = async (keyword) => {
 const addWorkOrd = async (workInfo) => {
   // workInfo : 사용자가 전달한 작업정보, Object 타입
 
+  console.log("workInfo : ", workInfo);
+
   // 작업지시번호 시퀀스
-  const datePart = formatDate(orderDate);
+  // 오늘 날짜 YYMMDD 구하기
+  const datePart = formatDate(new Date());
+  const lastList = await mariadb.query("selectLastWorkOrdNo", [
+    `WO${datePart}%`,
+  ]);
   let seq = 1;
 
   if (lastList.length > 0) {
-    const lastNo = lastList[0].OUTORD_NO;
+    const lastNo = lastList[0].WORK_ORD_NO;
     const lastSeq = parseInt(lastNo.slice(-5)); // 마지막 5자리 추출
     seq = lastSeq + 1;
   }
-  let workOrdDate = formatFullDate(workOrdDate);
+  // let workOrdDate = formatFullDate(workOrdDate);
 
   // 신규 작업지시번호 생성 (OO + YYMMDD + 5자리SEQ)
-  const workOrdNo = `OO${datePart}${String(seq).padStart(5, "0")}`;
-  const createdBy = "tester";
+  const workOrdNo = `WO${datePart}${String(seq).padStart(5, "0")}`;
+
+  workInfo.work_ord_no = workOrdNo;
 
   // tb_work_ord 테이블에 등록하는 insert문에 정의된 컬럼들
-  let insertColumns = ["workOrdNo", "model_code", "revision", "work_ord_qty"];
+  //let insertColumns = ["work_ord_no", "model_code", "revision", "work_ord_qty"];
+  let insertColumns = [workOrdNo, modelCode, revision, workOrdQty];
   // 사용자가 전달한 제품정보 중 insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
   let data = convertObjToAry(workInfo, insertColumns);
   // workInfo 는 model_router에서 옴

@@ -35,22 +35,28 @@ WHERE LOWER(prod_plan_no) LIKE LOWER(?)
 
 const insertWorkOrder = `
 INSERT INTO tb_work_ord
-(model_code,
+(work_ord_no,
+model_code,
 revision,
-proc_code,
-work_ord_qty,
-unit
+work_ord_qty
 )
 VALUES
 (?,
 ?,
 ?,
-?,
 ?)
+`;
+
+const selectLastWorkOrdNo = `
+SELECT work_ord_no
+  FROM tb_work_ord
+ ORDER BY work_ord_no DESC
+ LIMIT 1
 `;
 
 module.exports = {
   selectProdPlan,
   selectProdPlanNo,
   insertWorkOrder,
+  selectLastWorkOrdNo,
 };
