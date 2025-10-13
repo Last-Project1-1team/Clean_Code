@@ -66,7 +66,6 @@ router.get("/itemMaster/unit", async (req, res) => {
 router.post("/itemMaster", async (req, res) => {
     // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
     let itemInfo = req.body;
-    console.log(itemInfo);
     let result = await itemService.addNewItem(itemInfo).catch((err) => console.log(err));
     res.send(result);
 });
@@ -82,6 +81,50 @@ router.get("/outorderitem", async (req, res) => {
     //       통신이 종료되지 않음
     // res.send()는 데이터를 반환하는 응답 메소드며 객체를 반환하므로 JSON으로 자동 변환
     res.send(itemList);
+});
+// 전체조회 : 자원(데이터) -> books / 조회 -> GET
+router.get("/outordercust", async (req, res) => {
+    // 해당 엔드포인트(URL+METHOD)로 접속할 경우 제공되는 서비스를 실행
+    // -> 서비스가 DB에 접속하므로 비동기 작업, await/async를 활용해서 동기식으로 동작하도록 진행
+    let custCode = req.query.custCode;
+    let custName = req.query.custName;
+    let custList = await itemService.findOutOrderCust(custCode, custName).catch((err) => console.log(err));
+    // res(Http Response에 대응되는 변수)의 응답메소드를 호출해 데이터를 반환하거나 통신을 종료
+    // 주의) res(Http Response에 대응되는 변수)의 응답메소드를 호출하지 않으면
+    //       통신이 종료되지 않음
+    // res.send()는 데이터를 반환하는 응답 메소드며 객체를 반환하므로 JSON으로 자동 변환
+    res.send(custList);
+});
+
+router.post("/outord", async (req, res) => {
+    const { orderDate, deliveryDate, custCode, custName, items } = req.body;
+
+    try {
+        const result = await itemService.addNewOutord(orderDate, deliveryDate, custCode, items);
+        res.status(200).json({
+            message: "발주정보 저장 성공",
+            outordNo: result.outordNo,
+            itemCount: result.itemCount,
+        });
+    } catch (error) {
+        console.error("❌ 발주 저장 실패:", error);
+        res.status(500).json({
+            message: "발주정보 저장 중 오류가 발생했습니다.",
+            error: error.message,
+        });
+    }
+});
+
+router.get("/outorderList", async (req, res) => {
+    // 해당 엔드포인트(URL+METHOD)로 접속할 경우 제공되는 서비스를 실행
+    // -> 서비스가 DB에 접속하므로 비동기 작업, await/async를 활용해서 동기식으로 동작하도록 진행
+    let outordDate = req.query["outordDate[date]"];
+    let custList = await itemService.findOutOrderList(outordDate).catch((err) => console.log(err));
+    // res(Http Response에 대응되는 변수)의 응답메소드를 호출해 데이터를 반환하거나 통신을 종료
+    // 주의) res(Http Response에 대응되는 변수)의 응답메소드를 호출하지 않으면
+    //       통신이 종료되지 않음
+    // res.send()는 데이터를 반환하는 응답 메소드며 객체를 반환하므로 JSON으로 자동 변환
+    res.send(custList);
 });
 
 // 해당 javascript 파일의 마지막 코드, 모듈화

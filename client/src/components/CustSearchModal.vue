@@ -1,61 +1,59 @@
 <script setup>
 import axios from 'axios';
 import Dialog from 'primevue/dialog';
-import { ref, watch, onBeforeMount, shallowRef, computed, onMounted } from 'vue'; //반응형 객체
+
+import { onMounted, ref } from 'vue';
 import CustSearchVue from './CustSearch.vue';
 
-// 1) 데이터가 필요
-const custList = shallowRef([]); // <- 반응형 객체
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+const emit = defineEmits(['register']);
+const custs = ref([]);
+const selectcusts = ref([]);
+const keyword = ref('');
 
-// 2) server로부터 데이터 가져오기 => axios API
-const getCustList = async () => {
-    let result = await axios.get('/api/custselect').catch((err) => console.log(err)); // 경로 풀네임이 api로 변경됨.
-    custList.value = result.data;
+onMounted(async () => {
+    getCustList('', '');
+});
+
+const registerCusts = () => {
+    // 부모로 선택된 데이터 전달
+    emit('register', selectcusts.value);
 };
 
-// 3) 컴포넌트가 화면에 보여지기 직전에
-// Server로부터 데이터를 가져오기
-onBeforeMount(() => {
-    getCustList();
-});
+const handleSubmit = (cust) => {
+    getCustList(cust.code, cust.name);
+};
+const handleToss = () => {
+    registerCusts();
+};
 
-const emit = defineEmits(['custreg']);
+const getCustList = async (code, name) => {
+    let result = await axios
+        .get(`${apiUrl}/outordercust?`, {
+            params: {
+                custCode: code || '',
+                custName: name || ''
+            }
+        })
+        .catch((err) => {
+            console.error('아이템 조회 실패:', err);
+            custs.value = [];
+        });
+    custs.value = result.data;
+};
 
-const selectcust = ref([
-    // { CUST_CODE: 'CUST-0001', CUST_NAME: '업체1', PSCH_PHONE: '010-1234-5678' },
-    // { CUST_CODE: 'CUST-0002', CUST_NAME: '업체2', PSCH_PHONE: '010-1234-5678' },
-    // { CUST_CODE: 'CUST-0003', CUST_NAME: '업체3', PSCH_PHONE: '010-1234-5678' },
-    // { CUST_CODE: 'CUST-0004', CUST_NAME: '업체4', PSCH_PHONE: '010-1234-5678' },
-    // { CUST_CODE: 'CUST-0005', CUST_NAME: '업체5', PSCH_PHONE: '010-1234-5678' },
-]);
-
-const selectedRows = ref([]);
-
-// // // multiple 단일 선택 함수. 챗지피티가 만듬
-watch(selectedRows, (v) => {
-    if (v.length > 1) selectedRows.value = [v.at(-1)];
-});
+// // multiple 단일 선택 함수. 챗지피티가 만듬
+// watch(selectedRows, (v) => {
+//     if (v.length > 1) selectedRows.value = [v.at(-1)];
+// });
 </script>
 
 <template>
     <CustSearchVue @submit="handleSubmit" @toss="handleToss" />
-    <!-- <div class="grid grid-cols-10 gap-2">
-            <label for="INORD_DATE" class="flex items-center">업체코드</label>
-            <div class="col-span-2">
-                <InputText id="PSCH_PHONE" type="text" class="w-full" />
-            </div>
-            <label for="PAPRD_DATE" class="flex items-center">업체명</label>
-            <div class="col-span-2">
-                <InputText id="PSCH_PHONE" type="text" class="w-full" />
-            </div>
-            <Button class="col-start-9" label="등록"></Button>
-            <Button class="col-start-10" label="조회"></Button>
-        </div> -->
-    <DataTable :value="custList" v-model:selection="selectedRows" selectionMode="single" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
-        <Column selectionMode="single" headerStyle="width: 3em" />
-        <Column field="CUST_CODE" header="업체코드" sortable style="min-width: 5em"></Column>
-        <Column field="CUST_NAME" header="업체명" sortable style="min-width: 10em"></Column>
-        <Column field="PSCH_PHONE" header="담당자연락처" sortable style="min-width: 3em"></Column>
+    <DataTable :value="custs" v-model:selection="selectcusts" dataKey="custCode" scrollable scrollHeight="40vh" selectionMode="single">
+        <Column field="custCode" header="업체코드" sortable style="min-width: 5em"></Column>
+        <Column field="custName" header="업체명" sortable style="min-width: 10em"></Column>
+        <Column field="pschPhone" header="담당자연락처" sortable style="min-width: 3em"></Column>
     </DataTable>
 </template>
 
