@@ -1,3 +1,110 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import ModelMasterSearch from '@/components/ModelMasterSearch.vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
+
+const router = useRouter(); // root 컴포넌트에 등록된 라우터를 불러오는 함수
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+// 컴포넌트가 마운트될 때 options 데이터 로드
+onMounted(async () => {
+    const response = await axios.get(`${apiUrl}/modelmaster/modelFlag`);
+    flagDropdown.value = response.data.map((model) => ({
+        label: model.name, // 보여줄 이름
+        value: model.code // 실제 값
+    }));
+    const responseUnit = await axios.get(`${apiUrl}/modelmaster/modelUnit`);
+    flagDropdownUnit.value = responseUnit.data.map((model) => ({
+        label: model.code, // 보여줄 이름
+        value: model.name // 실제 값
+    }));
+});
+
+const modelMaster = ref([]);
+const selectedModel = ref({});
+const flagDropdown = ref([]);
+const flagDropdownUnit = ref([]);
+const toast = useToast();
+const formData = ref({
+    modelCode: '',
+    revision: '',
+    modelName: '',
+    modelFlag: '',
+    lotPQty: '',
+    spec: '',
+    width: '',
+    height: '',
+    unit: ''
+});
+
+// 초기화 버튼
+function onClearItem() {
+    // console.log('초기화버튼클릭됨');
+    formData.value = {
+        modelCode: '',
+        revision: '',
+        modelName: '',
+        modelFlag: '',
+        lotPQty: null,
+        spec: '',
+        width: '',
+        height: '',
+        unit: ''
+    };
+}
+
+const modelSearch = (model) => {
+    //console.log('📩 부모: 자식이 보낸 검색값', model);
+    getModelList(model.code, model.revision, model.name);
+};
+
+const getModelList = async (code, revision, name) => {
+    //console.log('🌐 서버 요청 보냄', code, revision, name);
+    let result = await axios
+        .get(`${apiUrl}/modelmaster?`, {
+            params: {
+                modelCode: code || '',
+                revision: revision || '',
+                modelName: name || ''
+            }
+        })
+        .catch((err) => {
+            console.error('제품 조회 실패:', err);
+            modelMaster.value = result.data;
+        });
+    // console.log('✅ 서버 응답', result);
+    // console.log('📦 응답 데이터 타입:', typeof result?.data, result?.data);
+    modelMaster.value = result.data;
+};
+
+const saveButton = async () => {
+    const payload = {
+        model_code: formData.value.modelCode,
+        revision: formData.value.revision,
+        model_name: formData.value.modelName,
+        model_flag: formData.value.modelFlag,
+        lot_p_qty: formData.value.lotPQty,
+        spec: formData.value.spec,
+        wid: formData.value.width,
+        hei: formData.value.height,
+        unit: formData.value.unit
+    };
+
+    console.log('저장 payload:', payload);
+
+    let result = await axios.post(`${apiUrl}/modelMaster`, payload).catch((err) => console.log(err));
+    let addRes = result.data;
+    if (addRes.isSuccessed) {
+        toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
+    } else {
+        toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
+    }
+    getModelList();
+};
+</script>
+
 <template>
     <div class="card" style="padding: 30px">
         <ModelMasterSearch @search="modelSearch" />
@@ -6,13 +113,14 @@
 
         <DataTable :value="modelMaster" v-model:selection="selectedModel" selectionMode="single" datakey="modelCode" scrollable scrollHeight="400px" class="mt-6" style="height: 40vh; border: 1px solid #ddd" @rowSelect="formData = { ...$event.data }">
             <Column field="modelCode" header="제품코드" style="min-width: 200px"></Column>
-            <Column field="modelName" header="제품명" style="min-width: 300px"></Column>
+            <Column field="modelName" header="제품명" style="min-width: 250px"></Column>
             <Column field="revision" header="리비전" style="min-width: 150px"></Column>
             <Column field="modelFlagName" header="제품구분" style="min-width: 150px"></Column>
             <Column field="lotPQty" header="LOT당 수량" style="min-width: 150px"></Column>
             <Column field="spec" header="규격" style="min-width: 200px"></Column>
             <Column field="width" header="폭" style="min-width: 100px"></Column>
             <Column field="height" header="길이" style="min-width: 100px"></Column>
+            <Column field="unit" header="단위" style="min-width: 100px"></Column>
         </DataTable>
 
         <!-- 제품Master 하단 제품 등록 / 수정-->
@@ -35,8 +143,15 @@
             <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton" />
 
             <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품명</label>
-            <div class="col-span-8">
+            <div class="col-span-3">
                 <InputText id="modelName" type="text" class="w-full" v-model="formData.modelName" />
+            </div>
+
+            <div class="col-span-1"></div>
+
+            <label for="unit" class="flex items-center col-span-1 mb-2 md:mb-0">단위</label>
+            <div class="col-span-3">
+                <Select class="w-full" v-model="formData.unit" :options="flagDropdownUnit" optionLabel="label" optionValue="value" />
             </div>
 
             <div class="col-span-3"></div>
@@ -77,103 +192,5 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from 'vue';
-import ModelMasterSearch from '@/components/ModelMasterSearch.vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
-import { useToast } from 'primevue/usetoast';
-
-const router = useRouter(); // root 컴포넌트에 등록된 라우터를 불러오는 함수
-const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
-// 컴포넌트가 마운트될 때 options 데이터 로드
-onMounted(async () => {
-    const response = await axios.get(`${apiUrl}/modelmaster/modelFlag`);
-    flagDropdown.value = response.data.map((model) => ({
-        label: model.name, // 보여줄 이름
-        value: model.code // 실제 값
-    }));
-});
-
-const modelMaster = ref([]);
-const selectedModel = ref({});
-const flagDropdown = ref([]);
-const toast = useToast();
-const formData = ref({
-    modelCode: '',
-    revision: '',
-    modelName: '',
-    modelFlag: '',
-    lotPQty: '',
-    spec: '',
-    width: '',
-    height: ''
-});
-
-// 초기화 버튼
-function onClearItem() {
-    // console.log('초기화버튼클릭됨');
-    formData.value = {
-        modelCode: '',
-        revision: '',
-        modelName: '',
-        modelFlag: '',
-        lotPQty: null,
-        spec: '',
-        width: '',
-        height: ''
-    };
-}
-
-const modelSearch = (model) => {
-    //console.log('📩 부모: 자식이 보낸 검색값', model);
-    getModelList(model.code, model.revision, model.name);
-};
-
-const getModelList = async (code, revision, name) => {
-    //console.log('🌐 서버 요청 보냄', code, revision, name);
-    let result = await axios
-        .get(`${apiUrl}/modelmaster?`, {
-            params: {
-                modelCode: code || '',
-                revision: revision || '',
-                modelName: name || ''
-            }
-        })
-        .catch((err) => {
-            console.error('제품 조회 실패:', err);
-            modelMaster.value = result.data;
-        });
-    // console.log('✅ 서버 응답', result);
-    // console.log('📦 응답 데이터 타입:', typeof result?.data, result?.data);
-    modelMaster.value = result.data;
-};
-
-const saveButton = async () => {
-    const payload = {
-        model_code: formData.value.modelCode,
-        revision: formData.value.revision,
-        model_name: formData.value.modelName,
-        model_flag: formData.value.modelFlag,
-        lot_p_qty: formData.value.lotPQty,
-        spec: formData.value.spec,
-        wid: formData.value.width,
-        hei: formData.value.height
-    };
-
-    console.log('저장 payload:', payload);
-
-    let result = await axios.post(`${apiUrl}/modelMaster`, payload).catch((err) => console.log(err));
-    let addRes = result.data;
-    if (addRes.isSuccessed) {
-        toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
-    } else {
-        toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
-    }
-    getModelList();
-};
-</script>
 
 <style scoped></style>

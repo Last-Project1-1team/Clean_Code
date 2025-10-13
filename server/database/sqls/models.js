@@ -13,7 +13,8 @@ SELECT m.model_code modelCode,
         m.model_class modelClass,
         m.spec,
         m.wid width,
-        m.hei height
+        m.hei height,
+        m.unit
 FROM tb_model_master m
 JOIN tb_code c1
   ON (m.model_flag = c1.common_code
@@ -29,6 +30,14 @@ const selectModelFlag = `SELECT common_code code,
         code_name name
   FROM tb_code
   WHERE group_code = 'model_flag'`;
+
+// 단위  unit
+const selectUnit = `
+SELECT common_code code,
+       code_name
+FROM tb_code
+WHERE group_code = 'unit';
+`;
 
 // 등록
 const insertModel = `
@@ -73,6 +82,7 @@ FROM tb_model_master
 module.exports = {
   selectAllModelList,
   selectModelFlag,
+  selectUnit,
   insertModel,
   modalSearch,
 };

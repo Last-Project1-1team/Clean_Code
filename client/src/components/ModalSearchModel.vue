@@ -1,5 +1,13 @@
+<script setup>
+import { ref, defineProps, defineEmits } from 'vue';
+import axios from 'axios';
+import Dialog from 'primevue/dialog';
+
+const emit = defineEmits([]);
+</script>
+
 <template>
-    <Dialog v-model:modelModal="custmodal" modal header="업체" style="width: 70vw">
+    <Dialog v-model:modelModal="custmodal" modal header="제품선택" style="width: 70vw">
         <div class="grid grid-cols-10 gap-2">
             <label for="model_code" class="flex items-center">제품코드</label>
             <div class="col-span-2">
@@ -25,10 +33,3 @@
         </DataTable>
     </Dialog>
 </template>
-<script setup>
-import { ref, defineProps, defineEmits } from 'vue';
-import axios from 'axios';
-import Dialog from 'primevue/dialog';
-
-const emit = defineEmits([]);
-</script>

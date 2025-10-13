@@ -31,8 +31,23 @@ const findPlanNo = async (keyword) => {
 const addWorkOrd = async (workInfo) => {
   // workInfo : 사용자가 전달한 작업정보, Object 타입
 
+  // 작업지시번호 시퀀스
+  const datePart = formatDate(orderDate);
+  let seq = 1;
+
+  if (lastList.length > 0) {
+    const lastNo = lastList[0].OUTORD_NO;
+    const lastSeq = parseInt(lastNo.slice(-5)); // 마지막 5자리 추출
+    seq = lastSeq + 1;
+  }
+  let workOrdDate = formatFullDate(workOrdDate);
+
+  // 신규 작업지시번호 생성 (OO + YYMMDD + 5자리SEQ)
+  const workOrdNo = `OO${datePart}${String(seq).padStart(5, "0")}`;
+  const createdBy = "tester";
+
   // tb_work_ord 테이블에 등록하는 insert문에 정의된 컬럼들
-  let insertColumns = ["work_ord_qty", "model_code", "revision", "model_name"];
+  let insertColumns = ["workOrdNo", "model_code", "revision", "work_ord_qty"];
   // 사용자가 전달한 제품정보 중 insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
   let data = convertObjToAry(workInfo, insertColumns);
   // workInfo 는 model_router에서 옴

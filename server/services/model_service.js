@@ -23,6 +23,11 @@ const findFlag = async () => {
   return list;
 };
 
+const findUnit = async () => {
+  let list = await mariadb.query("selectUnit").catch((err) => console.log(err));
+  return list;
+};
+
 // 제품 등록, 수정
 const addNewModel = async (modelInfo) => {
   // bookInfo : 사용자가 전달한 북정보, Object 타입
@@ -69,5 +74,6 @@ module.exports = {
   // 해당 객체에 등록해야지 외부로 노출
   findAll,
   findFlag,
+  findUnit,
   addNewModel,
 };
