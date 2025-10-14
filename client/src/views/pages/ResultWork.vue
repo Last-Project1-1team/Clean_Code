@@ -2,15 +2,25 @@
 import { ref } from 'vue';
 import WorkOrderModal from '@/components/WorkOrderModal.vue';
 
-const workOrdmodalVisible = ref(false);
+const openWorkOrdModal = ref(false);
+const searchWorkOrdNo = ref(''); // 입력창 값
+const workOrd = ref([]); // DataTable에 보여질 데이터
+const selectedModel = ref(null); // 선택된 행
+const formData = ref({}); // rowSelect 시 표시할 데이터
+
+// 모달에서 선택된 작업지시 받아오기
+const onSelectWorkOrd = (data) => {
+    workOrd.value = [data]; // 선택된 데이터 표시
+    openWorkOrdModal.value = false; // 모달 닫기
+};
 </script>
 
 <template>
     <div class="card flex flex-col gap-4">
         <div class="grid grid-cols-12 gap-2">
-            <label for="name3" class="flex items-center col-span-2 mb-2">작업지시서</label>
-            <InputText class="col-span-9" id="name3" type="text" />
-            <Button @click="workOrdmodalVisible = true" type="button" class="mr-2 mb-2" icon="pi pi-search" />
+            <label for="workord" class="flex items-center col-span-2 mb-2">작업지시서</label>
+            <InputText v-model="searchWorkOrdNo" class="col-span-9" id="workord" type="text" />
+            <Button @click="openWorkOrdModal = true" type="button" class="mr-2 mb-2" icon="pi pi-search" />
         </div>
         <div class="grid grid-cols-12 gap-2">
             <label for="email3" class="flex items-center col-span-2 mb-2">LOT번호</label>
@@ -18,7 +28,7 @@ const workOrdmodalVisible = ref(false);
             <Button type="button" class="mr-2 mb-2" icon="pi pi-search" />
         </div>
 
-        <DataTable :value="workOrd" v-model:selection="selectedModel" datakey="workOrdNo" scrollable scrollHeight="400px" class="custom-table mt-6" @rowSelect="formData = { ...$event.data }">
+        <DataTable :value="workOrd" v-model:selection="selectedWorkOrd" datakey="workOrdNo" scrollable scrollHeight="400px" class="custom-table mt-6" @rowSelect="formData = { ...$event.data }">
             <Column field="workOrdNo" header="작업지시서 번호" style="min-width: 150px"></Column>
             <Column field="modelCode" header="제품코드" style="min-width: 150px"></Column>
             <Column field="revision" header="리비전" style="min-width: 150px"></Column>
@@ -34,8 +44,8 @@ const workOrdmodalVisible = ref(false);
             <Column field="qty" header="수량" style="min-width: 150px"></Column>
         </DataTable>
 
-        <Dialog v-model:visible="workOrdmodalVisible" header="작업지시서 조회" modal style="width: 80vw; height: 80vh">
-            <WorkOrderModal @workOrdreg="handleWorkOrdRegister" />
+        <Dialog v-model:visible="openWorkOrdModal" header="작업지시서 조회" modal style="width: 80vw; height: 80vh">
+            <WorkOrderModal :searchWorkOrdNo="searchWorkOrdNo" @selectWorkOrd="onSelectWorkOrd" />
         </Dialog>
 
         <div class="buttons">
