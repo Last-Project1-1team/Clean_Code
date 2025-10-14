@@ -21,22 +21,48 @@ router.get("/custselect", async (req, res) => {
 });
 //
 //
-// 수주마스터등록    : 자원(데이터) -> books / 등록 -> POST
-router.post("/insertinsert", async (req, res) => {
-  // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
-  let masterinfo = req.body;
-  // console.log(inordinfo);
-  let result = await inordService
-    .addNewinord(masterinfo)
-    .catch((err) => console.log(err));
-  res.send(result);
+// // 수주마스터등록    : 자원(데이터) -> books / 등록 -> POST
+// router.post("/insertinsert", async (req, res) => {
+//   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
+//   let masterinfo = req.body;
+//   // console.log(inordinfo);
+//   let result = await inordService
+//     .addNewinord(masterinfo)
+//     .catch((err) => console.log(err));
+//   res.send(result);
 
-  const detailinfo = req.body;
-  // console.log(inordinfo);
-  let result1 = await inordService
-    .addNewinord(detailinfo)
-    .catch((err) => console.log(err));
-  res.send(result1);
+//   const detailinfo = req.body;
+//   // console.log(inordinfo);
+//   let result1 = await inordService
+//     .addNewinord(detailinfo)
+//     .catch((err) => console.log(err));
+//   res.send(result1);
+// });
+//
+//
+// 수주등록
+router.post("/insertinord", async (req, res) => {
+  const { orderDate, paprdDate, custCode, custName, models } = req.body;
+
+  try {
+    const result = await inordService.addNewInord(
+      orderDate,
+      paprdDate,
+      custCode,
+      models
+    );
+    res.status(200).json({
+      message: "수주정보 저장 성공",
+      inordNo: result.inordNo,
+      modelCount: result.modelCount,
+    });
+  } catch (error) {
+    console.error("❌ 수주 저장 실패:", error);
+    res.status(500).json({
+      message: "수주정보 저장 중 오류가 발생했습니다.",
+      error: error.message,
+    });
+  }
 });
 
 // 해당 javascript 파일의 마지막 코드, 모듈화

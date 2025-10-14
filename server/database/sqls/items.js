@@ -1,6 +1,6 @@
 const selectItemList =
-  //
-  `SELECT itm.item_code itemCode
+    //
+    `SELECT itm.item_code itemCode
         , itm.item_name itemName
         , itm.spec spec
         , itm.item_class itemClass
@@ -21,14 +21,14 @@ const selectItemList =
     WHERE itm.item_code LIKE ?
       AND itm.item_name LIKE ?`;
 const selectClass =
-  //
-  `SELECT common_code code
+    //
+    `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'item_class'`;
 const selectUnit =
-  //
-  `SELECT common_code code
+    //
+    `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'unit'`;
@@ -180,6 +180,7 @@ const outordListSelect = `
    JOIN tb_cust cst
 	 ON oom.cust_code = cst.cust_code
   WHERE oom.outord_date = ?
+    AND oom.status <> 9
     `;
 
 const outorderDetailSelect = `
@@ -188,6 +189,7 @@ const outorderDetailSelect = `
        , itm.item_name itemName
        , itm.spec spec
        , itm.unit unit
+       , ood.input_qty eInputQty
        , ood.outord_qty outordQty
        , 0 inputQty
     FROM tb_outord_detail ood
@@ -196,25 +198,41 @@ const outorderDetailSelect = `
    WHERE ood.outord_no = ?
 `;
 
-const selectLastInputdNo = `
+const selectLastInputNo = `
     SELECT input_no 
       FROM tb_input 
      WHERE input_no LIKE ?
      ORDER BY input_no DESC
      LIMIT 1
   `;
+const selectInputList = `
+    SELECT inp.input_no inputNo
+         , to_char(inp.input_date, 'YYYY-MM-DD') inputDate
+         , inp.item_code itemCode
+         , itm.item_name itemName
+         , itm.spec spec
+         , itm.unit unit
+         , inp.input_qty inputQty
+      FROM tb_input inp
+      JOIN tb_item_master itm 
+        ON inp.item_code = itm.item_code
+     WHERE inp.status = 5
+       AND inp.item_code like ?
+       AND itm.item_name like ?;
+`;
 
 module.exports = {
-  selectItemList,
-  selectClass,
-  selectUnit,
-  insertItems,
-  itemOutordSelect,
-  custOutordSelect,
-  insertOutordMaster,
-  insertOutordDetail,
-  selectLastOutordNo,
-  outordListSelect,
-  outorderDetailSelect,
-  selectLastInputdNo,
+    selectItemList,
+    selectClass,
+    selectUnit,
+    insertItems,
+    itemOutordSelect,
+    custOutordSelect,
+    insertOutordMaster,
+    insertOutordDetail,
+    selectLastOutordNo,
+    outordListSelect,
+    outorderDetailSelect,
+    selectLastInputNo,
+    selectInputList,
 };

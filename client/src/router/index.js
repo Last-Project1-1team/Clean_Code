@@ -126,6 +126,11 @@ const router = createRouter({
                     name: 'iteminput',
                     component: () => import('@/views/pages/ItemInput.vue')
                 },
+                {
+                    path: '/pages/iteminputconfirm',
+                    name: 'iteminputconfirm',
+                    component: () => import('@/views/pages/ItemInputConfirm.vue')
+                },
                 //
                 // 생산관리
                 //
@@ -158,6 +163,11 @@ const router = createRouter({
                     path: '/pages/addprodplan',
                     name: 'addprodplan',
                     component: () => import('@/views/pages/AddProdPlan.vue')
+                },
+                {
+                    path: '/pages/resultwork',
+                    name: 'resultwork',
+                    component: () => import('@/views/pages/ResultWork.vue')
                 },
                 //
                 // 영업관리

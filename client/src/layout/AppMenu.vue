@@ -85,9 +85,14 @@ const model = ref([
                 to: '/pages/outorderreg'
             },
             {
-                label: '자재입고',
+                label: '자재가입고',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/iteminput'
+            },
+            {
+                label: '자재입고확정',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/iteminputconfirm'
             },
             {
                 label: '제품정보',
@@ -128,6 +133,11 @@ const model = ref([
                 label: '수주등록',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/InOrderReg'
+            },
+            {
+                label: '생산실적',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/resultwork'
             }
         ]
     },
