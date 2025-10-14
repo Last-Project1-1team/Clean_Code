@@ -19,8 +19,12 @@ const commonCode = ref([]);
 
 //공통코드 드롭다운
 const commonDropdown = ref([]);
-
-//
+// 왼쪽 테이블 데이터
+const leftData = ref([]);
+// 오른쪽 입력폼 데이터
+const rightData = ref([]);
+// 코드그룹 목록
+const codeGroupOptions = ref([]);
 const formData = ref({
     codeGroup: '',
     codeId: '',
@@ -90,8 +94,8 @@ const saveButton = async () => {
             </div>
 
             <div class="flex gap-2">
-                <Button label="조회" :fluid="false" @click="getCommonList"></Button>
                 <Button label="저장" :fluid="false" @click="saveButton"></Button>
+                <Button label="조회" :fluid="false" @click="getCommonList"></Button>
             </div>
         </div>
         <!-- 하단: 좌/우 그리드 -->
