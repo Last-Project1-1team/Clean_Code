@@ -10,37 +10,52 @@ const selectInordOne = ``;
 // 시퀀스 호출
 
 // 등록
-const inserinordmaster = `
-INSERT INTO tb_inord_master
+const insertInordMaster = `
+    INSERT INTO tb_inord_master 
         ( inord_no
-        , status
-        , cust_code
-        , total_qty
         , inord_date
-        , paprd_date) 
-VALUES
-        ( ?
+        , cust_code
+        , paprd_date
+        , status
+        , created_by
+        , create_date)
+        VALUES 
+        (?
+        , STR_TO_DATE(?, '%Y-%m-%d')
         , ?
+        , STR_TO_DATE(?, '%Y-%m-%d')
+        , '0'
         , ?
-        , ?
-        , ?
-        , ?);
-`;
+        , NOW())
+        `;
 
-const insertinorddetail = `
-INSERT INTO tb_inord_detail
-        ( inord_detail_no
-        , inord_no
-        , model_code
-        , revision
-        , inord_qty)
-VALUES
-        ( ?
-        , ?
-        , ?
-        , ?
-        , ?)
-`;
+const insertInordDetail = `
+    INSERT INTO tb_outord_detail 
+      (inord_detail_no
+     , inord_no
+     , model_code
+     , revision
+     , inord_qty
+     , created_by
+     , create_date)
+    VALUES 
+      (?
+     , ?
+     , ?
+     , '0'
+     , ?
+     , ?
+     , NOW())
+  `;
+
+// 수주번호 가져오기
+const selectLastInordNo = `
+    SELECT INORD_NO 
+      FROM TB_OUTORD_MASTER 
+     WHERE INORD_NO LIKE ?
+     ORDER BY INORD_NO DESC
+     LIMIT 1
+  `;
 
 // 수정
 
@@ -53,6 +68,7 @@ WHERE MODEL_CODE = ?`;
 
 module.exports = {
   selectInordList,
-  inserinordmaster,
-  insertinorddetail,
+  insertInordMaster,
+  insertInordDetail,
+  selectLastInordNo,
 };
