@@ -131,6 +131,11 @@ const router = createRouter({
                     name: 'iteminputconfirm',
                     component: () => import('@/views/pages/ItemInputConfirm.vue')
                 },
+                {
+                    path: '/pages/itemoutput',
+                    name: 'itemoutput',
+                    component: () => import('@/views/pages/ItemOutput.vue')
+                },
                 //
                 // 생산관리
                 //
