@@ -10,7 +10,7 @@ import ChartsExample from '@/views/uikit/ChartDoc.vue';
 import { ProductService } from '@/service/ProductService';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref, shallowRef } from 'vue';
-import ItemMasterSearchVue from '../../components/ItemMasterSearch.vue';
+import ItemMasterSearchVue from '@/components/ItemMasterSearch.vue';
 import VirtualScroller from 'primevue/virtualscroller';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
