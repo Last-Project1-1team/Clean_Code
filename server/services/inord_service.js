@@ -60,7 +60,7 @@ const addNewInord = async (orderDate, paprdDate, custCode, models) => {
         detailNo,
         inordNo,
         model.modelCode,
-        model.qty,
+        model.inordQty,
         createdBy,
       ];
       await conn.query(sqlList.insertInordDetail, insertDetail);

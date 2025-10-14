@@ -29,8 +29,8 @@ const insertInordMaster = `
         , NOW())
         `;
 
-const insertInordDetail = `
-    INSERT INTO tb_outord_detail 
+const insertInordDetail = ` 
+    INSERT INTO tb_inord_detail 
       (inord_detail_no
      , inord_no
      , model_code
@@ -51,7 +51,7 @@ const insertInordDetail = `
 // 수주번호 가져오기
 const selectLastInordNo = `
     SELECT INORD_NO 
-      FROM TB_OUTORD_MASTER 
+      FROM TB_INORD_MASTER 
      WHERE INORD_NO LIKE ?
      ORDER BY INORD_NO DESC
      LIMIT 1

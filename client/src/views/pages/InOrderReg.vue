@@ -5,7 +5,7 @@ import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import Dialog from 'primevue/dialog';
 import CustSearchModal from '@/components/CustSearchModal.vue';
-import ModelSearchModal from '@/components/ModelSearchModal.vue';
+import ModelSearchModal from '@/components/ModelSearchModal1.vue';
 import axios from 'axios';
 
 const selectedmodel = ref([]);
@@ -68,7 +68,7 @@ const onSave = async () => {
 
     const payload = {
         orderDate: today.value,
-        deliveryDate: selectedDate.value,
+        paprdDate: selectedDate.value,
         custCode: custCode.value,
         models: selectedmodel.value.map((model) => ({
             modelCode: model.MODEL_CODE,
