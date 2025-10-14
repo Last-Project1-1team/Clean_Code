@@ -24,6 +24,7 @@ const accountRouter = require("./routers/account_router.js");
 const workOrderRouter = require("./routers/workOrder_router.js");
 const commonRouter = require("./routers/common_router.js");
 const codeGroupRouter = require("./routers/codeGroup_router.js");
+const resultWorkRouter = require("./routers/resultWork_router.js");
 
 // 기본 라우팅
 app.get("/", (req, res) => {
@@ -37,3 +38,4 @@ app.use("/", accountRouter);
 app.use("/", workOrderRouter);
 app.use("/", commonRouter);
 app.use("/", codeGroupRouter);
+app.use("/", resultWorkRouter);

@@ -53,6 +53,5 @@ const addWorkOrd = async (workInfo) => {
 // 작업지시 등록
 module.exports = {
   findWorkOrd,
-  findPlan,
   addWorkOrd,
 };

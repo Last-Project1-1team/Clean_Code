@@ -11,7 +11,7 @@ const resultWorkService = require("../services/resultWork_service.js");
 router.get("/resultwork/search", async (req, res) => {
   let workOrdNo = req.query.workOrdNo;
 
-  let workOrdtList = await workOrderService
+  let workOrdtList = await resultWorkService
     .findWorkOrd(workOrdNo)
     .catch((err) => console.log(err));
 
