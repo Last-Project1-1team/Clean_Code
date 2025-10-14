@@ -178,9 +178,14 @@ const router = createRouter({
                     component: () => import('@/views/pages/InOrderReg.vue')
                 },
                 {
-                    path: '/OrderSelect',
+                    path: '/pages/OrderSelect',
                     name: 'OrderSelect',
                     component: () => import('@/views/pages/OrderSelect.vue')
+                },
+                {
+                    path: '/pages/ModelShip',
+                    name: 'ModelShip',
+                    component: () => import('@/views/pages/ModelShip.vue')
                 },
 
                 //

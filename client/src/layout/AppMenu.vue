@@ -138,6 +138,11 @@ const model = ref([
                 label: '생산실적',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/resultwork'
+            },
+            {
+                label: '제품출하',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/ModelShip'
             }
         ]
     },
