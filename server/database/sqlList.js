@@ -3,7 +3,7 @@ const models = require("./sqls/models.js");
 const workOrd = require("./sqls/workOrder.js");
 const items = require("./sqls/items.js");
 const inords = require("./sqls/inord.js");
-
+const resultWork = require("./sqls/resultWork.js");
 const account = require("./sqls/account.js");
 
 module.exports = {
@@ -12,4 +12,5 @@ module.exports = {
   ...inords,
   ...account,
   ...workOrd,
+  ...resultWork,
 };

@@ -1,3 +1,10 @@
+<script setup>
+import { ref } from 'vue';
+import axios from 'axios';
+import ModalSearchModel from '@/components/ModalSearchModel.vue';
+
+const ModalSearch = ref(false);
+</script>
 <template>
     <div class="card">
         <Toolbar class="mb-6">
@@ -69,11 +76,3 @@
         </DataTable>
     </div>
 </template>
-
-<script setup>
-import { ref } from 'vue';
-import axios from 'axios';
-import ModalSearchModel from '@/components/ModalSearchModel.vue';
-
-const ModalSearch = ref(false);
-</script>

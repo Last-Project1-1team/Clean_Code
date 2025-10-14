@@ -128,6 +128,11 @@ const model = ref([
                 label: '수주등록',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/InOrderReg'
+            },
+            {
+                label: '생산실적',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/resultwork'
             }
         ]
     },

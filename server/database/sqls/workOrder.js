@@ -3,26 +3,32 @@
 // 공정, 생산계획 일자로 조회하는 걸로 변경 where절 수정하기
 const selectProdPlan = `
 SELECT 
-        p.prod_plan_no prodPlanNo,
-        DATE_FORMAT(p.create_date, '%Y-%m-%d') prodPlanDate,
-        p.model_code modelCode,
-        p.revision,
-        m.model_name modelName,
-        r.proc_code procCode,
-        c.code_name procCodeName,
-        m.unit
+    p.prod_plan_no AS prodPlanNo,
+    DATE_FORMAT(p.create_date, '%Y-%m-%d') AS prodPlanDate,
+    p.model_code AS modelCode,
+    p.revision,
+    m.model_name AS modelName,
+    r.proc_code AS procCode,
+    c.code_name AS procCodeName,
+    m.unit
 FROM tb_prod_plan p
 JOIN tb_model_master m
-  ON (p.model_code = m.model_code
- AND p.revision = m.revision)
+  ON p.model_code = m.model_code
+ AND p.revision = m.revision
 JOIN tb_proc_routing r
-  ON (m.model_code = r.model_code
- AND m.revision = r.revision)
+  ON r.model_code = m.model_code
+ AND r.revision = m.revision
+ AND r.proc_seq = (
+      SELECT MAX(r2.proc_seq)
+      FROM tb_proc_routing r2
+      WHERE r2.model_code = m.model_code
+        AND r2.revision = m.revision
+  )
 JOIN tb_code c
-  ON (c.common_code = r.proc_code)
+  ON c.common_code = r.proc_code
 WHERE r.proc_code LIKE ?
-  
-ORDER BY r.proc_seq DESC
+  AND TO_CHAR(p.create_date, 'YYYY-MM-DD') LIKE ?
+ORDER BY r.proc_seq DESC;
 `;
 
 // 생산계획번호
@@ -32,22 +38,25 @@ ORDER BY r.proc_seq DESC
 // WHERE LOWER(prod_plan_no) LIKE LOWER(?)
 // `;
 
-// 작업지시 테이블에 등록할때 작업지시번호, 중복되는 모델 row 처리 생각하기.
-
 const insertWorkOrder = `
 INSERT INTO tb_work_ord
 (work_ord_no,
 model_code,
 revision,
-work_ord_qty
+proc_code,
+work_ord_qty,
+prod_plan_no
 )
 VALUES
 (?,
 ?,
 ?,
+?,
+?,
 ?)
 `;
 
+// 시퀀스 만들기 위한 작업지시번호 조회
 const selectLastWorkOrdNo = `
 SELECT work_ord_no
   FROM tb_work_ord

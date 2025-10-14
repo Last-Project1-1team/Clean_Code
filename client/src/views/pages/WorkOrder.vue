@@ -11,6 +11,7 @@ onMounted(async () => {
         value: proc.code // 실제 값
     }));
 });
+// 공정드롭다운
 const procDropDown = ref([]);
 // 공정, 생산계획일자
 const searchData = ref({
@@ -25,7 +26,7 @@ const searchProdPlan = async (proc, prodPlanDate) => {
     // console.log('🌐 서버 요청 보냄', proc, prodPlanDate);
 
     const dateValue = searchData.value.prodPlanDate ? new Date(searchData.value.prodPlanDate.getTime() - searchData.value.prodPlanDate.getTimezoneOffset() * 60000).toISOString().split('T')[0] : '';
-    console.log('dateValue : ', dateValue);
+    console.log(dateValue);
     let result = await axios
         .get(`${apiUrl}/workorder/search`, {
             params: {
@@ -102,7 +103,7 @@ const saveWorkOrder = () => {
         </Toolbar>
 
         <!-- 작업지시 그리드 -->
-        <DataTable ref="dt" v-model:selection="selectedPlans" :value="prodPlanList" dataKey="prodPlanNo" :rows="10" :filters="filters" editMode="cell" @cell-edit-complete="onCellEditComplete" style="border: 1px solid #ddd; height: 70vh">
+        <DataTable ref="dt" v-model:selection="selectedPlans" :value="prodPlanList" :rows="10" :filters="filters" selectionMode="multiple" editMode="cell" @cell-edit-complete="onCellEditComplete" style="border: 1px solid #ddd; height: 70vh">
             <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
             <Column field="prodPlanDate" header="생산계획일자" sortable style="min-width: 12rem"></Column>
             <Column field="modelCode" header="제품코드" sortable style="min-width: 16rem"></Column>
@@ -110,8 +111,8 @@ const saveWorkOrder = () => {
             <Column field="modelName" header="제품명" sortable style="min-width: 16rem"></Column>
             <Column field="procCodeName" header="공정" sortable style="min-width: 16rem"></Column>
             <Column field="workOrdQty" header="작업지시수량" sortable style="min-width: 16rem">
-                <template #editor="{ data, field }">
-                    <InputNumber v-model="data[field]" showButtons mode="decimal" />
+                <template #body="{ data }">
+                    <input v-model.number="data.workOrdQty" type="number" min="0" step="1" class="w-40 border p-1" />
                 </template>
             </Column>
             <Column field="unit" header="단위" sortable style="min-width: 16rem"></Column>
