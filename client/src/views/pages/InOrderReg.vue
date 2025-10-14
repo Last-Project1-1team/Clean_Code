@@ -5,7 +5,7 @@ import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import Dialog from 'primevue/dialog';
 import CustSearchModal from '@/components/CustSearchModal.vue';
-import ModalSearchModel from '@/components/ModalSearchModel.vue';
+import ModelSearchModal from '@/components/ModelSearchModal.vue';
 import axios from 'axios';
 
 const selectedmodel = ref([]);
@@ -72,12 +72,12 @@ const onSave = async () => {
         custCode: custCode.value,
         models: selectedmodel.value.map((model) => ({
             modelCode: model.MODEL_CODE,
-            qty: model.OUTORD_QTY
+            inordQty: model.INORD_QTY
         }))
     };
 
     try {
-        const response = await axios.post(`${apiUrl}/outord`, payload);
+        const response = await axios.post(`${apiUrl}/insertinord`, payload);
         toast.add({ severity: 'success', summary: '수주가 저장되었습니다.', life: 3000 });
         selectedmodel.value = [];
         selectedRows.value = [];
@@ -91,7 +91,10 @@ const onSave = async () => {
 </script>
 
 <template>
-    <div class="card flex flex-col gap-4" style="height: 100vh">
+    <div class="card flex flex-col gap-4 relative" style="height: 100vh">
+        <div id="button_" class="absolute top-4 right-10 flex gap-2 z-10">
+            <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" style="width: 100px; height: 50px" @click="onSave" />
+        </div>
         <div class="grid grid-cols-12 gap-2">
             <label for="CUST_CODE" class="flex items-center">업체코드</label>
             <div class="col-span-2">
@@ -103,9 +106,6 @@ const onSave = async () => {
             <label for="form.PSCH_PHONE " class="flex items-center">담당자 연락처</label>
             <div class="col-span-2">
                 <InputText v-model="pschphone" type="text" class="w-full" />
-            </div>
-            <div class="col-end-13 flex justify-end">
-                <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" style="width: 100px; height: 50px" @click="onSave" />
             </div>
         </div>
 
@@ -148,7 +148,7 @@ const onSave = async () => {
         </Dialog>
 
         <Dialog v-model:visible="modelmodalVisible" header="제품 검색" modal style="width: 80vw; height: 80vh">
-            <ModalSearchModel @register="handleModelRegister" />
+            <ModelSearchModal @register="handleModelRegister" />
         </Dialog>
 
         <DataTable :value="selectedmodel" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
