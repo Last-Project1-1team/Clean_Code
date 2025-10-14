@@ -95,6 +95,11 @@ const model = ref([
                 to: '/pages/iteminputconfirm'
             },
             {
+                label: '자재출고',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/itemoutput'
+            },
+            {
                 label: '제품정보',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/modelmaster'
