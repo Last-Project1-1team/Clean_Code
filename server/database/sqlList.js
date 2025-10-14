@@ -5,6 +5,7 @@ const items = require("./sqls/items.js");
 const inords = require("./sqls/inord.js");
 
 const account = require("./sqls/account.js");
+const common = require("./sqls/common.js");
 
 module.exports = {
   ...models,
@@ -12,4 +13,5 @@ module.exports = {
   ...inords,
   ...account,
   ...workOrd,
+  ...common,
 };

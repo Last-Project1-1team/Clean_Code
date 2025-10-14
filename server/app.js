@@ -16,13 +16,14 @@ app.listen(3000, () => {
   console.log("http://localhost:3000");
 });
 
-
 // 라우팅 등록 영역
 const modelRouter = require("./routers/model_router.js");
 const itemRouter = require("./routers/item_router.js");
 const inordRouter = require("./routers/inord_router.js");
 const accountRouter = require("./routers/account_router.js");
 const workOrderRouter = require("./routers/workOrder_router.js");
+const commonRouter = require("./routers/common_router.js");
+const codeGroupRouter = require("./routers/codeGroup_router.js");
 
 // 기본 라우팅
 app.get("/", (req, res) => {
@@ -34,3 +35,5 @@ app.use("/", itemRouter);
 app.use("/", inordRouter);
 app.use("/", accountRouter);
 app.use("/", workOrderRouter);
+app.use("/", commonRouter);
+app.use("/", codeGroupRouter);

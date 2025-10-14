@@ -1,5 +1,12 @@
 <script setup>
-import {} from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
+
+const codeGroup = ref([]);
+const toast = useToast();
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 </script>
 
 <template>
@@ -10,8 +17,8 @@ import {} from 'vue';
                 <AutoComplete v-model="selectedAutoValue" :suggestions="autoFilteredValue" optionLabel="name" dropdown multiple display="chip" class="w-[600px]" @complete="searchCountry($event)" />
             </div>
             <div class="flex gap-2">
-                <Button label="저장" :fluid="false"></Button>
-                <Button label="조회" :fluid="false"></Button>
+                <Button label="조회" :fluid="false" @click="getCodeGroup"></Button>
+                <Button label="저장" :fluid="false" @click="saveButton"></Button>
             </div>
         </div>
         <!-- 하단: 좌/우 그리드 -->
@@ -20,8 +27,8 @@ import {} from 'vue';
             <div class="flex-1 border rounded p-2 overflow-auto">
                 <DataTable :value="leftData" class="w-full">
                     <Column field="groupID" header="그룹ID"></Column>
-                    <Column field="groupname" header="그룹명"></Column>
-                    <Column field="explanation" header="그룹설명"></Column>
+                    <Column field="groupName" header="그룹명"></Column>
+                    <Column field="groupExp" header="그룹설명"></Column>
                 </DataTable>
             </div>
 
