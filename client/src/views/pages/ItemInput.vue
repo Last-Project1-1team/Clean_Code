@@ -52,7 +52,7 @@ const onSave = async () => {
     const payload = {
         inputDate: today.value,
         outordNo: outordNo.value,
-        items: outordItems.value.map((item) => ({
+        items: selectedRows.value.map((item) => ({
             itemCode: item.itemCode,
             outordDetailNo: item.outordDetailNo,
             qty: item.inputQty
@@ -72,6 +72,32 @@ const onSave = async () => {
 const selectedRows = ref([]);
 
 const today = ref(new Date()); // 오늘 날짜
+
+const checkon = (row) => {
+    const outordQty = Number(row.outordQty || 0);
+    const eInputQty = Number(row.eInputQty || 0);
+    const inputQty = Number(row.inputQty || 0);
+
+    if (isNaN(inputQty) || inputQty <= 0) {
+        return;
+    }
+    if (inputQty <= 0) {
+        selectedRows.value = selectedRows.value.filter((r) => r.outordDetailNo !== row.outordDetailNo);
+        return;
+    }
+    if (outordQty < eInputQty + inputQty) {
+        toast.add({ severity: 'error', summary: '발주량보다 입고량이 많을 수 없습니다.', life: 3000 });
+        row.inputQty = 0;
+        selectedRows.value = selectedRows.value.filter((r) => r.outordDetailNo !== row.outordDetailNo);
+        return;
+    }
+
+    const alreadySelected = selectedRows.value.some((r) => r.outordDetailNo === row.outordDetailNo);
+
+    if (!alreadySelected) {
+        selectedRows.value.push(row);
+    }
+};
 </script>
 
 <template>
@@ -122,9 +148,10 @@ const today = ref(new Date()); // 오늘 날짜
                 <Column field="spec" header="규격" sortable style="min-width: 10em"></Column>
                 <Column field="unit" header="단위" sortable style="min-width: 3em"></Column>
                 <Column field="outordQty" header="발주량" sortable style="min-width: 3em"> </Column>
-                <Column field="inputQty" header="입고량" sortable style="min-width: 3em" @change="checkon">
+                <Column field="eInputQty" header="기존입고량" sortable style="min-width: 3em"> </Column>
+                <Column field="inputQty" header="입고량" sortable style="min-width: 3em">
                     <template #body="{ data }">
-                        <input v-model.number="data.inputQty" type="number" min="0" step="1" class="w-24 border p-1" />
+                        <input v-model.number="data.inputQty" type="number" min="0" step="1" class="w-24 border p-1" @blur="checkon(data)" />
                     </template>
                 </Column>
             </DataTable>
