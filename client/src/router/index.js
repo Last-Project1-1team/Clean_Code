@@ -164,6 +164,11 @@ const router = createRouter({
                     name: 'addprodplan',
                     component: () => import('@/views/pages/AddProdPlan.vue')
                 },
+                {
+                    path: '/pages/resultwork',
+                    name: 'resultwork',
+                    component: () => import('@/views/pages/ResultWork.vue')
+                },
                 //
                 // 영업관리
                 //

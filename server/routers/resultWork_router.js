@@ -4,42 +4,19 @@ const express = require("express");
 const router = express.Router();
 // 해당 라우터를 통해 제공할 서비스를 가져옴
 
-const workOrderService = require("../services/workOrder_service.js");
+const resultWorkService = require("../services/resultWork_service.js");
 // 라우팅  = 사용자의 요청(URL+METHOD) + Service + 응답형태(View or Data)
 
-// 공정
-router.get("/workorder/proc", async (req, res) => {
-  let procList = await workOrderService
-    .findProc()
-    .catch((err) => console.log(err));
-
-  res.send(procList);
-});
-
 // 전체 조회
-router.get("/workorder/search", async (req, res) => {
-  let proc = req.query.proc;
-  let prodPlanDate = req.query.prodPlanDate;
+router.get("/resultwork/search", async (req, res) => {
+  let workOrdNo = req.query.workOrdNo;
 
-  let planList = await workOrderService
-    .findPlan(proc, prodPlanDate)
+  let workOrdtList = await workOrderService
+    .findWorkOrd(workOrdNo)
     .catch((err) => console.log(err));
 
-  res.send(planList);
+  res.send(workOrdtList);
 });
-
-// auto complete 부분
-// router.get("/workorder/autocomplete", async (req, res) => {
-//   let { keyword } = req.query;
-
-//   // console.log("🔍 받은 keyword:", keyword);
-
-//   let planList = await workOrderService
-//     .findPlanNo(keyword)
-//     .catch((err) => console.log(err));
-
-//   res.send(planList);
-// });
 
 // 등록    : 자원(데이터) -> work / 등록 -> POST
 router.post("/workorder/save", async (req, res) => {
