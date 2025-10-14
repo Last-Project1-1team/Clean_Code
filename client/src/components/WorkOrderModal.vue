@@ -5,9 +5,9 @@ import Dialog from 'primevue/dialog';
 import { onMounted, ref } from 'vue';
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
-const emit = defineEmits(['custreg']);
-const custs = ref([]);
-const selectcusts = ref([]);
+const emit = defineEmits(['workOrdreg']);
+const workOrd = ref([]);
+const selectworkOrd = ref([]);
 const keyword = ref('');
 
 onMounted(async () => {
@@ -16,29 +16,30 @@ onMounted(async () => {
 
 const registerCusts = () => {
     // 부모로 선택된 데이터 전달
-    emit('custreg', selectcusts.value);
+    emit('workOrdreg', selectworkOrd.value);
 };
+// 검색 컴포넌트(자식)
+// 조회버튼
+// const handleSubmit = (cust) => {
+//     getCustList(cust.code, cust.name);
+// };
+// 저장버튼
+// const handleToss = () => {
+//     registerCusts();
+// };
 
-const handleSubmit = (cust) => {
-    getCustList(cust.code, cust.name);
-};
-const handleToss = () => {
-    registerCusts();
-};
-
-const getCustList = async (code, name) => {
+const getWorkOrderList = async (workOrderNo) => {
     let result = await axios
-        .get(`${apiUrl}/outordercust?`, {
+        .get(`${apiUrl}/resultwork/search`, {
             params: {
-                custCode: code || '',
-                custName: name || ''
+                workOrderNo: workOrderNo || ''
             }
         })
         .catch((err) => {
-            console.error('아이템 조회 실패:', err);
-            custs.value = [];
+            console.error('작업지시서 조회 실패:', err);
+            workOrd.value = [];
         });
-    custs.value = result.data;
+    workOrd.value = result.data;
 };
 </script>
 
