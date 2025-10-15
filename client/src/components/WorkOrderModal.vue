@@ -11,7 +11,7 @@ const props = defineProps({
     searchWorkOrdNo: String
 });
 // emits: 부모에게 데이터 전달
-const emit = defineEmits(['reg']);
+const emit = defineEmits(['workOrdreg']);
 
 // 아래 두개가 모달 내부 상태
 // 폼 데이터 객체

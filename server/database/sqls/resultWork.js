@@ -15,14 +15,21 @@ JOIN tb_code c
 WHERE wo.work_ord_no LIKE ?
 `;
 
+const addReadyQty = `
+SELECT  *
+FROM tb_lot
+`;
+
 const selectLotNo = `
-SELECT  wor.model_code modelCode,
+SELECT  wor.work_ord_no workOrdNo,
+        wor.model_code modelCode,
         wor.revision,
         itm.item_code itemCode,
+        itm.item_name itemName,
         wor.work_ord_qty,
         bom.need_qty,
         wor.work_ord_qty * bom.need_qty needQty,
-        cod.code_name
+        itm.unit
 FROM tb_work_ord wor
 JOIN v_bom bom
   ON (wor.model_code = bom.root_code
@@ -32,11 +39,12 @@ JOIN v_bom bom
 JOIN v_item_master itm
   ON (bom.low_code = itm.item_code
  AND bom.low_revision = itm.revision)
-JOIN tb_code cod
-  ON (wor.proc_code = cod.common_code)
 WHERE wor.model_code LIKE ?
   AND wor.revision LIKE ?
 `;
+
 module.exports = {
   selectWorkOrd,
+  selectLotNo,
+  addReadyQty,
 };
