@@ -89,6 +89,7 @@ const getAccountList = async (userId, name, department, workGrade) => {
     userAccount.value = result.data;
 };
 
+//셀렉트박스
 onMounted(async () => {
     const deptRes = await axios.get(`${apiUrl}/useraccount/department`);
     departmentOptions.value = deptRes.data.map((dept) => ({
@@ -103,7 +104,7 @@ onMounted(async () => {
     }));
 });
 
-//
+//저장버튼
 const formatDate = (date) => {
     if (!date) return null;
     const d = new Date(date);

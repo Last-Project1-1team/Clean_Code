@@ -7,72 +7,64 @@ import { useToast } from 'primevue/usetoast';
 const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
+//조회 결과 담을 배열
+const leftGrid = ref([]);
+//드롭다운 선택값
+const selectedCommon = ref(null);
+//공통코드 드롭다운
+const commonDropdown = ref([]);
+// 코드그룹 목록
+const formData = ref({
+    commonCode: '',
+    groupCode: '',
+    codeName: ''
+});
+const commonCode = ref([]);
+
+//==공통코드 그룹 조회 ==
 onMounted(async () => {
     const response = await axios.get(`${apiUrl}/commonCode/common`);
     commonDropdown.value = response.data.map((common) => ({
-        label: common.code, // 보여줄 이름
-        value: common.name // 실제 값
+        label: common.name, // 보여줄 이름
+        value: common.code // 실제 값
     }));
 });
 
-const commonCode = ref([]);
-
-//공통코드 드롭다운
-const commonDropdown = ref([]);
-// 왼쪽 테이블 데이터
-const leftData = ref([]);
-// 오른쪽 입력폼 데이터
-const rightData = ref([]);
-// 코드그룹 목록
-const codeGroupOptions = ref([]);
-const formData = ref({
-    codeGroup: '',
-    codeId: '',
-    codeName: ''
-});
-
-// const searchProdPlan = () => {
-//     if (selectedAutoValue.value && selectedAutoValue.value.prodPlanNo) {
-//         getProdPlan(selectedAutoValue.value.prodPlanNo);
-//     } else {
-//         getProdPlan(); // 전체 조회용 fallback (선택 안 했을 때)
-//     }
-// };
-
-//조회
-const commonSearch = (common) => {
-    console.log(common);
-    getCommonList(common.codeGroup, common.codeId, common.codeName);
+const commonSearch = () => {
+    if (!selectedCommon.value) {
+        toast.add({ severity: 'warn', summary: '코드그룹을 선택하세요.', life: 2000 });
+        return;
+    }
+    console.log('선택된 그룹:', selectedCommon.value);
+    getCommonList(selectedCommon.value);
 };
 
-const getCommonList = async (codeGroup, codeId, codeName) => {
-    //console.log('🌐 서버 요청 보냄', code, revision, name);
+//전체조회
+const getCommonList = async (codeGroup) => {
     let result = await axios
         .get(`${apiUrl}/commonCode?`, {
             params: {
-                codeGroup: codeGroup || '',
-                codeId: codeId || '',
-                codeName: codeName || ''
+                codeGroup: codeGroup || ''
             }
         })
         .catch((err) => {
             console.error('코드 조회 실패:', err);
-            commonCode.value = result.data;
+            leftGrid.value = result.data;
         });
-    commonCode.value = result.data;
+    leftGrid.value = result.data;
 };
 
-//저장
+//저장(등록)
 const saveButton = async () => {
     const payload = {
-        codeGroup: formData.value.codeGroup,
-        codeId: formData.value.codeId,
-        codeName: formData.value.codeName
+        common_code: formData.value.commonCode,
+        group_code: formData.value.groupCode,
+        code_name: formData.value.codeName
     };
 
     console.log('저장 payload:', payload);
 
-    let result = await axios.post(`${apiUrl}/commonCode`, payload).catch((err) => console.log(err));
+    let result = await axios.post(`${apiUrl}/commonCode/insert`, payload).catch((err) => console.log(err));
     let addRes = result.data;
     if (addRes.isSuccessed) {
         toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
@@ -89,23 +81,23 @@ const saveButton = async () => {
             <div class="grid grid-cols-12 gap-2">
                 <label for="proc" class="grid grid-cols-2 flex items-center">코드그룹</label>
                 <div class="col-span-3">
-                    <Select class="w-full" v-model="commonDropdown" :options="commonDropdown" optionLabel="label" optionValue="value" placeholder="코드그룹선택" />
+                    <Select class="w-full" v-model="selectedCommon" :options="commonDropdown" optionLabel="label" optionValue="value" placeholder="코드그룹선택" />
                 </div>
             </div>
 
             <div class="flex gap-2">
                 <Button label="저장" :fluid="false" @click="saveButton"></Button>
-                <Button label="조회" :fluid="false" @click="getCommonList"></Button>
+                <Button label="조회" :fluid="false" @click="commonSearch"></Button>
             </div>
         </div>
         <!-- 하단: 좌/우 그리드 -->
         <div class="flex gap-4 w-full h-[620px]">
             <!-- 왼쪽 그리드 -->
             <div class="flex-1 border rounded p-2 overflow-auto">
-                <DataTable :value="leftData" class="w-full">
-                    <Column field="group" header="코드그룹"></Column>
-                    <Column field="id" header="코드ID"></Column>
-                    <Column field="name" header="코드명"></Column>
+                <DataTable :value="leftGrid" selectionMode="single" class="w-full" @rowSelect="formData = { ...$event.data }">
+                    <Column field="groupCode" header="코드그룹"></Column>
+                    <Column field="commonCode" header="코드ID"></Column>
+                    <Column field="codeName" header="코드명"></Column>
                 </DataTable>
             </div>
 
@@ -113,23 +105,23 @@ const saveButton = async () => {
             <div class="flex-1 border rounded p-4 overflow-auto">
                 <div class="flex flex-col gap-4">
                     <div class="grid grid-cols-12 gap-4">
-                        <label for="codegroup" class="flex items-center col-span-2">코드그룹</label>
+                        <label for="groupCode" class="flex items-center col-span-2">코드그룹</label>
                         <div class="col-span-10">
-                            <InputText id="codegroup" type="text" class="w-full" />
+                            <InputText v-model="formData.groupCode" type="text" class="w-full" />
                         </div>
                     </div>
 
                     <div class="grid grid-cols-12 gap-4">
-                        <label for="codeid" class="flex items-center col-span-2">코드ID</label>
+                        <label for="commonCode" class="flex items-center col-span-2">코드ID</label>
                         <div class="col-span-10">
-                            <InputText id="codeid" type="text" class="w-full" />
+                            <InputText v-model="formData.commonCode" type="text" class="w-full" />
                         </div>
                     </div>
 
                     <div class="grid grid-cols-12 gap-4">
                         <label for="codename" class="flex items-center col-span-2">코드명</label>
                         <div class="col-span-10">
-                            <InputText id="codename" type="text" class="w-full" />
+                            <InputText v-model="formData.codeName" type="text" class="w-full" />
                         </div>
                     </div>
                 </div>
