@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import WorkOrderModal from '@/components/WorkOrderModal.vue';
+import LotModal from '@/components/LotModal.vue';
 
 const modelInfo = computed(() => {
     const d = selectedWorkOrder.value;
@@ -16,6 +17,14 @@ const selectedWorkOrder = ref({});
 const workOrd = ref([]); // DataTable에 보여질 데이터
 const formData = ref({}); // rowSelect 시 표시할 데이터
 
+// 모달 닫힐 때 입력값 초기화
+watch(openWorkOrdModal, (newVal) => {
+    if (!newVal) {
+        // console.log('모달 닫힘 → 입력창 초기화');
+        searchWorkOrdNo.value = '';
+    }
+});
+
 // 모달에서 선택된 작업지시 받아오기
 const onSelectWorkOrd = (data) => {
     selectedWorkOrder.value = data; // 모달에서 선택된 데이터 저장
@@ -26,9 +35,9 @@ const onSelectWorkOrd = (data) => {
 const openModalWithSearch = () => {
     console.log('🔍 부모 검색 버튼 클릭:', searchWorkOrdNo.value);
     openWorkOrdModal.value = true;
-    searchWorkOrdNo.value = '';
+    // searchWorkOrdNo.value = '';
 };
-
+// lot----------------------------------------------------------------------
 // lot모달 오픈 전 false 상태
 const openLotModal = ref(false);
 // 입력한 작업지시번호
@@ -90,8 +99,8 @@ const openModalWithLot = () => {
 
     <!-- LOT번호 조회 결과-->
     <DataTable :value="LotNoList" v-model:selection="selectedLot" datakey="workOrdNo" scrollable scrollHeight="400px" class="custom-table mt-6" @rowSelect="formData = { ...$event.data }">
-        <Column field="LotName" header="품번" style="min-width: 250px"></Column>
-        <Column field="LotNo" header="품명" style="min-width: 150px"></Column>
+        <Column field="itemCode" header="품번" style="min-width: 250px"></Column>
+        <Column field="itemName" header="품명" style="min-width: 150px"></Column>
         <Column field="needQty" header="필요수량" style="min-width: 150px"></Column>
         <Column field="readyQty" header="준비수량" style="min-width: 150px"></Column>
         <Column field="unit" header="단위" style="min-width: 150px"></Column>
@@ -101,7 +110,7 @@ const openModalWithLot = () => {
         <WorkOrderModal :searchWorkOrdNo="searchWorkOrdNo" @workOrdreg="onSelectWorkOrd" />
     </Dialog>
     <Dialog v-model:visible="openLotModal" header="Lot번호 조회" modal style="width: 80vw; height: 80vh">
-        <WorkOrderModal :searchLotNo="searchLotNo" @lotreg="onSelectLot" />
+        <LotModal :searchLotNo="searchLotNo" @lotreg="onSelectLot" />
     </Dialog>
 
     <div class="buttons">

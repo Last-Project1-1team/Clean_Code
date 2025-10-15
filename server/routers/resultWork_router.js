@@ -24,7 +24,7 @@ router.get("/resultwork/search", async (req, res) => {
 router.get("/lotno/search", async (req, res) => {
   try {
     const lotNo = req.query.lotNo || ""; // 없으면 전체조회
-    const lotList = await resultWorkService.findWorkOrd(lotNo);
+    const lotList = await resultWorkService.findLot(lotNo);
 
     res.send(lotList); // 항상 배열로 반환
   } catch (err) {
