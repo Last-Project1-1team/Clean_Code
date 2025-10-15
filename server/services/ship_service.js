@@ -5,10 +5,11 @@ const sqlList = require("../database/sqlList.js");
 // 업체단건조회
 const findCustCodeNo = async (customerNo) => {
   let list = await mariadb
-    .query("shipmodel", [`${customerNo}`])
+    .query("shipmodel", [customerNo])
     .catch((err) => console.log(err));
   // let info = list[0]; //배열을 깨야됨. 그러고 객체로 만듬
   // return info;
+  console.log(list);
   return list;
   // let info = [];
 
