@@ -246,6 +246,67 @@ const addNewInputConfirm = async (items) => {
         if (conn) conn.release?.();
     }
 };
+const findOutputStock = async () => {
+    // 변수 mariadb에 등록된 query 함수를 통해 서비스에서 필요한 SQL문을 실행하도록 요청
+    // -> 비동기작업이므로 await/async를 활용해서 동기식으로 동작하도록 진행
+    let list = await mariadb.query("selectOutputStock").catch((err) => console.log(err));
+    return list;
+};
+const findOutputLot = async (lotNo) => {
+    // 변수 mariadb에 등록된 query 함수를 통해 서비스에서 필요한 SQL문을 실행하도록 요청
+    // -> 비동기작업이므로 await/async를 활용해서 동기식으로 동작하도록 진행
+    let list = await mariadb.query("selectOutputLot", lotNo).catch((err) => console.log(err));
+    return list;
+};
+
+const addNewOutput = async (lotNo, outputStock, lotQty) => {
+    let conn;
+    console.log("출고등록 시작");
+    try {
+        conn = await mariadb.getConnection();
+
+        const datePart = formatDate(new Date());
+        console.log(datePart);
+        const [last] = await conn.query(sqlList.selectLastOutputNo, [`OP${datePart}%`]);
+        let seq = 1;
+        if (last && last.output_no) {
+            const lastSeq = parseInt(last.output_no.slice(-5));
+            seq = lastSeq + 1;
+        }
+
+        const payload = {
+            outputDate: formatFullDate(new Date()),
+            lotNo: lotNo,
+            createdBy: "tester",
+            outputNoPrefix: `IP${datePart}`,
+            outputStock: outputStock,
+            lotQty: lotQty,
+        };
+        console.log("프로시저 호출 시작");
+        console.log(payload);
+        await conn.query(` CALL SP_OUTPUT(?, @P_RETURN_CODE, @P_RETURN_MSG)  `, [JSON.stringify(payload)]);
+        console.log("프로시저 정상 작동");
+        const [result] = await conn.query(`
+      SELECT 
+        @P_RETURN_CODE AS CODE,
+        @P_RETURN_MSG AS MSG
+    `);
+
+        console.log("DB 결과:", result);
+
+        return {
+            success: result.CODE === "S",
+            code: result.CODE,
+            message: result.MSG,
+        };
+    } catch (error) {
+        if (conn) await conn.rollback();
+        console.error("출고 등록 실패:", error);
+        throw error;
+    } finally {
+        if (conn) conn.release?.();
+    }
+};
 
 module.exports = {
     findAll,
@@ -260,6 +321,9 @@ module.exports = {
     addNewInput,
     findInputList,
     addNewInputConfirm,
+    findOutputStock,
+    findOutputLot,
+    addNewOutput,
     // findByBookNo,
     // addNewBook,
 };
