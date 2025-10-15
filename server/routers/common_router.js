@@ -9,15 +9,18 @@ const commonService = require("../services/common_service.js");
 
 // 실제 라우팅 등록 영역
 
+//전체조회
 router.get("/commonCode", async (req, res) => {
-  let commonCode = req.query.commonCode;
+  let codeGroup = req.query.codeGroup;
+
   let commonList = await commonService
-    .findAll(commonCode)
+    .findAll(codeGroup)
     .catch((err) => console.log(err));
+
   res.send(commonList);
 });
 
-// 조회
+// 그룹조회
 router.get("/commonCode/common", async (req, res) => {
   let commonList = await commonService
     .findCommon()
@@ -26,12 +29,12 @@ router.get("/commonCode/common", async (req, res) => {
 });
 
 // 등록    : 자원(데이터) -> books / 등록 -> POST
-router.post("/commonCode", async (req, res) => {
+router.post("/commonCode/insert", async (req, res) => {
   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
-  let commonInfo = req.body;
-  console.log(commonInfo);
+  let selectCommonInfo = req.body;
+  console.log(selectCommonInfo);
   let result = await commonService
-    .addNewCommon(commonInfo)
+    .addNewCommon(selectCommonInfo)
     .catch((err) => console.log(err));
   res.send(result);
 });
