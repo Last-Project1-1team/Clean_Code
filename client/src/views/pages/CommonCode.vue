@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 
 const toast = useToast();
+const selectedRow = ref(null);
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 //조회 결과 담을 배열
@@ -20,7 +21,13 @@ const formData = ref({
     codeName: ''
 });
 const commonCode = ref([]);
-
+//초기화버튼
+const onClearItem = () => {
+    formData.value = {
+        groupCode: '',
+        codeName: ''
+    };
+};
 //==공통코드 그룹 조회 ==
 onMounted(async () => {
     const response = await axios.get(`${apiUrl}/commonCode/common`);
@@ -52,6 +59,13 @@ const getCommonList = async (codeGroup) => {
             leftGrid.value = result.data;
         });
     leftGrid.value = result.data;
+
+    // ✅ 첫 번째 행만 자동선택 (formData 채우지 않음)
+    if (result.data && result.data.length > 0) {
+        selectedRow.value = result.data[0]; // 왼쪽 테이블 첫 행 자동 선택
+    } else {
+        selectedRow.value = null; // 결과 없을 때 선택 해제
+    }
 };
 
 //저장(등록)
@@ -71,7 +85,7 @@ const saveButton = async () => {
     } else {
         toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
     }
-    getCommonList();
+    getCommonList(selectedCommon.value);
 };
 </script>
 
@@ -81,11 +95,12 @@ const saveButton = async () => {
             <div class="grid grid-cols-12 gap-2">
                 <label for="proc" class="grid grid-cols-2 flex items-center">코드그룹</label>
                 <div class="col-span-3">
-                    <Select class="w-full" v-model="selectedCommon" :options="commonDropdown" optionLabel="label" optionValue="value" placeholder="코드그룹선택" />
+                    <Select class="w-full" v-model="selectedCommon" :options="commonDropdown" optionLabel="label" optionValue="value" placeholder="코드그룹선택" @change="getCommonList(selectedCommon)" />
                 </div>
             </div>
 
             <div class="flex gap-2">
+                <Button label="초기화" :fluid="false" @click="onClearItem"></Button>
                 <Button label="저장" :fluid="false" @click="saveButton"></Button>
                 <Button label="조회" :fluid="false" @click="commonSearch"></Button>
             </div>
@@ -94,7 +109,7 @@ const saveButton = async () => {
         <div class="flex gap-4 w-full h-[620px]">
             <!-- 왼쪽 그리드 -->
             <div class="flex-1 border rounded p-2 overflow-auto">
-                <DataTable :value="leftGrid" selectionMode="single" class="w-full" @rowSelect="formData = { ...$event.data }">
+                <DataTable :value="leftGrid" v-model:selection="selectedRow" selectionMode="single" class="w-full" @rowSelect="formData = { ...$event.data }" dataKey="commonCode">
                     <Column field="groupCode" header="코드그룹"></Column>
                     <Column field="commonCode" header="코드ID"></Column>
                     <Column field="codeName" header="코드명"></Column>
@@ -107,7 +122,7 @@ const saveButton = async () => {
                     <div class="grid grid-cols-12 gap-4">
                         <label for="groupCode" class="flex items-center col-span-2">코드그룹</label>
                         <div class="col-span-10">
-                            <InputText v-model="formData.groupCode" type="text" class="w-full" />
+                            <InputText v-model="formData.groupCode" type="text" class="w-full" readonly="true" />
                         </div>
                     </div>
 
