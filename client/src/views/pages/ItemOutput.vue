@@ -12,7 +12,7 @@ import axios from 'axios';
 // import { onBeforeMount, shallowRef, computed } from 'vue';
 // import useDateUtils from '@/utils/useDates.js';
 
-const outordItems = ref([]); // 모달에서 넘어온 데이터 저장
+const outputItems = ref([]); // 모달에서 넘어온 데이터 저장
 const lotNo = ref(null);
 const selectedRows = ref([]);
 const itemCode = ref([]);
@@ -21,9 +21,8 @@ const lotQty = ref([]);
 const outputStock = ref([]);
 const outputStocks = ref([]);
 const products = ref();
-const selectedStock = ref(null);
 const filteredStock = ref([]);
-const OutordmodalVisible = ref(false);
+const autoOutput = ref(true);
 const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -31,6 +30,7 @@ onMounted(async () => {
     ProductService.getProducts().then((data) => (products.value = data));
     const stockresult = await axios.get(`${apiUrl}/itemOutput/outputStock`);
     outputStocks.value = stockresult.data;
+    onSearch();
 });
 
 const searchStock = (event) => {
@@ -51,6 +51,7 @@ const onSave = async () => {
         itemCode.value = '';
         itemName.value = '';
         lotQty.value = '';
+        onSearch();
     } catch (error) {
         console.error(error);
         toast.add({ severity: 'error', summary: '저장 중 오류가 발생했습니다.', life: 3000 });
@@ -76,6 +77,23 @@ const onEnter = async () => {
         console.error(error);
         toast.add({ severity: 'error', summary: 'LOTNO 정보 조회 중 오류가 발생했습니다.', life: 3000 });
     }
+    if (autoOutput.value) {
+        onSave();
+    } else {
+        lotQty.value?.$el?.querySelector('input')?.focus();
+    }
+};
+
+const onSearch = async () => {
+    try {
+        const rawDate = today?.value ?? today;
+        const formatted = rawDate instanceof Date ? rawDate.toISOString().slice(0, 10) : rawDate || '';
+        const response = await axios.get(`${apiUrl}/itemOutput?outputDate=` + formatted);
+        outputItems.value = response.data;
+    } catch (error) {
+        console.error(error);
+        toast.add({ severity: 'error', summary: 'LOTNO 정보 조회 중 오류가 발생했습니다.', life: 3000 });
+    }
 };
 
 const today = ref(new Date()); // 오늘 날짜
@@ -85,7 +103,7 @@ const today = ref(new Date()); // 오늘 날짜
     <div class="card flex flex-col gap-4 relative">
         <div id="button_" class="absolute top-4 right-10 flex gap-2 z-10">
             <div class="flex items-center" style="margin-right: 20px">
-                <Checkbox id="autoOutput" name="autoOutput" value="Y" v-model="autoOutput" />
+                <Checkbox v-model="autoOutput" inputId="autoOutput" binary />
                 <label for="autoOutput" class="ml-2">자동출고</label>
             </div>
             <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" style="width: 100px; height: 50px" @click="onSave" />
@@ -120,7 +138,7 @@ const today = ref(new Date()); // 오늘 날짜
             </div>
         </div>
         <div class="grid grid-cols-12 gap-2">
-            <label for="custCode" class="flex items-center">출고수량</label>
+            <label for="lotQty" class="flex items-center">출고수량</label>
             <div class="col-start-2 col-end-4">
                 <InputText v-model="lotQty" type="text" class="w-full" />
             </div>
