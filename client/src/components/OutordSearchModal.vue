@@ -27,8 +27,6 @@ const getOutordList = async (dateRef) => {
     const rawDate = dateRef?.value ?? dateRef;
     const formatted = rawDate instanceof Date ? rawDate.toISOString().slice(0, 10) : rawDate || '';
 
-    console.log('요청 날짜:', formatted);
-
     let result = await axios
         .get(`${apiUrl}/outorderList`, {
             params: {
