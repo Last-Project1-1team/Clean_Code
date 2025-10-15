@@ -7,15 +7,30 @@ const router = express.Router();
 const resultWorkService = require("../services/resultWork_service.js");
 // 라우팅  = 사용자의 요청(URL+METHOD) + Service + 응답형태(View or Data)
 
-// 전체 조회
+// 작업지시 전체조회 , 단건조회
 router.get("/resultwork/search", async (req, res) => {
-  let workOrdNo = req.query.workOrdNo;
+  try {
+    const workOrdNo = req.query.workOrdNo || ""; // 없으면 전체조회
+    const workOrdList = await resultWorkService.findWorkOrd(workOrdNo);
 
-  let workOrdtList = await workOrderService
-    .findWorkOrd(workOrdNo)
-    .catch((err) => console.log(err));
+    res.send(workOrdList); // 항상 배열로 반환
+  } catch (err) {
+    console.error("작업지시 조회 실패:", err);
+    res.status(500).send({ message: "서버 오류" });
+  }
+});
 
-  res.send(workOrdtList);
+// Lot 전체조회 , 단건조회
+router.get("/lotno/search", async (req, res) => {
+  try {
+    const lotNo = req.query.lotNo || ""; // 없으면 전체조회
+    const lotList = await resultWorkService.findWorkOrd(lotNo);
+
+    res.send(lotList); // 항상 배열로 반환
+  } catch (err) {
+    console.error("작업지시 조회 실패:", err);
+    res.status(500).send({ message: "서버 오류" });
+  }
 });
 
 // 등록    : 자원(데이터) -> work / 등록 -> POST
