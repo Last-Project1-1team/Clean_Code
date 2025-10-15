@@ -15,8 +15,10 @@ import axios from 'axios';
 const outordItems = ref([]); // 모달에서 넘어온 데이터 저장
 const lotNo = ref(null);
 const selectedRows = ref([]);
-const custCode = ref([]);
-const custName = ref([]);
+const itemCode = ref([]);
+const itemName = ref([]);
+const lotQty = ref([]);
+const outputStock = ref([]);
 const outputStocks = ref([]);
 const products = ref();
 const selectedStock = ref(null);
@@ -37,27 +39,42 @@ const searchStock = (event) => {
 };
 
 const onSave = async () => {
-    if (lotNo.value == '') {
-        toast.add({ severity: 'error', summary: '발주정보를 먼저 입력해주세요.', life: 3000 });
-        return;
-    }
     const payload = {
-        inputDate: today.value,
-        items: selectedRows.value.map((item) => ({
-            itemCode: item.itemCode,
-            outordDetailNo: item.outordDetailNo,
-            qty: item.inputQty
-        }))
+        lotNo: lotNo.value,
+        outputStock: outputStock.value,
+        lotQty: lotQty.value
     };
     try {
-        const response = await axios.post(`${apiUrl}/input`, payload);
-        toast.add({ severity: 'success', summary: '가입고가 저장되었습니다.', life: 3000 });
-        outordItems.value = [];
-        selectedRows.value = [];
-        today.value = new Date();
+        const response = await axios.post(`${apiUrl}/itemOutput`, payload);
+        toast.add({ severity: 'success', summary: '출고가 저장되었습니다.', life: 3000 });
+        lotNo.value = '';
+        itemCode.value = '';
+        itemName.value = '';
+        lotQty.value = '';
     } catch (error) {
         console.error(error);
         toast.add({ severity: 'error', summary: '저장 중 오류가 발생했습니다.', life: 3000 });
+    }
+};
+
+const onEnter = async () => {
+    if (outputStock.value == '') {
+        toast.add({ severity: 'error', summary: '출고창고를 먼저 선택해주세요.', life: 3000 });
+        return;
+    }
+    if (lotNo.value == '') {
+        toast.add({ severity: 'error', summary: 'LOTNO를 먼저 입력해주세요.', life: 3000 });
+        return;
+    }
+    try {
+        const response = await axios.get(`${apiUrl}/outputLot?lotNo=` + lotNo.value);
+        console.log(response.data[0].itemCode);
+        itemCode.value = response.data[0].itemCode;
+        itemName.value = response.data[0].itemName;
+        lotQty.value = response.data[0].lotQty;
+    } catch (error) {
+        console.error(error);
+        toast.add({ severity: 'error', summary: 'LOTNO 정보 조회 중 오류가 발생했습니다.', life: 3000 });
     }
 };
 
@@ -87,25 +104,25 @@ const today = ref(new Date()); // 오늘 날짜
         <div class="grid grid-cols-12 gap-2">
             <label for="lotNo" class="flex items-center">LOTNO</label>
             <div class="col-start-2 col-end-7">
-                <InputText v-model="lotNo" type="text" class="w-full" />
+                <InputText v-model="lotNo" type="text" class="w-full" @keydown.enter="onEnter" />
             </div>
         </div>
         <div class="grid grid-cols-12 gap-2">
             <label for="lotNo" class="flex items-center">자재코드</label>
             <div class="col-start-2 col-end-4">
-                <InputText v-model="lotNo" type="text" class="w-full" readonly />
+                <InputText v-model="itemCode" type="text" class="w-full" readonly />
             </div>
         </div>
         <div class="grid grid-cols-12 gap-2">
             <label for="lotNo" class="flex items-center">자재명</label>
             <div class="col-start-2 col-end-7">
-                <InputText v-model="lotNo" type="text" class="w-full" readonly />
+                <InputText v-model="itemName" type="text" class="w-full" readonly />
             </div>
         </div>
         <div class="grid grid-cols-12 gap-2">
             <label for="custCode" class="flex items-center">출고수량</label>
             <div class="col-start-2 col-end-4">
-                <InputText v-model="custCode" type="text" class="w-full" />
+                <InputText v-model="lotQty" type="text" class="w-full" />
             </div>
         </div>
         <div>

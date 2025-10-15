@@ -221,6 +221,31 @@ const selectInputList = `
        AND itm.item_name like ?;
 `;
 
+const selectOutputStock =
+    //
+    `SELECT common_code code
+          , code_name name
+       FROM tb_code
+      WHERE group_code = 'STOCK'
+        AND common_code <> '0H01'`;
+
+const selectOutputLot =
+    //
+    ` SELECT lot.item_code itemCode
+          , itm.item_name itemName
+          , lot.lot_qty  lotQty
+        FROM tb_lot lot 
+        JOIN tb_item_master itm 
+            ON lot.item_code = itm.item_code
+        WHERE lot.lot_no = ?`;
+
+const selectLastOutputNo = `
+    SELECT output_no 
+      FROM tb_output
+     WHERE output_no LIKE ?
+     ORDER BY output_no DESC
+     LIMIT 1
+  `;
 module.exports = {
     selectItemList,
     selectClass,
@@ -235,4 +260,7 @@ module.exports = {
     outorderDetailSelect,
     selectLastInputNo,
     selectInputList,
+    selectOutputStock,
+    selectOutputLot,
+    selectLastOutputNo,
 };

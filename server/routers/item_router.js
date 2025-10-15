@@ -104,4 +104,30 @@ router.post("/inputList", async (req, res) => {
     }
 });
 
+router.get("/itemOutput/outputStock", async (req, res) => {
+    let stocklist = await itemService.findOutputStock().catch((err) => console.log(err));
+    res.send(stocklist);
+});
+
+router.get("/outputLot", async (req, res) => {
+    let lotNo = req.query.lotNo;
+    console.log(lotNo);
+    let itemList = await itemService.findOutputLot(lotNo).catch((err) => console.log(err));
+    res.send(itemList);
+});
+router.post("/itemOutput", async (req, res) => {
+    const { lotNo, outputStock, lotQty } = req.body;
+    try {
+        const result = await itemService.addNewOutput(lotNo, outputStock.code, lotQty);
+        res.status(200).json({
+            message: "출고정보 저장 성공",
+        });
+    } catch (error) {
+        console.error("출고 저장 실패:", error);
+        res.status(500).json({
+            message: "출고정보 저장 중 오류가 발생했습니다.",
+            error: error.message,
+        });
+    }
+});
 module.exports = router;
