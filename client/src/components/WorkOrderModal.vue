@@ -73,14 +73,6 @@ const onRowSelect = (event) => {
     workOrderData.value = event.data;
     emit('workOrdreg', event.data);
 };
-
-// const selectWorkOrder = () => {
-//     emit('workOrdreg', workOrderData.value);
-// };
-
-// const modalToss = () => {
-//     selectWorkOrder();
-// };
 </script>
 
 <template>

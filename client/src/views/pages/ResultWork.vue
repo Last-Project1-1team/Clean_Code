@@ -2,12 +2,16 @@
 import { ref, computed, watch } from 'vue';
 import WorkOrderModal from '@/components/WorkOrderModal.vue';
 import LotModal from '@/components/LotModal.vue';
+import axios from 'axios';
+
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 const modelInfo = computed(() => {
     const d = selectedWorkOrder.value;
     return d && d.modelCode ? `${d.modelCode} / ${d.revision} / ${d.modelName}` : '';
 });
 
+// --------------------------------------- 작업지시 관련 부분 ----------------------------------------
 // 작업지시 모달 오픈 전 false 상태
 const openWorkOrdModal = ref(false);
 // 입력한 작업지시번호
@@ -20,24 +24,56 @@ const formData = ref({}); // rowSelect 시 표시할 데이터
 // 모달 닫힐 때 입력값 초기화
 watch(openWorkOrdModal, (newVal) => {
     if (!newVal) {
-        // console.log('모달 닫힘 → 입력창 초기화');
         searchWorkOrdNo.value = '';
     }
 });
 
 // 모달에서 선택된 작업지시 받아오기
-const onSelectWorkOrd = (data) => {
+const onSelectWorkOrd = async (data) => {
     selectedWorkOrder.value = data; // 모달에서 선택된 데이터 저장
     workOrd.value = [data]; // 선택된 데이터 표시
     openWorkOrdModal.value = false; // 모달 닫기
+
+    // 선택된 modelCode, revision 이용해 BOM 조회 실행
+    if (data.modelCode && data.revision) {
+        await fetchBomList(data.modelCode, data.revision);
+    }
+};
+
+// --------------------------------------- Bom 부분 ---------------------------------------
+// 여러 작업지시 데이터 저장 그리드 연결
+const bomList = ref([]);
+// 필요수량 (작업지시서에서 받아옴)
+const needQty = ref(0);
+// 준비수량 누적값
+const totalLotQty = ref(0);
+
+// BOM(Lot) 데이터 조회
+const fetchBomList = async (modelCode, revision) => {
+    try {
+        // console.log('BOM 조회 요청:', modelCode, revision);
+        const res = await axios.get(`${apiUrl}/resultwork/bomlist`, {
+            params: { modelCode, revision }
+        });
+        // console.log('✅ BOM 조회 결과:', res.data);
+        bomList.value = res.data;
+
+        // ✅ 필요수량 설정 (첫 번째 항목 기준)
+        if (res.data.length > 0) {
+            needQty.value = res.data[0].needQty || 0;
+        }
+    } catch (err) {
+        // console.error('❌ BOM 조회 실패:', err);
+        bomList.value = [];
+    }
 };
 
 const openModalWithSearch = () => {
-    console.log('🔍 부모 검색 버튼 클릭:', searchWorkOrdNo.value);
+    // console.log('부모 검색 버튼 클릭:', searchWorkOrdNo.value);
     openWorkOrdModal.value = true;
-    // searchWorkOrdNo.value = '';
 };
-// lot----------------------------------------------------------------------
+
+// --------------------------------------- lot---------------------------------------
 // lot모달 오픈 전 false 상태
 const openLotModal = ref(false);
 // 입력한 작업지시번호
@@ -46,8 +82,6 @@ const searchLotNo = ref('');
 const selectedLot = ref(null);
 // DataTable에 보여질 데이터
 const lot = ref([]);
-// 여러 작업지시 데이터 저장 그리드 연결
-const LotNoList = ref([]);
 
 // 모달에서 선택된 Lot정보 받아오기
 const onSelectLot = (data) => {
@@ -98,11 +132,11 @@ const openModalWithLot = () => {
     </div>
 
     <!-- LOT번호 조회 결과-->
-    <DataTable :value="LotNoList" v-model:selection="selectedLot" datakey="workOrdNo" scrollable scrollHeight="400px" class="custom-table mt-6" @rowSelect="formData = { ...$event.data }">
+    <DataTable :value="bomList" v-model:selection="selectedLot" datakey="lotNo" scrollable scrollHeight="400px" class="custom-table mt-6" @rowSelect="formData = { ...$event.data }">
         <Column field="itemCode" header="품번" style="min-width: 250px"></Column>
         <Column field="itemName" header="품명" style="min-width: 150px"></Column>
         <Column field="needQty" header="필요수량" style="min-width: 150px"></Column>
-        <Column field="readyQty" header="준비수량" style="min-width: 150px"></Column>
+        <Column field="lotQty" header="준비수량" style="min-width: 150px"></Column>
         <Column field="unit" header="단위" style="min-width: 150px"></Column>
     </DataTable>
 
