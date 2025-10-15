@@ -7,10 +7,18 @@ const {
   formatFullDate,
 } = require("../utils/converts.js");
 
-// 전체 조회
-const findWorkOrd = async (workOrdNo) => {
+// 작업지시 전체 조회
+const findWorkOrd = async (workOrdNo = "") => {
   let list = await mariadb
     .query("selectWorkOrd", [`%${workOrdNo}%`])
+    .catch((err) => console.log(err));
+  return list;
+};
+
+// Lot 전체 조회
+const findLot = async (lotNo = "") => {
+  let list = await mariadb
+    .query("selectLotNo", [`%${lotNo}%`])
     .catch((err) => console.log(err));
   return list;
 };
@@ -53,5 +61,6 @@ const addWorkOrd = async (workInfo) => {
 // 작업지시 등록
 module.exports = {
   findWorkOrd,
+  findLot,
   addWorkOrd,
 };
