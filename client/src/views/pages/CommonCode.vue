@@ -57,9 +57,9 @@ const getCommonList = async (codeGroup) => {
 //저장(등록)
 const saveButton = async () => {
     const payload = {
-        common_code: formData.value.commonCode,
-        group_code: formData.value.groupCode,
-        code_name: formData.value.codeName
+        commonCode: formData.value.commonCode,
+        groupCode: formData.value.groupCode,
+        codeName: formData.value.codeName
     };
 
     console.log('저장 payload:', payload);
