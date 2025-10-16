@@ -43,4 +43,4 @@ lot.MODEL_CODE === inord.MODEL_CODE && lot.REVISION === inord.REVISION
 )
 );
 
-console.log(shiplist); // { MODEL_CODE: 'A100', REVISION: 'R1', LOT: 'L01' }
+console.log(shiplist); // 결과: { MODEL_CODE: 'A100', REVISION: 'R1', LOT: 'L01' }
