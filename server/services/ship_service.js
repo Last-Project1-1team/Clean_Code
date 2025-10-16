@@ -2,30 +2,26 @@
 const mariadb = require("../database/mapper.js");
 const sqlList = require("../database/sqlList.js");
 
-// 업체단건조회
-const findCustCodeNo = async (customerNo) => {
-  let list = await mariadb
-    .query("shipmodel", [customerNo])
+// 수주, lot 단건조회
+const findCustCodeNo = async (custno) => {
+  let inordlist = await mariadb
+    .query("shipmodel", [custno])
     .catch((err) => console.log(err));
-  // let info = list[0]; //배열을 깨야됨. 그러고 객체로 만듬
-  // return info;
-  console.log(list);
-  return list;
-  // let info = [];
-
-  // for (const row of list) {
-  //   // row는 { cust_name: ..., MODEL_CODE: ..., REVISION: ... } 형태
-  //   let obj = {
-  //     cust_name: row.cust_name,
-  //     model_code: row.MODEL_CODE,
-  //     revision: row.REVISION,
-  //   };
-  //   info.push(obj);
-  // }
-
-  // return info;
+  console.log(inordlist);
+  return inordlist;
 };
+
+const findLotNo = async (lotno) => {
+  let lotlist = await mariadb
+    .query("lotnoscan", [lotno])
+    .catch((err) => console.log(err));
+  console.log(lotlist);
+  return lotlist;
+};
+
+//출하등록
 
 module.exports = {
   findCustCodeNo,
+  findLotNo,
 };

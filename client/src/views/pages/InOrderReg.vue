@@ -70,7 +70,7 @@ const onSave = async () => {
         orderDate: today.value,
         paprdDate: selectedDate.value,
         custCode: custCode.value,
-        models: selectedmodel.value.map((model) => ({
+        models: selectedRows.value.map((model) => ({
             modelCode: model.MODEL_CODE,
             inordQty: model.INORD_QTY
         }))
