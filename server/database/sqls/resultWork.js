@@ -72,8 +72,35 @@ JOIN v_item_master itm
 WHERE plot.prod_lot_no LIKE ?
 `;
 
+const insertProdResult = `
+INSERT INTO tb_prod_result
+(work_ord_no,
+ model_code,
+ revision,
+ proc_code,
+ work_qty,
+ work_start_time)
+VALUES
+(?,
+?,
+?,
+?,
+?,
+?)
+ON DUPLICATE KEY UPDATE
+work_start_time = VALUES(work_start_time),
+work_end_time = VALUES(work_end_time)
+`;
+
+const updateEndTime = `
+UPDATE tb_prod_result
+SET work_end_time LIKE ?
+WHERE work_ord_no LIKE ?
+`;
 module.exports = {
   selectWorkOrd,
   selectBom,
   selectLot,
+  insertProdResult,
+  updateEndTime,
 };

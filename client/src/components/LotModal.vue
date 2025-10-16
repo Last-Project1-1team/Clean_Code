@@ -1,7 +1,5 @@
 <script setup>
 import axios from 'axios';
-import Dialog from 'primevue/dialog';
-
 import { onMounted, ref, watch, computed } from 'vue';
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -22,7 +20,7 @@ const ModalLotNo = ref('');
 // 여러 작업지시 데이터 저장
 const lotList = ref([]);
 // 선택된 행
-const selectedLot = ref(null);
+const selectedLot = ref([]);
 
 // 부모의 값이 바뀌면 local에도 반영
 watch(

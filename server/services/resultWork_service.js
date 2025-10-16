@@ -31,26 +31,27 @@ const findLot = async (lotNo = "") => {
   return list;
 };
 
-// 작업지시 등록
-const addWorkOrd = async (workInfo) => {
-  const { modelCode, revision, workOrdQty, prodPlanNo } = workInfo;
-  // workInfo : 사용자가 전달한 작업정보, Object 타입
+// 생산실적 등록
+const addProdResult = async (resultInfo) => {
+  const { workOrdNo, modelCode, revision, procCode, workQty, workStartTime } =
+    resultInfo;
+  // resultInfo : 사용자가 전달한 실적정보, Object 타입
+  // console.log("resultInfo : ", resultInfo);
 
-  // console.log("workInfo : ", workInfo);
-
-  let insertColumns = [workOrdNo, modelCode, revision, workOrdQty, prodPlanNo];
+  let insertColumns = [
+    workOrdNo,
+    modelCode,
+    revision,
+    procCode,
+    workQty,
+    workStartTime,
+  ];
   console.log("🧩 insertColumns:", insertColumns);
-  // let insertColumns = [workOrdNo, modelCode, revision, workOrdQty];
-  // 사용자가 전달한 제품정보 중 insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
-  // let data = convertObjToAry(workInfo, insertColumns);
-  // workInfo 는 model_router에서 옴
 
   const resInfo = await mariadb
-    .query("insertWorkOrder", insertColumns)
+    .query("insertProdResult", insertColumns)
     .catch((err) => console.log(err));
-  // mariadb 모듈은 DML(insert, update, delete)의 결과를 { affectedRows: 1, insertId: 1, warningStatus: 0 } 로 반환
-  // affectedRows : 실제 실행된 행수 (default : 0)
-  // insertId     : AUTO_INCREMENT를 사용하는 경우 자동 부여된 PRIMARY KEY를 가짐, 무조건 Number 타입 (default : 0)
+
   console.log(resInfo.insertId);
   let result = null;
   if (resInfo.insertId == 0) {
@@ -71,5 +72,5 @@ module.exports = {
   findWorkOrd,
   findBom,
   findLot,
-  addWorkOrd,
+  addProdResult,
 };

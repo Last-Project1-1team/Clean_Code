@@ -3,8 +3,10 @@ import { ref, computed, watch } from 'vue';
 import WorkOrderModal from '@/components/WorkOrderModal.vue';
 import LotModal from '@/components/LotModal.vue';
 import axios from 'axios';
+import { useToast } from 'primevue/usetoast';
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
+const toast = useToast();
 
 const modelInfo = computed(() => {
     const d = selectedWorkOrder.value;
@@ -18,8 +20,10 @@ const openWorkOrdModal = ref(false);
 const searchWorkOrdNo = ref('');
 // 선택된 작업지시 정보
 const selectedWorkOrder = ref({});
-const workOrd = ref([]); // DataTable에 보여질 데이터
-const formData = ref({}); // rowSelect 시 표시할 데이터
+// DataTable에 보여질 데이터
+const workOrd = ref([]);
+// rowSelect 시 표시할 데이터
+const formData = ref({});
 
 // 작업지시번호 모달창 OPEN
 const openModalWithSearch = () => {
@@ -39,7 +43,7 @@ const onSelectWorkOrd = async (data) => {
     selectedWorkOrder.value = data; // 모달에서 선택된 데이터 저장
     workOrd.value = [data]; // 선택된 데이터 표시
     openWorkOrdModal.value = false; // 모달 닫기
-
+    console.log('selectedWorkOrder: ', selectedWorkOrder);
     // 선택된 modelCode, revision 이용해 BOM 조회 실행
     if (data.modelCode && data.revision) {
         await fetchBomList(data.modelCode, data.revision);
@@ -49,8 +53,6 @@ const onSelectWorkOrd = async (data) => {
 // --------------------------------------- Bom 부분 ---------------------------------------
 // 여러 작업지시 데이터 저장 그리드 연결
 const bomList = ref([]);
-// 필요수량 (작업지시서에서 받아옴)
-const needQty = ref(0);
 
 // BOM(Lot) 데이터 조회
 const fetchBomList = async (modelCode, revision) => {
@@ -59,7 +61,7 @@ const fetchBomList = async (modelCode, revision) => {
         const res = await axios.get(`${apiUrl}/resultwork/bomlist`, {
             params: { modelCode, revision }
         });
-        // console.log('✅ BOM 조회 결과:', res.data);
+        // console.log('BOM 조회 결과:', res.data);
         bomList.value = res.data;
         console.log('bomList : ', bomList.value);
     } catch (err) {
@@ -77,10 +79,14 @@ const searchLotNo = ref('');
 const selectedLot = ref({});
 // DataTable에 보여질 데이터
 const lot = ref([]);
+// 선택된 lot번호 누적
+const selectedLotNos = ref([]);
 
 // LOT번호 모달창 OPEN
 const openModalWithLot = () => {
-    console.log('🔍 부모 검색 버튼 클릭:', searchLotNo.value);
+    // 모달창 open 시 lot 선택 초기화
+    selectedLot.value = null;
+    console.log('부모 검색 버튼 클릭:', searchLotNo.value);
     openLotModal.value = true;
 };
 
@@ -91,54 +97,55 @@ const selectedLotQty = ref(0);
 const onSelectLot = (data) => {
     console.log('data: ', data);
 
-    // bomList와 modelCode, revision 비교
-    const checkBomMatch = (data) => {
-        // 1단계: modelCode + revision 일치
-        const sameModelRev = bomList.value.some((item) => item.modelCode === data.modelCode && item.revision === data.revision);
+    // lot조회 선택시 bomList와 검증
 
-        if (sameModelRev) {
-            console.log('modelCode + revision 완전 일치');
-            return data.lotQty; // lotQty 리턴
-        }
+    // 1단계: 이미 선택된 lot인지 확인  --------------------------------------- includes 는 배열이나 문자열에 특정한 값을 포함 여부를 확인하는 함수
+    if (selectedLotNos.value.includes(data.lotNo)) {
+        toast.add({
+            severity: 'warn',
+            summary: '중복 선택',
+            detail: '이미 선택된 LOT입니다.',
+            life: 2000
+        });
+        openLotModal.value = false;
+        return;
+    }
 
-        // 2단계: itemCode 일치
-        const sameItem = bomList.value.some((item) => item.itemCode === data.itemCode);
+    // Bom에는 반제품이 들어가서 modelCode가 있지만 lot에는 자재만 있어서 modelCode 검증 필요가 없음
 
-        if (sameItem) {
-            console.log('modelCode/revision 불일치, itemCode만 일치');
-            return data.lotQty; // lotQty 리턴
-        }
-
-        // 3단계: 아무것도 없으면 알림
+    // 2단계: itemCode 일치    조건 추가하려면 && 넣고 추가하면됨
+    // targetBom에서 itemCode가 일치하면 true로 나와서 if(true)로 작동   == some의 결과는 true or false
+    const targetBom = bomList.value.find((item) => item.itemCode === data.itemCode);
+    if (!targetBom) {
         alert('일치하는 BOM 항목이 없습니다.');
-        return null;
-    };
+        openLotModal.value = false;
+        return;
+    }
 
     // 리턴받은 lotQty값
-    const resultQty = checkBomMatch(data);
-    console.log('🔍 checkBomMatch result:', resultQty);
+    const resultQty = Number(data.lotQty) || 0; // undefined 방지
+    const currentLotQty = Number(targetBom.lotQty) || 0; // 이미 누적된 lotQty
+    const needQty = Number(targetBom.needQty) || 0; // 필요한 수량
+    const newTotal = currentLotQty + resultQty;
 
-    if (resultQty !== null) {
-        selectedLotQty.value += Number(resultQty); // 변수에 저장
-
-        console.log(`📦 새로 선택한 lotQty: ${resultQty}`);
-        console.log(`🔢 누적된 lotQty: ${selectedLotQty.value}`);
-
-        // 초과 여부 체크
-        // if (selectedLotQty.value > needQty.value) {
-        //     alert(`⚠️ 준비수량이 필요수량(${needQty.value})을 초과했습니다! (현재: ${selectedLotQty.value})`);
-        // }
-        // lot 데이터에 누적 추가
-        // DataTable의 "준비수량" 칸에 즉시 반영 (예시: 첫 번째 행 기준)
-        const targetBom = bomList.value.find((item) => item.itemCode === data.itemCode);
-        if (targetBom) {
-            // 기존 값이 있다면 누적, 없다면 초기값으로 세팅
-            targetBom.lotQty = (targetBom.lotQty || 0) + Number(resultQty);
-        }
-        selectedLot.value = data;
-        lot.value = [data];
-        openLotModal.value = false;
+    // needQty 초과 시 차단
+    if (newTotal > needQty) {
+        const over = newTotal - needQty;
+        alert(`⚠️ ${targetBom.itemCode}의 Lot 수량이 필요수량(${needQty})을 초과했습니다. 초과량: ${over}`);
+        return;
     }
+
+    // 중복 아니고 초과도 아니면 lot 선택 반영
+    // 선택된 lot번호 저장
+    selectedLotNos.value.push(data.lotNo);
+
+    // 누적 로직
+    selectedLotQty.value += Number(resultQty);
+    targetBom.lotQty = newTotal;
+
+    selectedLot.value = data;
+    lot.value = [data];
+    openLotModal.value = false;
 };
 
 // 모달 닫힐 때 입력값 초기화
@@ -147,6 +154,50 @@ watch(openLotModal, (newVal) => {
         searchLotNo.value = '';
     }
 });
+
+// --------------------------------------- 버튼 ---------------------------------------
+const isStarted = ref(false);
+const isReady = ref(false);
+
+// computed 속성으로 버튼의 severity와 label을 동적
+const buttonSeverity = computed(() => (isStarted.value ? 'warn' : 'success'));
+const buttonLabel = computed(() => (isStarted.value ? '일시정지' : '시작'));
+
+// start버튼 클릭 이벤트
+const startButtonClick = async () => {
+    // 버튼 활성화
+    isReady.value = true;
+    // 서버로 보낼 데이터 준비
+    const payload = [
+        {
+            // insert 할 데이터 정의해야됨
+            work_ord_no: selectedWorkOrder.value.workOrdNo,
+            model_code: selectedWorkOrder.value.modelCode,
+            revision: selectedWorkOrder.value.revision,
+            proc_code: selectedWorkOrder.value.procCode,
+            work_qty: selectedWorkOrder.value.proc_ode,
+            work_start_time: new Date().toISOString(),
+            work_end_time: new Date().toISOString()
+        }
+    ];
+
+    try {
+        // 🎈 Axios를 사용해서 서버 API에 POST 요청을 보내!
+        // '/api/insert-data'는 네 백엔드 서버의 실제 API 주소로 바꿔야 해.
+        const response = await axios.post(`${apiUrl}/resultwork/save`, payload);
+
+        console.log('서버 응답:', response.data);
+
+        // ⭐ 서버 통신이 성공하면 isStarted 값을 토글해줘! (반드시 .value!)
+        isStarted.value = !isStarted.value;
+        alert('데이터 전송 성공');
+    } catch (error) {
+        console.error('데이터 전송 중 오류 발생:', error);
+        alert('데이터 전송 실패');
+    } finally {
+        isReady.value = false;
+    }
+};
 </script>
 
 <template>
@@ -200,9 +251,8 @@ watch(openLotModal, (newVal) => {
     </Dialog>
 
     <div class="buttons">
-        <Button class="cusbutton" label="시작" severity="success" raised />
-        <!--<Button class="cusbutton col-span-4" label="일시정지" severity="warn" raised />-->
-        <Button class="cusbutton" label="종료" severity="danger" raised />
+        <Button class="startbutton" :label="buttonLabel" :severity="buttonSeverity" raised @click="startButtonClick" :disabled="isReady" />
+        <Button class="endbutton" label="종료" severity="danger" raised />
     </div>
 </template>
 
@@ -212,12 +262,12 @@ watch(openLotModal, (newVal) => {
     border: 1px solid #ddd;
     border-radius: 10px;
 }
-.cusbutton {
+.buttons button {
     height: 15vh;
     width: 50vh;
 }
 .buttons {
-    margin: 0 auto;
+    text-align: center;
 }
 .modalform {
     padding: 10px;

@@ -65,11 +65,11 @@ const saveWorkOrder = () => {
     axios
         .post(`${apiUrl}/workorder/save`, selectedPlans.value)
         .then((res) => {
-            // console.log('✅ 저장 성공:', res.data);
+            // console.log('저장 성공:', res.data);
             alert('저장이 완료되었습니다.');
         })
         .catch((err) => {
-            // console.error('💥 저장 실패:', err);
+            // console.error('저장 실패:', err);
             alert('저장 중 오류가 발생했습니다.');
         });
 };
