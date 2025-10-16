@@ -13,6 +13,7 @@ const findAll = async (codeGroup) => {
   return list;
 };
 
+//조회(셀렉트박스)
 const findCommon = async () => {
   let list = await mariadb
     .query("selectCommon")
@@ -25,11 +26,7 @@ const addNewCommon = async (commonInfo) => {
   // bookInfo : 사용자가 전달한 북정보, Object 타입
 
   // t_book_01 테이블에 등록하는 insert문에 정의된 컬럼들
-  let insertColumns = [
-    "commonCode",
-    "groupCode", 
-    "codeName",
-  ];
+  let insertColumns = ["commonCode", "groupCode", "codeName"];
   // 사용자가 전달한 북정보 중 insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
   let data = convertObjToAry(commonInfo, insertColumns);
   let resInfo = await mariadb

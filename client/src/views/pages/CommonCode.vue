@@ -7,6 +7,7 @@ import { useToast } from 'primevue/usetoast';
 const toast = useToast();
 const selectedRow = ref(null);
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
+const firstRow = ref(null);
 
 //조회 결과 담을 배열
 const leftGrid = ref([]);
@@ -16,15 +17,16 @@ const selectedCommon = ref(null);
 const commonDropdown = ref([]);
 // 코드그룹 목록
 const formData = ref({
-    commonCode: '',
     groupCode: '',
+    commonCode: '',
     codeName: ''
 });
 const commonCode = ref([]);
 //초기화버튼
 const onClearItem = () => {
     formData.value = {
-        groupCode: '',
+        groupCode: formData.value.groupCode,
+        commonCode: '',
         codeName: ''
     };
 };
@@ -62,17 +64,20 @@ const getCommonList = async (codeGroup) => {
 
     // ✅ 첫 번째 행만 자동선택 (formData 채우지 않음)
     if (result.data && result.data.length > 0) {
+        const firstRow = result.data[0];
         selectedRow.value = result.data[0]; // 왼쪽 테이블 첫 행 자동 선택
+        formData.value = { ...firstRow };
     } else {
-        selectedRow.value = null; // 결과 없을 때 선택 해제
+        selectedRow.value = null;
+        selectedRow.value = { groupCode: '', commonCode: '', codeName: '' }; // 결과 없을 때 선택 해제
     }
 };
 
 //저장(등록)
 const saveButton = async () => {
     const payload = {
-        commonCode: formData.value.commonCode,
         groupCode: formData.value.groupCode,
+        commonCode: formData.value.commonCode,
         codeName: formData.value.codeName
     };
 
@@ -93,13 +98,13 @@ const saveButton = async () => {
     <div class="card flex flex-col gap-4">
         <div class="flex flex-wrap items-start gap-4 justify-between w-full">
             <div class="grid grid-cols-12 gap-2">
-                <label for="proc" class="grid grid-cols-2 flex items-center">코드그룹</label>
+                <label for="codeGroup" class="grid grid-cols-2 flex items-center">코드그룹</label>
                 <div class="col-span-3">
                     <Select class="w-full" v-model="selectedCommon" :options="commonDropdown" optionLabel="label" optionValue="value" placeholder="코드그룹선택" @change="getCommonList(selectedCommon)" />
                 </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="col-span-4">
                 <Button label="초기화" :fluid="false" @click="onClearItem"></Button>
                 <Button label="저장" :fluid="false" @click="saveButton"></Button>
                 <Button label="조회" :fluid="false" @click="commonSearch"></Button>

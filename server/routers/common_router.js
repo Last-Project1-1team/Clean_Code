@@ -28,7 +28,7 @@ router.get("/commonCode/common", async (req, res) => {
   res.send(commonList);
 });
 
-// 등록    
+// 등록
 router.post("/commonCode/insert", async (req, res) => {
   let selectCommonInfo = req.body;
   let result = await commonService
@@ -37,7 +37,4 @@ router.post("/commonCode/insert", async (req, res) => {
   res.send(result);
 });
 
-// 해당 javascript 파일의 마지막 코드, 모듈화
-// 위에 선언한 기능(변수, 함수 등)들 중 외부로 노출할 대상을 설정
-// => 다른 파일에서 require()을 통해 가져옴
 module.exports = router;
