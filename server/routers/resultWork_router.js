@@ -40,6 +40,7 @@ router.get("/resultwork/bomlist", async (req, res) => {
 router.get("/resultwork/lotlist", async (req, res) => {
   try {
     const lotNo = req.query.lotNo || ""; // 없으면 전체조회
+
     const lotList = await resultWorkService.findLot(lotNo);
 
     res.send(lotList); // 항상 배열로 반환

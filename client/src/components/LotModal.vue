@@ -46,7 +46,7 @@ const fetchLot = async (lotNo = '') => {
     try {
         console.log('📡 조회 요청:', lotNo);
         const result = await axios.get(`${apiUrl}/resultwork/lotlist`, {
-            params: { lotNo: lotNo || '' }
+            params: { lotNo }
         });
         console.log('✅ 조회 결과:', result.data);
 
@@ -77,12 +77,12 @@ const onRowSelect = (event) => {
 
 <template>
     <InputText v-model="ModalLotNo" class="col-span-9" id="workord" type="text" />
-    <!-- <Button label="저장" :disabled="!workOrderData" @click="modalToss"></Button> -->
     <Button label="조회" @click="fetchLot(ModalLotNo)"></Button>
 
     <DataTable :value="lotList" v-model:selection="selectedLot" selectionMode="single" dataKey="workOrdNo" scrollable scrollHeight="60vh" @rowSelect="onRowSelect">
-        <Column field="itemCode" header="품번" style="min-width: 250px"></Column>
-        <Column field="itemName" header="품명" style="min-width: 150px"></Column>
+        <Column field="lotNo" header="Lot번호" style="min-width: 250px"></Column>
+        <Column field="itemCode" header="품번" style="min-width: 150px"></Column>
+        <Column field="itemName" header="품명" style="min-width: 250px"></Column>
         <Column field="lotQty" header="준비수량" style="min-width: 150px"></Column>
         <Column field="unit" header="단위" style="min-width: 150px"></Column>
     </DataTable>

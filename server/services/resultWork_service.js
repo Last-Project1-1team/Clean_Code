@@ -26,7 +26,7 @@ const findBom = async (modelCode, revision) => {
 // Lot 전체 조회
 const findLot = async (lotNo = "") => {
   let list = await mariadb
-    .query("selectLot", [`%${lotNo}%`])
+    .query("selectLot", [`%${lotNo}%`, `%${lotNo}%`])
     .catch((err) => console.log(err));
   return list;
 };
