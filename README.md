@@ -21,6 +21,23 @@ ON A.LOW_CODE = B.ITEM_CODE
 WHERE MODEL_CODE = 'M00001'
 ORDER BY PATH;
 
+some()
+배열의 요소 중 하나라도 주어진 조건을 만족하면 true, 모두 만족하지 않으면 false를 반환한다.
+
+예시 1: // 짝수가 하나라도 있으면 true
+const numbers = [1, 3, 4, 7, 9];
+
+const evenumber = numbers.some(num => num % 2 === 0);
+
+console.log(evenumber ); // true
+
+예시 2: // 짝수가 하나도 없으면 false
+const numbers = [1, 3, 5, 7, 9];
+
+const oddnumber = numbers.some(num => num % 2 === 0);
+
+console.log(oddnumber); // false
+
 filter(), some() 함수 같이쓰기
 
 // 첫 번째 배열: lotNolist
