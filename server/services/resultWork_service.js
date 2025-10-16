@@ -15,10 +15,18 @@ const findWorkOrd = async (workOrdNo = "") => {
   return list;
 };
 
+// 작업지시에 따른 Bom 조회
+const findBom = async (modelCode, revision) => {
+  let list = await mariadb
+    .query("selectBom", [`%${modelCode}%`, `%${revision}%`])
+    .catch((err) => console.log(err));
+  return list;
+};
+
 // Lot 전체 조회
 const findLot = async (lotNo = "") => {
   let list = await mariadb
-    .query("selectLotNo", [`%${lotNo}%`])
+    .query("selectLot", [`%${lotNo}%`, `%${lotNo}%`])
     .catch((err) => console.log(err));
   return list;
 };
@@ -61,6 +69,7 @@ const addWorkOrd = async (workInfo) => {
 // 작업지시 등록
 module.exports = {
   findWorkOrd,
+  findBom,
   findLot,
   addWorkOrd,
 };

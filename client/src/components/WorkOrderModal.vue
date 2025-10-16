@@ -73,19 +73,10 @@ const onRowSelect = (event) => {
     workOrderData.value = event.data;
     emit('workOrdreg', event.data);
 };
-
-// const selectWorkOrder = () => {
-//     emit('workOrdreg', workOrderData.value);
-// };
-
-// const modalToss = () => {
-//     selectWorkOrder();
-// };
 </script>
 
 <template>
     <InputText v-model="ModalWorkOrdNo" class="col-span-9" id="workord" type="text" />
-    <!-- <Button label="저장" :disabled="!workOrderData" @click="modalToss"></Button> -->
     <Button label="조회" @click="fetchWorkOrder(ModalWorkOrdNo)"></Button>
 
     <DataTable :value="workOrderList" v-model:selection="selectedWorkOrder" selectionMode="single" dataKey="workOrdNo" scrollable scrollHeight="60vh" @rowSelect="onRowSelect">

@@ -20,10 +20,27 @@ router.get("/resultwork/search", async (req, res) => {
   }
 });
 
+// 작업지시에 따른 Bom조회
+router.get("/resultwork/bomlist", async (req, res) => {
+  try {
+    const modelCode = req.query.modelCode || "";
+    const revision = req.query.revision || "";
+
+    // console.log("📡 BOM 조회 요청:", modelCode, revision);
+    const lotList = await resultWorkService.findBom(modelCode, revision);
+
+    res.send(lotList); // 항상 배열로 반환
+  } catch (err) {
+    console.error("BOM 조회 실패:", err);
+    res.status(500).send({ message: "서버 오류" });
+  }
+});
+
 // Lot 전체조회 , 단건조회
-router.get("/lotno/search", async (req, res) => {
+router.get("/resultwork/lotlist", async (req, res) => {
   try {
     const lotNo = req.query.lotNo || ""; // 없으면 전체조회
+
     const lotList = await resultWorkService.findLot(lotNo);
 
     res.send(lotList); // 항상 배열로 반환

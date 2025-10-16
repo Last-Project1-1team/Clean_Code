@@ -15,12 +15,7 @@ JOIN tb_code c
 WHERE wo.work_ord_no LIKE ?
 `;
 
-const addReadyQty = `
-SELECT  *
-FROM tb_lot
-`;
-
-const selectLotNo = `
+const selectBom = `
 SELECT  wor.work_ord_no workOrdNo,
         wor.model_code modelCode,
         wor.revision,
@@ -29,7 +24,10 @@ SELECT  wor.work_ord_no workOrdNo,
         wor.work_ord_qty,
         bom.need_qty,
         wor.work_ord_qty * bom.need_qty needQty,
-        itm.unit
+        (SELECT code_name
+           FROM tb_code 
+          WHERE itm.unit = common_code
+            AND group_code = 'unit') unit
 FROM tb_work_ord wor
 JOIN v_bom bom
   ON (wor.model_code = bom.root_code
@@ -41,10 +39,41 @@ JOIN v_item_master itm
  AND bom.low_revision = itm.revision)
 WHERE wor.model_code LIKE ?
   AND wor.revision LIKE ?
+ORDER BY itm.item_code, wor.model_code
+`;
+
+const selectLot = `
+SELECT lot.lot_no lotNo,
+       itm.item_code itemCode,
+       '' revision,
+       itm.item_name itemName,
+       lot.lot_qty lotQty,
+       (SELECT code_name
+           FROM tb_code 
+          WHERE itm.unit = common_code
+            AND group_code = 'unit') unit
+FROM tb_lot lot
+JOIN v_item_master itm
+  ON (lot.item_code = itm.item_code)
+WHERE lot.lot_no LIKE ?
+UNION ALL
+SELECT plot.prod_lot_no lotNo,
+       itm.item_code itemCode,
+       itm.revision,
+       itm.item_name itemName,
+       plot.lot_qty lotQty,
+       (SELECT code_name
+           FROM tb_code 
+          WHERE itm.unit = common_code
+            AND group_code = 'unit') unit
+FROM tb_prod_lot plot
+JOIN v_item_master itm
+  ON (plot.model_code = itm.item_code)
+WHERE plot.prod_lot_no LIKE ?
 `;
 
 module.exports = {
   selectWorkOrd,
-  selectLotNo,
-  addReadyQty,
+  selectBom,
+  selectLot,
 };
