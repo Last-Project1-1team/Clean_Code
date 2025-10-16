@@ -29,6 +29,7 @@ const getInputList = async (code, name) => {
     let result = await axios
         .get(`${apiUrl}/inputList?`, {
             params: {
+                status: '5',
                 itemCode: code || '',
                 itemName: name || ''
             }

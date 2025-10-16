@@ -100,6 +100,11 @@ const model = ref([
                 to: '/pages/itemoutput'
             },
             {
+                label: '수입검사',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/iteminspreg'
+            },
+            {
                 label: '제품정보',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/modelmaster'
