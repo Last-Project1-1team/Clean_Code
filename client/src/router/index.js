@@ -136,6 +136,11 @@ const router = createRouter({
                     name: 'itemoutput',
                     component: () => import('@/views/pages/ItemOutput.vue')
                 },
+                {
+                    path: '/pages/iteminspreg',
+                    name: 'iteminspreg',
+                    component: () => import('@/views/pages/ItemInspReg.vue')
+                },
                 //
                 // 생산관리
                 //
