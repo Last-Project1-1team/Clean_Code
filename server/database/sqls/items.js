@@ -1,6 +1,6 @@
 const selectItemList =
-    //
-    `SELECT itm.item_code itemCode
+  //
+  `SELECT itm.item_code itemCode
         , itm.item_name itemName
         , itm.spec spec
         , itm.item_class itemClass
@@ -21,14 +21,14 @@ const selectItemList =
     WHERE itm.item_code LIKE ?
       AND itm.item_name LIKE ?`;
 const selectClass =
-    //
-    `SELECT common_code code
+  //
+  `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'item_class'`;
 const selectUnit =
-    //
-    `SELECT common_code code
+  //
+  `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'unit'`;
@@ -222,16 +222,16 @@ const selectInputList = `
 `;
 
 const selectOutputStock =
-    //
-    `SELECT common_code code
+  //
+  `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'STOCK'
         AND common_code <> '0H01'`;
 
 const selectOutputLot =
-    //
-    ` SELECT lot.item_code itemCode
+  //
+  ` SELECT lot.item_code itemCode
           , itm.item_name itemName
           , lot.lot_qty  lotQty
         FROM tb_lot lot 
@@ -262,22 +262,33 @@ const selectOutputList = `
         ON opt.item_code = itm.item_code
      WHERE OUTPUT_DATE = ?
 `;
+const selectInspList = `
+SELECT mst.insp_code inspCode
+     , mst.insp_name inspName
+	   , mst.spec inspSpec
+     , 'OK' judgement
+  FROM tb_insp_master mst 
+  JOIN tb_insp_detail dtl
+    ON mst.INSP_CODE = dtl.insp_code
+ WHERE dtl.item_code = 'I00001'
+`;
 module.exports = {
-    selectItemList,
-    selectClass,
-    selectUnit,
-    insertItems,
-    itemOutordSelect,
-    custOutordSelect,
-    insertOutordMaster,
-    insertOutordDetail,
-    selectLastOutordNo,
-    outordListSelect,
-    outorderDetailSelect,
-    selectLastInputNo,
-    selectInputList,
-    selectOutputStock,
-    selectOutputLot,
-    selectLastOutputNo,
-    selectOutputList,
+  selectItemList,
+  selectClass,
+  selectUnit,
+  insertItems,
+  itemOutordSelect,
+  custOutordSelect,
+  insertOutordMaster,
+  insertOutordDetail,
+  selectLastOutordNo,
+  outordListSelect,
+  outorderDetailSelect,
+  selectLastInputNo,
+  selectInputList,
+  selectOutputStock,
+  selectOutputLot,
+  selectLastOutputNo,
+  selectOutputList,
+  selectInspList,
 };
