@@ -78,29 +78,33 @@ INSERT INTO tb_prod_result
  model_code,
  revision,
  proc_code,
- work_qty,
  work_start_time)
 VALUES
 (?,
 ?,
 ?,
 ?,
-?,
 ?)
-ON DUPLICATE KEY UPDATE
-work_start_time = VALUES(work_start_time),
-work_end_time = VALUES(work_end_time)
 `;
 
-const updateEndTime = `
+const updatePause = `
 UPDATE tb_prod_result
-SET work_end_time LIKE ?
-WHERE work_ord_no LIKE ?
+SET work_end_time = ?
+WHERE work_ord_no = ?
+
+`;
+
+const updateEnd = `
+UPDATE tb_prod_result
+SET work_qty = ?,
+    work_end_time = ?
+WHERE work_ord_no = ?
 `;
 module.exports = {
   selectWorkOrd,
   selectBom,
   selectLot,
   insertProdResult,
-  updateEndTime,
+  updatePause,
+  updateEnd,
 };

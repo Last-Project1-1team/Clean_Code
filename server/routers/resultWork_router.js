@@ -50,7 +50,7 @@ router.get("/resultwork/lotlist", async (req, res) => {
   }
 });
 
-// 등록    : 자원(데이터) -> work / 등록 -> POST
+// 등록 -> POST
 router.post("/resultwork/save", async (req, res) => {
   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
   // const resultInfoList = req.body;
@@ -70,4 +70,43 @@ router.post("/resultwork/save", async (req, res) => {
   }
 });
 
+// 일시정지 버튼 UPDATE
+router.post("/resultwork/update", async (req, res) => {
+  // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
+  // const resultInfoList = req.body;
+  const resultInfoList = Array.isArray(req.body) ? req.body : [req.body];
+  console.log("resultInfoList : ", resultInfoList);
+  try {
+    const results = [];
+    for (const resultInfo of resultInfoList) {
+      const result = await resultWorkService.updatePause(resultInfo);
+      results.push(result);
+    }
+
+    res.send({ isSuccessed: true, results });
+  } catch (err) {
+    console.error("💥 등록 실패:", err);
+    res.status(500).send({ isSuccessed: false, message: err.message });
+  }
+});
+
+// 정지 버튼 UPDATE
+router.post("/resultwork/updateEnd", async (req, res) => {
+  // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
+  // const resultInfoList = req.body;
+  const resultInfoList = Array.isArray(req.body) ? req.body : [req.body];
+  console.log("resultInfoList : ", resultInfoList);
+  try {
+    const results = [];
+    for (const resultInfo of resultInfoList) {
+      const result = await resultWorkService.updateEnd(resultInfo);
+      results.push(result);
+    }
+
+    res.send({ isSuccessed: true, results });
+  } catch (err) {
+    console.error("💥 등록 실패:", err);
+    res.status(500).send({ isSuccessed: false, message: err.message });
+  }
+});
 module.exports = router;

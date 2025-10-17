@@ -7,6 +7,22 @@ import { useToast } from 'primevue/usetoast';
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 const toast = useToast();
+// 버튼 시간 형식
+const formatTime = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    const seconds = d.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+};
+
+// start, end 타임 날짜 형식 DATETIME과 같이 맞춤
+function formatDateForMySQL(date) {
+    const d = new Date(date);
+    const pad = (n) => (n < 10 ? '0' + n : n);
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
 
 const modelInfo = computed(() => {
     const d = selectedWorkOrder.value;
@@ -44,6 +60,9 @@ const onSelectWorkOrd = async (data) => {
     workOrd.value = [data]; // 선택된 데이터 표시
     openWorkOrdModal.value = false; // 모달 닫기
     console.log('selectedWorkOrder: ', selectedWorkOrder);
+
+    // overQtyMap.value = 0;
+
     // 선택된 modelCode, revision 이용해 BOM 조회 실행
     if (data.modelCode && data.revision) {
         await fetchBomList(data.modelCode, data.revision);
@@ -81,6 +100,10 @@ const selectedLot = ref({});
 const lot = ref([]);
 // 선택된 lot번호 누적
 const selectedLotNos = ref([]);
+// 준비수량 확인 후 초과된 수량 저장
+const overQtyMap = ref({});
+// 초과된 itemCode를 저장
+const blockedItems = ref(new Set());
 
 // LOT번호 모달창 OPEN
 const openModalWithLot = () => {
@@ -91,7 +114,7 @@ const openModalWithLot = () => {
 };
 
 // 그리드에 쓸 lotQty 값 저장용
-const selectedLotQty = ref(0);
+const selectedLotQtyMap = ref({});
 
 // 모달에서 선택된 Lot정보 받아오기
 const onSelectLot = (data) => {
@@ -128,10 +151,33 @@ const onSelectLot = (data) => {
     const needQty = Number(targetBom.needQty) || 0; // 필요한 수량
     const newTotal = currentLotQty + resultQty;
 
+    // ----------------------------- 3️⃣ 이미 초과로 차단된 품목인지 확인
+    if (blockedItems.value.has(data.itemCode)) {
+        toast.add({
+            severity: 'warn',
+            summary: '선택 불가',
+            detail: `${data.itemCode}는 이미 필요수량을 초과하여 선택할 수 없습니다.`,
+            life: 2500
+        });
+        openLotModal.value = false;
+        return;
+    }
+
     // needQty 초과 시 차단
     if (newTotal > needQty) {
         const over = newTotal - needQty;
         alert(`⚠️ ${targetBom.itemCode}의 Lot 수량이 필요수량(${needQty})을 초과했습니다. 초과량: ${over}`);
+        // 초과량 저장
+        overQtyMap.value[targetBom.itemCode] = over;
+
+        // 초과된 상태 반영 (선택은 허용)
+        targetBom.lotQty = newTotal;
+        // 초과된 itemCode를 차단리스트에 추가
+        blockedItems.value.add(data.itemCode);
+        // ✅ lot 선택 해제 (다시 선택 불가)
+        selectedLot.value = null;
+
+        openLotModal.value = false;
         return;
     }
 
@@ -140,8 +186,12 @@ const onSelectLot = (data) => {
     selectedLotNos.value.push(data.lotNo);
 
     // 누적 로직
-    selectedLotQty.value += Number(resultQty);
-    targetBom.lotQty = newTotal;
+    if (!selectedLotQtyMap.value[data.itemCode]) {
+        selectedLotQtyMap.value[data.itemCode] = 0;
+    }
+    selectedLotQtyMap.value[data.itemCode] += Number(resultQty);
+    // targetBom.lotQty도 함께 갱신
+    targetBom.lotQty = selectedLotQtyMap.value[data.itemCode];
 
     selectedLot.value = data;
     lot.value = [data];
@@ -157,45 +207,118 @@ watch(openLotModal, (newVal) => {
 
 // --------------------------------------- 버튼 ---------------------------------------
 const isStarted = ref(false);
-const isReady = ref(false);
+const startTime = ref(null);
+const endTime = ref(null);
+
+// ✅ 버튼 활성화 조건: 모든 품목이 needQty 이상 준비되면 true
+const isReady = computed(() => {
+    return (
+        bomList.value.length > 0 &&
+        bomList.value.every((item) => {
+            const itemCode = item.itemCode;
+            const needQty = Number(item.needQty) || 0;
+            const lotQty = selectedLotQtyMap.value[itemCode] || 0;
+            return lotQty >= needQty;
+        })
+    );
+});
 
 // computed 속성으로 버튼의 severity와 label을 동적
 const buttonSeverity = computed(() => (isStarted.value ? 'warn' : 'success'));
-const buttonLabel = computed(() => (isStarted.value ? '일시정지' : '시작'));
+const buttonLabel = computed(() => (isStarted.value ? '일시정지' : '작업시작'));
 
-// start버튼 클릭 이벤트
+// 시작버튼 클릭 이벤트
 const startButtonClick = async () => {
     // 버튼 활성화
-    isReady.value = true;
+    if (!isReady.value) {
+        alert('⚠️ 모든 품목의 준비수량이 필요수량에 도달해야 시작할 수 있습니다.');
+        return;
+    }
+    if (!selectedWorkOrder.value || !selectedWorkOrder.value.workOrdNo) {
+        alert('❌ 작업지시가 선택되지 않았습니다.');
+        return;
+    }
+    console.log('selectedWorkOrder.value:', selectedWorkOrder.value);
+
+    // 상태별 URL 및 payload 구성
+    const isPausing = isStarted.value; // 현재 시작된 상태라면 "일시정지" 동작
+    const url = isPausing
+        ? `${apiUrl}/resultwork/update` // 일시정지 시 update
+        : `${apiUrl}/resultwork/save`; // 시작 시 insert
+
+    // 나중에 상태값 넣을때 필요하면 사용하면 됨
+    // const statusMap = {
+    //     START: { url: '/resultwork/save', status: 'START' },
+    //     PAUSE: { url: '/resultwork/update', status: 'PAUSE' },
+    //     RESUME: { url: '/resultwork/update', status: 'RESUME' },
+    //     END: { url: '/resultwork/update', status: 'END' }
+    // };
+
     // 서버로 보낼 데이터 준비
     const payload = [
         {
             // insert 할 데이터 정의해야됨
-            work_ord_no: selectedWorkOrder.value.workOrdNo,
-            model_code: selectedWorkOrder.value.modelCode,
+            workOrdNo: selectedWorkOrder.value.workOrdNo,
+            modelCode: selectedWorkOrder.value.modelCode,
             revision: selectedWorkOrder.value.revision,
-            proc_code: selectedWorkOrder.value.procCode,
-            work_qty: selectedWorkOrder.value.proc_ode,
-            work_start_time: new Date().toISOString(),
-            work_end_time: new Date().toISOString()
+            proc_code: selectedWorkOrder.value.proc_code,
+            ...(isPausing ? { workEndTime: formatDateForMySQL(new Date()), status: 'PAUSE' } : { workStartTime: formatDateForMySQL(new Date()), status: 'START' })
         }
     ];
-
     try {
-        // 🎈 Axios를 사용해서 서버 API에 POST 요청을 보내!
-        // '/api/insert-data'는 네 백엔드 서버의 실제 API 주소로 바꿔야 해.
-        const response = await axios.post(`${apiUrl}/resultwork/save`, payload);
-
+        const response = await axios.post(url, payload);
         console.log('서버 응답:', response.data);
 
-        // ⭐ 서버 통신이 성공하면 isStarted 값을 토글해줘! (반드시 .value!)
+        if (!isPausing) {
+            startTime.value = new Date(); // ✅ 시작시간 저장
+            endTime.value = null;
+            alert('✅ 작업이 시작되었습니다.');
+        } else {
+            alert('⏸ 작업이 일시정지되었습니다.');
+        }
+
+        // 상태 토글
         isStarted.value = !isStarted.value;
-        alert('데이터 전송 성공');
     } catch (error) {
         console.error('데이터 전송 중 오류 발생:', error);
-        alert('데이터 전송 실패');
-    } finally {
-        isReady.value = false;
+        alert('❌ 데이터 전송 실패');
+    }
+};
+
+// 종료버튼 클릭 이벤트
+const endButtonClick = async () => {
+    startTime.value = '';
+    // 작업이 시작되지 않았으면 종료 불가
+    if (!isStarted.value) {
+        alert('작업이 시작되지 않았습니다. 종료할 수 없습니다.');
+        return;
+    }
+
+    // 서버로 보낼 데이터 준비
+    const payload = [
+        {
+            workQty: selectedWorkOrder.value.workOrdQty,
+            workEndTime: formatDateForMySQL(new Date()),
+            workOrdNo: selectedWorkOrder.value.workOrdNo
+        }
+    ];
+    console.log('저장 payload:', payload);
+
+    try {
+        const response = await axios.post(`${apiUrl}/resultwork/update`, payload);
+        console.log('서버 응답:', response.data);
+
+        endTime.value = new Date();
+
+        alert('작업이 정상적으로 종료되었습니다.');
+
+        // 시작 버튼으로 되돌리고 lot선택정보 초기화
+        isStarted.value = false;
+        selectedWorkOrder.value = [];
+        bomList.value = {};
+    } catch (error) {
+        console.error('데이터 전송 중 오류 발생:', error);
+        alert('❌ 데이터 전송 실패');
     }
 };
 </script>
@@ -218,19 +341,23 @@ const startButtonClick = async () => {
     <div class="modalform card flex flex-col gap-4">
         <div class="grid grid-cols-12 gap-2 mb-4">
             <label for="name3" class="col-span-2">작업지시번호</label>
-            <InputText v-model="selectedWorkOrder.workOrdNo" class="col-span-9" id="name3" type="text" />
+            <InputText v-model="selectedWorkOrder.workOrdNo" class="col-span-9" id="name3" type="text" readonly />
         </div>
         <div class="grid grid-cols-12 gap-2 mb-4">
             <label for="email3" class="col-span-2">작업제품정보</label>
-            <InputText :value="modelInfo" class="col-span-9" id="email3" type="text" />
+            <InputText :value="modelInfo" class="col-span-9" id="email3" type="text" readonly />
         </div>
         <div class="grid grid-cols-12 gap-2 mb-4">
             <label for="name3" class="col-span-2">작업공정</label>
-            <InputText v-model="selectedWorkOrder.proc" class="col-span-9" id="name3" type="text" />
+            <InputText v-model="selectedWorkOrder.proc" class="col-span-9" id="name3" type="text" readonly />
         </div>
         <div class="grid grid-cols-12 gap-2 mb-4">
-            <label for="email3" class="col-span-2">작업수량</label>
-            <InputText v-model="selectedWorkOrder.workOrdQty" class="col-span-9" id="email3" type="text" />
+            <label for="email3" class="col-span-2">작업지시수량</label>
+            <InputText v-model="selectedWorkOrder.workOrdQty" class="col-span-9" id="email3" type="text" readonly />
+        </div>
+        <div class="grid grid-cols-12 gap-2 mb-4">
+            <label for="email3" class="col-span-2">실작업수량</label>
+            <InputText class="col-span-9" id="email3" type="text" />
         </div>
     </div>
 
@@ -240,6 +367,11 @@ const startButtonClick = async () => {
         <Column field="itemName" header="소요품명" style="min-width: 250px"></Column>
         <Column field="needQty" header="필요수량" style="min-width: 150px"></Column>
         <Column field="lotQty" header="준비수량" style="min-width: 150px"></Column>
+        <Column header="초과량" style="min-width: 150px">
+            <template #body="slotProps">
+                {{ overQtyMap[slotProps.data.itemCode] || 0 }}
+            </template>
+        </Column>
         <Column field="unit" header="단위" style="min-width: 150px"></Column>
     </DataTable>
 
@@ -251,8 +383,24 @@ const startButtonClick = async () => {
     </Dialog>
 
     <div class="buttons">
-        <Button class="startbutton" :label="buttonLabel" :severity="buttonSeverity" raised @click="startButtonClick" :disabled="isReady" />
-        <Button class="endbutton" label="종료" severity="danger" raised />
+        <Button class="startbutton" :severity="buttonSeverity" raised @click="startButtonClick" :disabled="!isReady">
+            <div class="flex flex-col items-center text-white">
+                <span>{{ buttonLabel }}</span>
+                <span>
+                    작업시작시간 :
+                    {{ startTime ? formatTime(startTime) : '-' }}
+                </span>
+            </div>
+        </Button>
+        <Button class="endbutton" severity="danger" raised @click="endButtonClick">
+            <div class="flex flex-col items-center text-white">
+                <span>작업종료</span>
+                <span>
+                    작업종료시간 :
+                    {{ endTime ? formatTime(endTime) : '-' }}
+                </span>
+            </div>
+        </Button>
     </div>
 </template>
 
@@ -261,10 +409,11 @@ const startButtonClick = async () => {
     height: 20vh;
     border: 1px solid #ddd;
     border-radius: 10px;
+    margin-bottom: 20px;
 }
 .buttons button {
     height: 15vh;
-    width: 50vh;
+    width: 40vh;
 }
 .buttons {
     text-align: center;

@@ -31,9 +31,9 @@ const findLot = async (lotNo = "") => {
   return list;
 };
 
-// 생산실적 등록
+// 시작버튼 생산실적 등록
 const addProdResult = async (resultInfo) => {
-  const { workOrdNo, modelCode, revision, procCode, workQty, workStartTime } =
+  const { workOrdNo, modelCode, revision, proc_code, workQty, workStartTime } =
     resultInfo;
   // resultInfo : 사용자가 전달한 실적정보, Object 타입
   // console.log("resultInfo : ", resultInfo);
@@ -42,8 +42,7 @@ const addProdResult = async (resultInfo) => {
     workOrdNo,
     modelCode,
     revision,
-    procCode,
-    workQty,
+    proc_code,
     workStartTime,
   ];
   console.log("🧩 insertColumns:", insertColumns);
@@ -67,10 +66,69 @@ const addProdResult = async (resultInfo) => {
   }
   return result;
 };
+
+// 일시정지버튼 종료시간 업데이트
+const updatePause = async (resultInfo) => {
+  const { workEndTime, workOrdNo } = resultInfo;
+  // resultInfo : 사용자가 전달한 실적정보, Object 타입
+  // console.log("resultInfo : ", resultInfo);
+
+  let insertColumns = [workEndTime, workOrdNo];
+  console.log("🧩 insertColumns:", insertColumns);
+
+  const resInfo = await mariadb
+    .query("updatePause", insertColumns)
+    .catch((err) => console.log(err));
+
+  console.log(resInfo.insertId);
+  let result = null;
+  if (resInfo.insertId == 0) {
+    // 정상적으로 등록된 경우
+    result = {
+      isSuccessed: true,
+    };
+  } else {
+    // 등록되지 않은 경우
+    result = {
+      isSuccessed: false,
+    };
+  }
+  return result;
+};
+
+// 정지버튼 종료시간 업데이트
+const updateEnd = async (resultInfo) => {
+  const { workQty, workEndTime, workOrdNo } = resultInfo;
+  // resultInfo : 사용자가 전달한 실적정보, Object 타입
+  // console.log("resultInfo : ", resultInfo);
+
+  let insertColumns = [workQty, workEndTime, workOrdNo];
+  console.log("🧩 insertColumns:", insertColumns);
+
+  const resInfo = await mariadb
+    .query("updateEnd", insertColumns)
+    .catch((err) => console.log(err));
+
+  console.log(resInfo.insertId);
+  let result = null;
+  if (resInfo.insertId == 0) {
+    // 정상적으로 등록된 경우
+    result = {
+      isSuccessed: true,
+    };
+  } else {
+    // 등록되지 않은 경우
+    result = {
+      isSuccessed: false,
+    };
+  }
+  return result;
+};
 // 작업지시 등록
 module.exports = {
   findWorkOrd,
   findBom,
   findLot,
   addProdResult,
+  updatePause,
 };
