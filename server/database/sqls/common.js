@@ -31,7 +31,7 @@ VALUES
 ON DUPLICATE KEY UPDATE
 common_code = VALUES(common_code),
 group_code = VALUES(group_code),
-code_name = VALUES(code_name);
+code_name = VALUES(code_name)
 `;
 module.exports = {
   selectCommonInfo,

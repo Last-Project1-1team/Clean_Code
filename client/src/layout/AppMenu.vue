@@ -130,6 +130,16 @@ const model = ref([
                 to: '/pages/useraccount'
             },
             {
+                label: '공통코드관리',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/commoncode'
+            },
+            {
+                label: '코드그룹관리',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/codegroup'
+            },
+            {
                 label: '생산계획조회',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/searchprodplan'
