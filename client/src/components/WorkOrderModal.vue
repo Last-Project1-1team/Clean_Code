@@ -1,7 +1,5 @@
 <script setup>
 import axios from 'axios';
-import Dialog from 'primevue/dialog';
-
 import { onMounted, ref, watch, computed } from 'vue';
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;

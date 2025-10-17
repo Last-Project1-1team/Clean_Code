@@ -51,14 +51,15 @@ router.get("/resultwork/lotlist", async (req, res) => {
 });
 
 // 등록    : 자원(데이터) -> work / 등록 -> POST
-router.post("/workorder/save", async (req, res) => {
+router.post("/resultwork/save", async (req, res) => {
   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
-  const workInfoList = req.body;
-  console.log("workInfoList : ", workInfoList);
+  // const resultInfoList = req.body;
+  const resultInfoList = Array.isArray(req.body) ? req.body : [req.body];
+  console.log("resultInfoList : ", resultInfoList);
   try {
     const results = [];
-    for (const workInfo of workInfoList) {
-      const result = await workOrderService.addWorkOrd(workInfo);
+    for (const resultInfo of resultInfoList) {
+      const result = await resultWorkService.addProdResult(resultInfo);
       results.push(result);
     }
 
