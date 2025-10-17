@@ -107,6 +107,11 @@ const router = createRouter({
                     name: 'useraccount',
                     component: () => import('@/views/pages/UserAccount.vue')
                 },
+                {
+                    path: '/pages/totalmenu',
+                    name: 'totalmenu',
+                    component: () => import('@/views/pages/TotalMenu.vue')
+                },
 
                 //
                 // 자재관리

@@ -135,6 +135,11 @@ const model = ref([
                 to: '/pages/commoncode'
             },
             {
+                label: '전체메뉴관리',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/totalmenu'
+            },
+            {
                 label: '코드그룹관리',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/codegroup'

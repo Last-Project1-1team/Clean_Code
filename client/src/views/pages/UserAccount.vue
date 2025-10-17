@@ -21,6 +21,7 @@ const workGradeOptions = ref([]);
 const hireDate = ref(null);
 const retireDate = ref(null);
 
+//그리드에 나올목록
 const formData = ref({
     userId: '',
     password: '',
@@ -54,7 +55,8 @@ const onClearItem = () => {
     hireDate.value = null;
     retireDate.value = null;
 };
-//컴포넌트가 마운트될 때 options 데이터 로드
+
+//조회
 onMounted(async () => {
     try {
         const response = await axios.get(`${apiUrl}/useraccount?`);
@@ -69,6 +71,7 @@ const userAccountSearch = (account) => {
     getAccountList(account.userId, account.name, account.department, account.workGrade);
 };
 
+//조회
 const getAccountList = async (userId, name, department, workGrade) => {
     //console.log('🌐 서버 요청 보냄', code, revision, name);
     let result = await axios
