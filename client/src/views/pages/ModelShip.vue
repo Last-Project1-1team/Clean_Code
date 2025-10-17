@@ -39,6 +39,7 @@ const getInordList = async () => {
 
 //생산lot조회
 const getLotList = async () => {
+    // console.log('lot번호 : ', lotScan.value);
     let result1 = await axios
         .get(`${apiUrl}/lotNo?`, {
             params: {
@@ -49,43 +50,48 @@ const getLotList = async () => {
             console.error('LOT번호 조회 실패:', err);
             customers.value = [];
         });
-    console.log(result1.data);
+    // console.log('lot제품리비전lot수당:', result1.data);
     lotNolist.value = result1.data;
-    // console.log(result.data[0].cust_name);
+    console.log(result1.data);
 };
 
 //수주 lot 비교
 const shipList = async () => {
-    const inordlisttest = inordlist.value.map((u) => ({
-        MODEL_CODE: u.MODEL_CODE,
-        REVISION: u.REVISION
-    }));
-    console.log(inordlisttest);
-    // const shiplist = lotNolist.value.filter((lotno) => inordlisttest.some((inordno) => inordno.MODEL_CODE === lotno.MODEL_CODE || inordno.REVISION === lotno.REVISION));
-    const shiplist = lotNolist.value.filter((lotno) => inordlisttest.some((inordno) => lotno.MODEL_CODE === inordno.MODEL_CODE || lotno.REVISION === inordno.REVISION));
-    console.log(shiplist);
+    // console.log('수주제품리비전: ', inordlist.value);
 
-    if (shiplist.length == 0) {
+    const shipcheck = inordlist.value.some((inordno) => lotNolist.value.some((lotno) => lotno.MODEL_CODE === inordno.MODEL_CODE || lotno.REVISION === inordno.REVISION));
+    console.log('일치확인: ', shipcheck);
+
+    if (shipcheck == false) {
         toast.add({ severity: 'error', summary: ' 수주서에 일치하는 값이 없음.', life: 3000 });
         return;
     }
-    // selectedmodel.value = shiplist;
-    selectedmodel.value.push(...shiplist);
+    const shiplist = inordlist.value.filter((inordno) => lotNolist.value.some((lotno) => lotno.MODEL_CODE === inordno.MODEL_CODE || lotno.REVISION === inordno.REVISION));
+    console.log('출하리스트: ', shiplist);
+    selectedmodel.value = shiplist;
+    selectedmodel.value.forEach((item) => {
+        item.LOT_NUMBER = lotScan.value;
+    });
 };
-
-//제품명, 규격, 단위 가져오기
-
-//
+//제품정보조회
+const getModelList = async () => {
+    const modellist = await axios
+        .get(`${apiUrl}/modelno?`, {
+            params: {
+                modelNo: selectedmodel.value.map((model) => model.MODEL_CODE)
+            }
+        })
+        .catch((err) => {
+            console.error('제품정보 조회 실패:', err);
+        });
+    console.log('제품정보리스트:', modellist.data);
+    // selectedmodel.value = modellist.data;
+};
 //
 //
 const handleInordEnter = () => {
     InordShow.value = InordScan.value; // 입력값을 복사해서 표시
     getInordList();
-    if (lotNolist.value.length == 0) {
-        toast.add({ severity: 'error', summary: '생산LOT를 스캔해주세요.', life: 3000 });
-        return;
-    }
-    shipList();
 };
 
 const handleLotEnter = async () => {
@@ -94,8 +100,8 @@ const handleLotEnter = async () => {
         return;
     }
     await getLotList();
-    shipList();
-    // modellist();
+    await shipList();
+    // await getModelList();
 };
 </script>
 

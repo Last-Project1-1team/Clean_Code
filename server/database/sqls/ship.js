@@ -7,11 +7,19 @@ FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	 MAS.INORD_NO = DET.INORD_N
 WHERE 	MAS.INORD_NO = ?`;
 
 const lotnoscan = `
-SELECT 	MODEL_CODE
-        , REVISION
-		, LOT_QTY
-FROM	TB_PROD_LOT
-WHERE	PROD_LOT_NO = ?;
+SELECT 	L.MODEL_CODE
+		, M.MODEL_NAME
+        , M.REVISION
+FROM	TB_PROD_LOT L JOIN TB_MODEL_MASTER M 
+						ON L.MODEL_CODE = M.MODEL_CODE
+WHERE	PROD_LOT_NO = 'PLOT25101600001`;
+
+const modelinfo = `
+SELECT 	MODEL_NAME
+		, SPEC
+        , UNIT
+FROM	TB_MODEL_MASTER
+WHERE	MODEL_CODE IN (?);
 `;
 
-module.exports = { shipmodel, lotnoscan };
+module.exports = { shipmodel, lotnoscan, modelinfo };
