@@ -12,24 +12,32 @@ const firstRow = ref(null);
 
 //조회 결과 담을 배열
 const leftGrid = ref([]);
+
 //드롭다운 선택값
 const selectedGroup = ref(null);
+
 //공통코드 드롭다운
 const groupDropdown = ref([]);
+
 // 코드그룹 목록
 const formData = ref({
     groupCode: '',
     groupName: '',
     groupExp: ''
 });
+
+//
 const commonCode = ref([]);
+
 //초기화버튼
 const onClearItem = () => {
     formData.value = {
+        groupCode: formData.value.groupCode,
         groupName: '',
         groupExp: ''
     };
 };
+
 //==코드그룹조회 ==
 onMounted(async () => {
     const response = await axios.get(`${apiUrl}/codeGroup/groupId`);
@@ -113,9 +121,9 @@ const saveButton = async () => {
                 <!-- 왼쪽 그리드 -->
                 <div class="flex-1 border rounded p-2 overflow-auto">
                     <DataTable :value="leftGrid" v-model:selection="selectedRow" selectionMode="single" class="w-full" @rowSelect="formData = { ...$event.data }" dataKey="codeGroup">
-                        <Column field="code" header="그룹ID"></Column>
-                        <Column field="name" header="그룹명"></Column>
-                        <Column field="expl" header="그룹설명"></Column>
+                        <Column field="groupCode" header="그룹ID"></Column>
+                        <Column field="groupName" header="그룹명"></Column>
+                        <Column field="groupExp" header="그룹설명"></Column>
                     </DataTable>
                 </div>
 

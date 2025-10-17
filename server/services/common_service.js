@@ -1,8 +1,9 @@
 // Service에서 필요하면 DB에 접속할 수 있도록 mapper를 가져옴
 const mariadb = require("../database/mapper.js");
 
+//서비스등록영역
 const { convertObjToAry } = require("../utils/converts.js");
-// 실제 제공할 서비스 등록 영역
+
 // 조건 없이 전체조회
 const findAll = async (codeGroup) => {
   // 변수 mariadb에 등록된 query 함수를 통해 서비스에서 필요한 SQL문을 실행하도록 요청
@@ -25,7 +26,7 @@ const findCommon = async () => {
 const addNewCommon = async (commonInfo) => {
   // bookInfo : 사용자가 전달한 북정보, Object 타입
 
-  // t_book_01 테이블에 등록하는 insert문에 정의된 컬럼들
+  // tb_code_group 테이블에 등록하는 insert문에 정의된 컬럼들
   let insertColumns = ["commonCode", "groupCode", "codeName"];
   // 사용자가 전달한 북정보 중 insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
   let data = convertObjToAry(commonInfo, insertColumns);

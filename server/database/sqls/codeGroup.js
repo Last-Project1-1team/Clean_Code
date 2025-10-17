@@ -8,9 +8,9 @@ ORDER BY group_code
 
 //특정 코드그룹 내 코드목록 조회(조회)
 const selectGroupInfo = `
-SELECT group_code code,
-	     group_name name,
-       group_desc expl
+SELECT group_code groupCode,
+	     group_name groupName,
+       group_desc groupExp
 FROM tb_code_group
 WHERE group_code LIKE ?
 `;
