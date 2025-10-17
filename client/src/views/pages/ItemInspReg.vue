@@ -87,9 +87,6 @@ const saveInspResult = async () => {
         result,
         items: inspItems
     };
-
-    console.log('📤 검사결과 저장 payload:', payload);
-
     try {
         const response = await axios.post(`${apiUrl}/inspResult`, payload);
         toast.add({ severity: 'success', summary: '검사결과가 저장되었습니다.', life: 3000 });
@@ -131,9 +128,9 @@ const onSearch = async (row) => {
                             <Column field="inspSpec" header="규격" sortable style="min-width: 10em"></Column>
                             <Column field="insptResult" header="판정결과" sortable style="min-width: 5em">
                                 <template #body="{ data }">
-                                    <RadioButton :inputId="`ok-${data.inspName}`" :name="`judgment-${data.inspName}`" value="OK" v-model="data.judgment" @change="onChange" />
+                                    <RadioButton :inputId="`ok-${data.inspName}`" :name="`judgment-${data.inspName}`" value="OK" v-model="data.judgment" />
                                     <label :for="`ok-${data.inspName}`" class="ml-1 text-sm">OK</label>
-                                    <RadioButton :inputId="`ng-${data.inspName}`" :name="`judgment-${data.inspName}`" value="NG" v-model="data.judgment" @change="onChange" style="margin-left: 10px" />
+                                    <RadioButton :inputId="`ng-${data.inspName}`" :name="`judgment-${data.inspName}`" value="NG" v-model="data.judgment" style="margin-left: 10px" />
                                     <label :for="`ng-${data.inspName}`" class="ml-1 text-sm">NG</label>
                                 </template>
                             </Column>
