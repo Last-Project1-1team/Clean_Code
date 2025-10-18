@@ -1,27 +1,48 @@
 const express = require("express");
-// Express의 Router 모듈을 사용해서 라우팅 등록, 라우팅을 별도 파일로 관리
-
 const router = express.Router();
-// 해당 라우터를 통해 제공할 서비스를 가져옴
+const totalService = require("../services/totalMenu_service.js");
 
-const menuService = require("../services/totalMenu_service.js");
-// 라우팅  = 사용자의 요청(URL+METHOD) + Service + 응답형태(View or Data)
 
-// 실제 라우팅 등록 영역
+// 라우팅 등록 영역
 
-//전체조회
-router.get("/totalMenu", async (req, res) => {
-  let totalList = await menuService.findAll().catch((err) => console.log(err));
+//대메뉴 전체조회
+router.get("/totalMenu/viewAll", async (req, res) => {
+  let totalList = await totalService
+  .findAll()
+  .catch((err) => console.log(err));
 
   res.send(totalList);
 });
 
+// ✅ 대메뉴 선택 시 소메뉴조회
+router.get("/totalMenu/subMenus", async (req, res) => {
+  try {
+    const { bMenuCode } = req.query;
+    console.log("라우터로 전달된 bMenuCode:", bMenuCode);
+
+    const subMenus = await totalService.findSubMenu(bMenuCode);
+    res.json(subMenus);
+  } catch (err) {
+    console.error("소메뉴 조회 실패:", err);
+    res.status(500).json({ error: "소메뉴 조회 실패" });
+  }
+});
+
 // 등록
 router.post("/totalMenu/insert", async (req, res) => {
-  let selectMenuInfo = req.body;
-  let result = await menuService
-    .addNewMenu(selectMenuInfo)
-    .catch((err) => console.log(err));
+  const { bMenuCode, bMenuName, sMenuCode, sMenuName, programName } = req.body;
+
+  // 대메뉴 저장
+  await totalService.addNewBMenu({ bMenuCode, bMenuName });
+
+  // 소메뉴 저장
+  const result = await totalService.addNewSMenu({
+    bMenuCode,
+    sMenuCode,
+    sMenuName,
+    programName,
+  });
+
   res.send(result);
 });
 

@@ -184,6 +184,11 @@ const router = createRouter({
                     name: 'resultwork',
                     component: () => import('@/views/pages/ResultWork.vue')
                 },
+                {
+                    path: '/pages/receiving',
+                    name: 'receiving',
+                    component: () => import('@/views/pages/Receiving.vue')
+                },
                 //
                 // 영업관리
                 //

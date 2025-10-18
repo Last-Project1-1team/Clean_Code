@@ -168,6 +168,11 @@ const model = ref([
                 label: '제품출하',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/ModelShip'
+            },
+            {
+                label: '공정입고대기',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/Receiving'
             }
         ]
     },

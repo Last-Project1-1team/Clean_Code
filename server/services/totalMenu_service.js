@@ -12,40 +12,34 @@ const findAll = async () => {
   return list;
 };
 
-// //조회(셀렉트박스)
-// const findCommon = async () => {
-//   let list = await mariadb
-//     .query("selectCommon")
-//     .catch((err) => console.log(err));
-//   return list;
-// };
-
-//메뉴정보 기반으로 등록(menuInfo : 사용자가 전달한 메뉴정보, Object 타입)
-const addNewMenu = async (totalInfo) => {
-  // tb_auth_group_menu 테이블에 등록하는 insert문에 정의된 컬럼들 (변경해야함)
-  let insertColumns1 = ["bMenuCode", "bMenuName", "programName"];
-  let data = convertObjToAry(totalInfo, insertColumns1);
-  let resInfo = await mariadb
-    .query("insertBmenu", data)
+//선택시 소메뉴조회
+const findSubMenu = async (bMenuCode) => {
+  let list = await mariadb
+    .query("selectSmenu",[bMenuCode])
     .catch((err) => console.log(err));
-  console.log(resInfo.insertId);
-  let result = null;
-  if (resInfo.insertId == 0) {
-    // 정상적으로 등록된 경우
-    result = {
-      isSuccessed: true,
-      // itemCode: resInfo.insertId,
-    };
-  } else {
-    // 등록되지 않은 경우
-    result = {
-      isSuccessed: false,
-    };
-  }
-  return result;
+  return list;
+};
+
+//모달창안 대메뉴등록
+const addNewBMenu = async (info) => {
+  const cols = ["bMenuCode", "bMenuName"];
+  const data = convertObjToAry(info, cols);
+  await mariadb.query("insertBmenu", data);
+};
+
+//모달창안 소메뉴등록
+const addNewSMenu = async (info) => {
+  const cols = ["bMenuCode", "sMenuCode", "sMenuName", "programName"];
+  const data = convertObjToAry(info, cols);
+  const resInfo = await mariadb.query("insertSmenu", data);
+  return {
+    isSuccessed: resInfo.affectedRows > 0,
+  };
 };
 
 module.exports = {
   findAll,
-  addNewMenu,
+  findSubMenu,
+  addNewBMenu,
+  addNewSMenu,
 };

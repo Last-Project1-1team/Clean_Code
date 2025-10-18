@@ -16,6 +16,10 @@ const radioValue = ref(null);
 const departmentOptions = ref([]);
 const workGradeOptions = ref([]);
 const hireDate = ref(null);
+const phone = ref(null);
+const email = ref('');
+const formatDate = ref(null);
+const retireYn = ref('');
 const retireDate = ref(null);
 
 // 부모로 검색조건 전달
