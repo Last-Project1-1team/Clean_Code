@@ -57,7 +57,12 @@ const selectedPlans = ref([]);
 
 const saveWorkOrder = () => {
     if (!selectedPlans.value || selectedPlans.value.length === 0) {
-        alert('저장할 행을 선택해주세요.');
+        toast.add({
+            severity: 'warn',
+            summary: '저장 실패',
+            detail: '저장할 행을 선택해주세요.',
+            life: 2500
+        });
         return;
     }
 
@@ -66,11 +71,21 @@ const saveWorkOrder = () => {
         .post(`${apiUrl}/workorder/save`, selectedPlans.value)
         .then((res) => {
             // console.log('저장 성공:', res.data);
-            alert('저장이 완료되었습니다.');
+            toast.add({
+                severity: 'success',
+                summary: '저장 완료',
+                detail: '저장이 완료되었습니다.',
+                life: 2500
+            });
         })
         .catch((err) => {
             // console.error('저장 실패:', err);
-            alert('저장 중 오류가 발생했습니다.');
+            toast.add({
+                severity: 'warn',
+                summary: '저장 실패',
+                detail: '저장 중 오류가 발생했습니다.',
+                life: 2500
+            });
         });
 };
 </script>
