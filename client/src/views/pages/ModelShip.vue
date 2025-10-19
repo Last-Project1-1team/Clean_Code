@@ -127,9 +127,9 @@ const onSave = async () => {
         ships: merged.value.map((ship) => ({
             custcode: ship.CUST_CODE,
             inordno: ship.INORD_NO,
-            prodlotno: ship.PROD_LOT_NO,
+            prodlotno: ship.PROD_LOT00_NO,
             lotno: ship.LOT_NO,
-            lotqty: ship.LOT_QTY,
+            lotpqty: ship.LOT_QTY,
             modelcode: ship.MODEL_CODE,
             revision: ship.REVISION
         }))

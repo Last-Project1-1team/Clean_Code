@@ -60,6 +60,7 @@ const addNewShip = async (ships) => {
     // 오늘 날짜 YYMMDD 구하기
     const today = new Date();
     const datePart = formatDate(today);
+    let shipDate = formatFullDate(today);
     console.log("datePart: ", datePart);
     const lastList = await conn.query(sqlList.selectLastShipNo, [
       `OI${datePart}%`,
@@ -70,7 +71,6 @@ const addNewShip = async (ships) => {
       const lastSeq = parseInt(lastNo.slice(-5)); // 마지막 5자리 -를하면 뒤에서5번째자리부터 끝까지임
       seq = lastSeq + 1;
     }
-    let shipDate = formatFullDate(today);
     // let indelDate = formatFullDate(paprdDate);
 
     // 신규 출하번호 생성 (OO + YYMMDD + 5자리SEQ)
@@ -78,7 +78,14 @@ const addNewShip = async (ships) => {
     const createdBy = "tester";
 
     // 마스터 등록
-    let insertMaster = [ships.custcode, ships.lotno, ships.inordno, createdBy];
+    let insertMaster = [
+      shipNo,
+      ships[0].custcode,
+      ships[0].lotno,
+      shipDate,
+      ships[0].inordno,
+      createdBy,
+    ];
     await conn.query(sqlList.insertshipmaster, insertMaster);
 
     // 상세 등록
@@ -91,7 +98,7 @@ const addNewShip = async (ships) => {
         ship.prodlotno,
         ship.modelcode,
         ship.revision,
-        ship.lotqty,
+        ship.lotpqty,
         createdBy,
       ];
       await conn.query(sqlList.insertshipdetail, insertDetail);
