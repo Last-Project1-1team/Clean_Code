@@ -77,23 +77,9 @@ const onDelete = () => {
         </div>
 
         <div class="grid grid-cols-12 gap-2">
-            <label for="MODEL_CODE" class="flex items-center">제품코드</label>
+            <label for="INORD_DATE" class="flex items-center">수주일</label>
             <div class="col-span-2">
-                <div class="grid grid-cols-[1fr_auto] gap-2">
-                    <InputText v-model="modelcode" class="w-full" />
-                    <Button @click="modelmodalVisible = true" icon="pi pi-search" class="flex-none" style="width: 2.5rem; height: 2.5rem" />
-                </div>
-            </div>
-            <label for="form.CUST_NAME" class="flex items-center">리비전</label>
-            <div class="col-span-2">
-                <InputText v-model="revision" type="text" class="w-full" />
-            </div>
-        </div>
-
-        <div class="grid grid-cols-12 gap-2">
-            <label for="MODEL_NAME" class="flex items-center">제품명</label>
-            <div class="col-start-2 col-end-7">
-                <InputText v-model="modelname" class="w-full" />
+                <DatePicker v-model="today" class="w-full" name="inordDate" dateFormat="yy-mm-dd" showIcon showButtonBar iconDisplay="input" inputId="icondisplay" />
             </div>
         </div>
 
