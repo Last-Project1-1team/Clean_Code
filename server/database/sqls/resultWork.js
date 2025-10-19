@@ -66,7 +66,7 @@ SELECT lot.lot_no lotNo,
 FROM tb_lot lot
 JOIN v_item_master itm
   ON (lot.item_code = itm.item_code)
-WHERE lot.lot_no LIKE ?
+WHERE lot.item_code LIKE ?
 UNION ALL
 SELECT plot.prod_lot_no lotNo,
        itm.item_code itemCode,
@@ -80,7 +80,7 @@ SELECT plot.prod_lot_no lotNo,
 FROM tb_prod_lot plot
 JOIN v_item_master itm
   ON (plot.model_code = itm.item_code)
-WHERE plot.prod_lot_no LIKE ?
+WHERE itm.item_code LIKE ?
 `;
 
 const insertProdResult = `

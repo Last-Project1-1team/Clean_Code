@@ -692,7 +692,7 @@ const finishWorkOrder = async () => {
         </div>
 
         <!-- LOT번호 조회 결과-->
-        <DataTable :value="bomList" v-model:selection="selectedLot" datakey="lotNo" scrollable scrollHeight="400px" class="custom-table mt-6" @rowSelect="formData = { ...$event.data }">
+        <DataTable :value="bomList" v-model:selection="selectedLot" datakey="lotNo" scrollable scrollHeight="220px" class="custom-table" @rowSelect="formData = { ...$event.data }">
             <Column field="itemCode" header="소요품번" style="min-width: 150px"></Column>
             <Column field="itemName" header="소요품명" style="min-width: 250px"></Column>
             <Column field="needQty" header="필요수량" style="min-width: 150px"></Column>
@@ -708,7 +708,7 @@ const finishWorkOrder = async () => {
         <Dialog v-model:visible="openWorkOrdModal" header="작업지시서 조회" modal style="width: 80vw; height: 80vh">
             <WorkOrderModal :searchWorkOrdNo="searchWorkOrdNo" @workOrdreg="onWorkOrderSelected" />
         </Dialog>
-        <Dialog v-model:visible="openLotModal" header="Lot번호 조회" modal style="width: 80vw; height: 80vh">
+        <Dialog v-model:visible="openLotModal" header="LOT 조회" modal style="width: 80vw; height: 80vh">
             <LotModal :searchLotNo="searchLotNo" @lotreg="onSelectLot" />
         </Dialog>
     </div>
@@ -727,10 +727,13 @@ const finishWorkOrder = async () => {
     padding: 5px;
     margin-bottom: 20px;
 }
+:deep(.custom-table .p-datatable-tbody > tr > td) {
+    font-size: 1rem !important;
+    padding: 4px 8px;
+}
 .custom-table {
-    height: 20vh;
+    height: 23vh;
     border: 1px solid #ddd;
-    border-radius: 10px;
     margin-bottom: 20px;
 }
 .buttons button {

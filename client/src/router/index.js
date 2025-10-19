@@ -142,9 +142,24 @@ const router = createRouter({
                     component: () => import('@/views/pages/ItemOutput.vue')
                 },
                 {
+                    path: '/pages/itemoutputsearch',
+                    name: 'itemoutputsearch',
+                    component: () => import('@/views/pages/ItemOutputSearch.vue')
+                },
+                {
                     path: '/pages/iteminspreg',
                     name: 'iteminspreg',
                     component: () => import('@/views/pages/ItemInspReg.vue')
+                },
+                {
+                    path: '/pages/outordersearch',
+                    name: 'outordersearch',
+                    component: () => import('@/views/pages/OutOrderSearch.vue')
+                },
+                {
+                    path: '/pages/iteminputsearch',
+                    name: 'iteminputsearch',
+                    component: () => import('@/views/pages/ItemInputSearch.vue')
                 },
                 //
                 // 생산관리

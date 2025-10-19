@@ -4,243 +4,287 @@ import { ref } from 'vue';
 import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
-    {
-        label: 'Home',
-        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
-    },
-    {
-        label: 'UI Components',
-        items: [
-            { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', to: '/uikit/formlayout' },
-            { label: 'Input', icon: 'pi pi-fw pi-check-square', to: '/uikit/input' },
-            { label: 'Button', icon: 'pi pi-fw pi-mobile', to: '/uikit/button', class: 'rotated-icon' },
-            { label: 'Table', icon: 'pi pi-fw pi-table', to: '/uikit/table' },
-            { label: 'List', icon: 'pi pi-fw pi-list', to: '/uikit/list' },
-            { label: 'Tree', icon: 'pi pi-fw pi-share-alt', to: '/uikit/tree' },
-            { label: 'Panel', icon: 'pi pi-fw pi-tablet', to: '/uikit/panel' },
-            { label: 'Overlay', icon: 'pi pi-fw pi-clone', to: '/uikit/overlay' },
-            { label: 'Media', icon: 'pi pi-fw pi-image', to: '/uikit/media' },
-            { label: 'Menu', icon: 'pi pi-fw pi-bars', to: '/uikit/menu' },
-            { label: 'Message', icon: 'pi pi-fw pi-comment', to: '/uikit/message' },
-            { label: 'File', icon: 'pi pi-fw pi-file', to: '/uikit/file' },
-            { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/uikit/charts' },
-            { label: 'Timeline', icon: 'pi pi-fw pi-calendar', to: '/uikit/timeline' },
-            { label: 'Misc', icon: 'pi pi-fw pi-circle', to: '/uikit/misc' }
-        ]
-    },
+    // {
+    //     label: 'Home',
+    //     items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
+    // },
+    // {
+    //     label: 'UI Components',
+    //     items: [
+    //         { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', to: '/uikit/formlayout' },
+    //         { label: 'Input', icon: 'pi pi-fw pi-check-square', to: '/uikit/input' },
+    //         { label: 'Button', icon: 'pi pi-fw pi-mobile', to: '/uikit/button', class: 'rotated-icon' },
+    //         { label: 'Table', icon: 'pi pi-fw pi-table', to: '/uikit/table' },
+    //         { label: 'List', icon: 'pi pi-fw pi-list', to: '/uikit/list' },
+    //         { label: 'Tree', icon: 'pi pi-fw pi-share-alt', to: '/uikit/tree' },
+    //         { label: 'Panel', icon: 'pi pi-fw pi-tablet', to: '/uikit/panel' },
+    //         { label: 'Overlay', icon: 'pi pi-fw pi-clone', to: '/uikit/overlay' },
+    //         { label: 'Media', icon: 'pi pi-fw pi-image', to: '/uikit/media' },
+    //         { label: 'Menu', icon: 'pi pi-fw pi-bars', to: '/uikit/menu' },
+    //         { label: 'Message', icon: 'pi pi-fw pi-comment', to: '/uikit/message' },
+    //         { label: 'File', icon: 'pi pi-fw pi-file', to: '/uikit/file' },
+    //         { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/uikit/charts' },
+    //         { label: 'Timeline', icon: 'pi pi-fw pi-calendar', to: '/uikit/timeline' },
+    //         { label: 'Misc', icon: 'pi pi-fw pi-circle', to: '/uikit/misc' }
+    //     ]
+    // },
     {
         label: 'Pages',
         icon: 'pi pi-fw pi-briefcase',
         to: '/pages',
         items: [
+            // {
+            //     label: 'Landing',
+            //     icon: 'pi pi-fw pi-globe',
+            //     to: '/landing'
+            // },
+            // {
+            //     label: 'Auth',
+            //     icon: 'pi pi-fw pi-user',
+            //     items: [
+            //         {
+            //             label: 'Login',
+            //             icon: 'pi pi-fw pi-sign-in',
+            //             to: '/auth/login'
+            //         },
+            //         {
+            //             label: 'Error',
+            //             icon: 'pi pi-fw pi-times-circle',
+            //             to: '/auth/error'
+            //         },
+            //         {
+            //             label: 'Access Denied',
+            //             icon: 'pi pi-fw pi-lock',
+            //             to: '/auth/access'
+            //         }
+            //     ]
+            // },
+            // {
+            //     label: 'Crud',
+            //     icon: 'pi pi-fw pi-pencil',
+            //     to: '/pages/crud'
+            // },
+            // {
+            //     label: 'Not Found',
+            //     icon: 'pi pi-fw pi-exclamation-circle',
+            //     to: '/pages/notfound'
+            // },
+            // {
+            //     label: 'Empty',
+            //     icon: 'pi pi-fw pi-circle-off',
+            //     to: '/pages/empty'
+            // },
+
             {
-                label: 'Landing',
-                icon: 'pi pi-fw pi-globe',
-                to: '/landing'
-            },
-            {
-                label: 'Auth',
+                label: '자재관리',
                 icon: 'pi pi-fw pi-user',
                 items: [
                     {
-                        label: 'Login',
-                        icon: 'pi pi-fw pi-sign-in',
-                        to: '/auth/login'
+                        label: '자재정보',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/itemmaster'
                     },
                     {
-                        label: 'Error',
-                        icon: 'pi pi-fw pi-times-circle',
-                        to: '/auth/error'
+                        label: '발주등록',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/outorderreg'
                     },
                     {
-                        label: 'Access Denied',
-                        icon: 'pi pi-fw pi-lock',
-                        to: '/auth/access'
+                        label: '발주조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/outordersearch'
+                    },
+                    {
+                        label: '자재가입고',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/iteminput'
+                    },
+                    {
+                        label: '수입검사',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/iteminspreg'
+                    },
+                    {
+                        label: '자재입고확정',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/iteminputconfirm'
+                    },
+                    {
+                        label: '자재입고조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/iteminputsearch'
+                    },
+                    {
+                        label: '자재출고',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/itemoutput'
+                    },
+                    {
+                        label: '자재출고조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/itemoutputsearch'
                     }
                 ]
             },
+
             {
-                label: 'Crud',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/pages/crud'
-            },
-            {
-                label: 'Not Found',
-                icon: 'pi pi-fw pi-exclamation-circle',
-                to: '/pages/notfound'
-            },
-            {
-                label: 'Empty',
-                icon: 'pi pi-fw pi-circle-off',
-                to: '/pages/empty'
-            },
-            {
-                label: '자재정보',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/itemmaster'
-            },
-            {
-                label: '발주등록',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/outorderreg'
-            },
-            {
-                label: '자재가입고',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/iteminput'
-            },
-            {
-                label: '자재입고확정',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/iteminputconfirm'
-            },
-            {
-                label: '자재출고',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/itemoutput'
-            },
-            {
-                label: '수입검사',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/iteminspreg'
-            },
-            {
-                label: '제품정보',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/modelmaster'
-            },
-            {
-                label: 'BOM',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/bom'
-            },
-            {
-                label: 'BOM이력관리',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/bomhistory'
-            },
-            {
-                label: '작업지시',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/workorder'
-            },
-            {
-                label: '사용자관리',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/useraccount'
-            },
-            {
-                label: '공통코드관리',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/commoncode'
-            },
-            {
-                label: '전체메뉴관리',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/totalmenu'
-            },
-            {
-                label: '코드그룹관리',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/codegroup'
-            },
-            {
-                label: '생산계획조회',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/searchprodplan'
-            },
-            {
-                label: '생산계획등록',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/addprodplan'
-            },
-            {
-                label: '수주등록',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/InOrderReg'
-            },
-            {
-                label: '수주조회',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/OrderList'
-            },
-            {
-                label: '생산실적',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/resultwork'
-            },
-            {
-                label: '제품출하',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/ModelShip'
-            },
-            {
-                label: '공정입고대기',
-                icon: 'pi pi-fw pi-book',
-                to: '/pages/Receiving'
-            }
-        ]
-    },
-    {
-        label: 'Hierarchy',
-        items: [
-            {
-                label: 'Submenu 1',
-                icon: 'pi pi-fw pi-bookmark',
+                label: '생산관리',
+                icon: 'pi pi-fw pi-user',
                 items: [
                     {
-                        label: 'Submenu 1.1',
-                        icon: 'pi pi-fw pi-bookmark',
-                        items: [
-                            { label: 'Submenu 1.1.1', icon: 'pi pi-fw pi-bookmark' },
-                            { label: 'Submenu 1.1.2', icon: 'pi pi-fw pi-bookmark' },
-                            { label: 'Submenu 1.1.3', icon: 'pi pi-fw pi-bookmark' }
-                        ]
+                        label: '제품정보',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/modelmaster'
                     },
                     {
-                        label: 'Submenu 1.2',
-                        icon: 'pi pi-fw pi-bookmark',
-                        items: [{ label: 'Submenu 1.2.1', icon: 'pi pi-fw pi-bookmark' }]
+                        label: 'BOM',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/bom'
+                    },
+                    {
+                        label: 'BOM이력관리',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/bomhistory'
+                    },
+                    {
+                        label: '공정입고',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/Receiving'
+                    },
+                    {
+                        label: '작업지시',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/workorder'
+                    },
+                    {
+                        label: '생산계획등록',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/addprodplan'
+                    },
+                    {
+                        label: '생산계획조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/searchprodplan'
+                    },
+                    {
+                        label: '생산실적',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/resultwork'
                     }
                 ]
             },
+
             {
-                label: 'Submenu 2',
-                icon: 'pi pi-fw pi-bookmark',
+                label: '기준정보',
+                icon: 'pi pi-fw pi-user',
                 items: [
                     {
-                        label: 'Submenu 2.1',
-                        icon: 'pi pi-fw pi-bookmark',
-                        items: [
-                            { label: 'Submenu 2.1.1', icon: 'pi pi-fw pi-bookmark' },
-                            { label: 'Submenu 2.1.2', icon: 'pi pi-fw pi-bookmark' }
-                        ]
+                        label: '사용자관리',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/useraccount'
                     },
                     {
-                        label: 'Submenu 2.2',
-                        icon: 'pi pi-fw pi-bookmark',
-                        items: [{ label: 'Submenu 2.2.1', icon: 'pi pi-fw pi-bookmark' }]
+                        label: '공통코드관리',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/commoncode'
+                    },
+                    {
+                        label: '전체메뉴관리',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/totalmenu'
+                    },
+                    {
+                        label: '코드그룹관리',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/codegroup'
                     }
                 ]
-            }
-        ]
-    },
-    {
-        label: 'Get Started',
-        items: [
-            {
-                label: 'Documentation',
-                icon: 'pi pi-fw pi-book',
-                to: '/documentation'
             },
+
             {
-                label: 'View Source',
-                icon: 'pi pi-fw pi-github',
-                url: 'https://github.com/primefaces/sakai-vue',
-                target: '_blank'
+                label: '영업관리',
+                icon: 'pi pi-fw pi-user',
+                items: [
+                    {
+                        label: '수주등록',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/InOrderReg'
+                    },
+
+                    {
+                        label: '제품출하',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/ModelShip'
+                    },
+                    {
+                        label: '수주조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/OrderList'
+                    }
+                ]
             }
         ]
     }
+    // {
+    //     label: 'Hierarchy',
+    //     items: [
+    //         {
+    //             label: 'Submenu 1',
+    //             icon: 'pi pi-fw pi-bookmark',
+    //             items: [
+    //                 {
+    //                     label: 'Submenu 1.1',
+    //                     icon: 'pi pi-fw pi-bookmark',
+    //                     items: [
+    //                         { label: 'Submenu 1.1.1', icon: 'pi pi-fw pi-bookmark' },
+    //                         { label: 'Submenu 1.1.2', icon: 'pi pi-fw pi-bookmark' },
+    //                         { label: 'Submenu 1.1.3', icon: 'pi pi-fw pi-bookmark' }
+    //                     ]
+    //                 },
+    //                 {
+    //                     label: 'Submenu 1.2',
+    //                     icon: 'pi pi-fw pi-bookmark',
+    //                     items: [{ label: 'Submenu 1.2.1', icon: 'pi pi-fw pi-bookmark' }]
+    //                 }
+    //             ]
+    //         },
+    //         {
+    //             label: 'Submenu 2',
+    //             icon: 'pi pi-fw pi-bookmark',
+    //             items: [
+    //                 {
+    //                     label: 'Submenu 2.1',
+    //                     icon: 'pi pi-fw pi-bookmark',
+    //                     items: [
+    //                         { label: 'Submenu 2.1.1', icon: 'pi pi-fw pi-bookmark' },
+    //                         { label: 'Submenu 2.1.2', icon: 'pi pi-fw pi-bookmark' }
+    //                     ]
+    //                 },
+    //                 {
+    //                     label: 'Submenu 2.2',
+    //                     icon: 'pi pi-fw pi-bookmark',
+    //                     items: [{ label: 'Submenu 2.2.1', icon: 'pi pi-fw pi-bookmark' }]
+    //                 }
+    //             ]
+    //         }
+    //     ]
+    // },
+    // {
+    //     label: 'Get Started',
+    //     items: [
+    //         {
+    //             label: 'Documentation',
+    //             icon: 'pi pi-fw pi-book',
+    //             to: '/documentation'
+    //         },
+    //         {
+    //             label: 'View Source',
+    //             icon: 'pi pi-fw pi-github',
+    //             url: 'https://github.com/primefaces/sakai-vue',
+    //             target: '_blank'
+    //         }
+    //     ]
+    // }
 ]);
 </script>
 
