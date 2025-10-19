@@ -56,23 +56,14 @@ const onClearItem = () => {
     retireDate.value = null;
 };
 
-//조회
-onMounted(async () => {
-    try {
-        const response = await axios.get(`${apiUrl}/useraccount?`);
-        userAccount.value = response.data; // map 안 씀!
-    } catch (err) {
-        console.error('초기 데이터 로드 실패:', err);
-    }
-});
-
+// 자식에서 조회버튼 눌렀을 때 받는 함수
 const userAccountSearch = (account) => {
     console.log('📩 부모: 자식이 보낸 검색값', account);
-    getAccountList(account.userId, account.name, account.department, account.workGrade);
+    getAccountList(account.userId, account.name, account.department, account.workGrade, account.phone, account.email, account.hireDate, account.retireYn, account.retireDate);
 };
 
-//조회
-const getAccountList = async (userId, name, department, workGrade) => {
+// ✅ 조회 함수
+const getAccountList = async (userId, name, department, workGrade, phone, email, hireDate, retireYn, retireDate) => {
     //console.log('🌐 서버 요청 보냄', code, revision, name);
     let result = await axios
         .get(`${apiUrl}/useraccount?`, {
@@ -80,7 +71,12 @@ const getAccountList = async (userId, name, department, workGrade) => {
                 userId: userId || '',
                 name: name || '',
                 workGrade: workGrade || '',
-                department: department || ''
+                department: department || '',
+                phone: phone || '',
+                email: email || '',
+                hireDate: hireDate || '',
+                retireYn: retireYn || '',
+                retireDate: retireDate || ''
             }
         })
         .catch((err) => {

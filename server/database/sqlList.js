@@ -8,6 +8,9 @@ const account = require("./sqls/account.js");
 const common = require("./sqls/common.js");
 const codeGroup = require("./sqls/codeGroup.js");
 const ship = require("./sqls/ship.js");
+
+const totalMenu = require("./sqls/totalMenu.js")
+const receiving = require("./sqls/receiving.js")
 const prodPlan = require("./sqls/prodPlan.js");
 
 module.exports = {
@@ -20,5 +23,8 @@ module.exports = {
   ...codeGroup,
   ...resultWork,
   ...ship,
+
+  ...totalMenu,
+  ...receiving,
   ...prodPlan,
 };
