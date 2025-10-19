@@ -160,6 +160,11 @@ const model = ref([
                 to: '/pages/InOrderReg'
             },
             {
+                label: '수주조회',
+                icon: 'pi pi-fw pi-book',
+                to: '/pages/OrderList'
+            },
+            {
                 label: '생산실적',
                 icon: 'pi pi-fw pi-book',
                 to: '/pages/resultwork'
