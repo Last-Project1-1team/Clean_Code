@@ -106,12 +106,22 @@ const saveButton = async () => {
 </script>
 
 <template>
-    <div class="card" style="padding: 30px">
+    <div class="card">
         <ModelMasterSearch @search="modelSearch" />
 
         <!-- 제품 그리드 -->
 
-        <DataTable :value="modelMaster" v-model:selection="selectedModel" selectionMode="single" datakey="modelCode" scrollable scrollHeight="400px" class="mt-6" style="height: 40vh; border: 1px solid #ddd" @rowSelect="formData = { ...$event.data }">
+        <DataTable
+            class="custom-table"
+            :value="modelMaster"
+            v-model:selection="selectedModel"
+            selectionMode="single"
+            datakey="modelCode"
+            scrollable
+            scrollHeight="400px"
+            style="height: 40vh; border: 1px solid #ddd"
+            @rowSelect="formData = { ...$event.data }"
+        >
             <Column field="modelCode" header="제품코드" style="min-width: 200px"></Column>
             <Column field="modelName" header="제품명" style="min-width: 250px"></Column>
             <Column field="revision" header="리비전" style="min-width: 150px"></Column>
@@ -193,4 +203,12 @@ const saveButton = async () => {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.custom-table .p-datatable-tbody > tr > td) {
+    font-size: 1rem !important;
+    padding: 4px 8px;
+}
+#button_ {
+    margin: 20px;
+}
+</style>

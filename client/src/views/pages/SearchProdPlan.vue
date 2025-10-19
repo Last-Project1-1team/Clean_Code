@@ -39,13 +39,44 @@ const handleModelRegister = (data) => {
     ModalSearch.value = false;
 };
 
+// const getProdList = async (searchParams) => {
+//     try {
+//         prodPlan.value = [];
+
+//         const response = await axios.get(`${apiUrl}/prodplan`, {
+//             params: {
+//                 regPlanDate: searchParams.regPlanDate, // 객체에서 값을 꺼내서 사용
+//                 startPlanDate: searchParams.startPlanDate,
+//                 endPlanDate: searchParams.endPlanDate,
+//                 modelCode: searchParams.modelCode,
+//                 revision: searchParams.revision,
+//                 procCode: searchParams.procCode
+//             }
+//         });
+
+//         // 응답 데이터가 배열인지 확인하고 할당
+//         if (Array.isArray(response.data)) {
+//             prodPlan.value = response.data;
+//         } else {
+//             console.warn('서버 응답이 예상된 배열 형태가 아닙니다:', response.data);
+//             // 배열이 아니면 빈 배열로 설정하거나, 오류 처리
+//             prodPlan.value = [];
+//         }
+//     } catch (err) {
+//         console.error('제품 조회 실패:', err);
+//         // 오류 발생 시 prodPlan을 빈 배열로 유지하거나 사용자에게 알림
+//         prodPlan.value = [];
+//     }
+// };
+
 const getProdList = async (searchParams) => {
     try {
         prodPlan.value = [];
 
+        // 1) 제품계획 데이터 조회
         const response = await axios.get(`${apiUrl}/prodplan`, {
             params: {
-                regPlanDate: searchParams.regPlanDate, // 객체에서 값을 꺼내서 사용
+                regPlanDate: searchParams.regPlanDate,
                 startPlanDate: searchParams.startPlanDate,
                 endPlanDate: searchParams.endPlanDate,
                 modelCode: searchParams.modelCode,
@@ -54,17 +85,34 @@ const getProdList = async (searchParams) => {
             }
         });
 
-        // 응답 데이터가 배열인지 확인하고 할당
-        if (Array.isArray(response.data)) {
-            prodPlan.value = response.data;
-        } else {
-            console.warn('서버 응답이 예상된 배열 형태가 아닙니다:', response.data);
-            // 배열이 아니면 빈 배열로 설정하거나, 오류 처리
-            prodPlan.value = [];
-        }
+        const prodList = Array.isArray(response.data) ? response.data : [];
+
+        // 수주량 합계 조회
+        const qtyResponse = await axios.get(`${apiUrl}/prodplan/inordqty`, {
+            params: {
+                regPlanDate: searchParams.regPlanDate,
+                startPlanDate: searchParams.startPlanDate,
+                endPlanDate: searchParams.endPlanDate,
+                modelCode: searchParams.modelCode,
+                revision: searchParams.revision,
+                procCode: searchParams.procCode
+            }
+        });
+
+        const qtyList = Array.isArray(qtyResponse.data) ? qtyResponse.data : [];
+
+        // 수주량을 제품 리스트에 병합
+        const mergedList = prodList.map((prod) => {
+            const matchQty = qtyList.find((qty) => qty.modelCode === prod.modelCode && qty.revision === prod.revision && qty.procCode === prod.procCode);
+            return {
+                ...prod,
+                totalInordQty: matchQty ? matchQty.totalInordQty : 0
+            };
+        });
+
+        prodPlan.value = mergedList;
     } catch (err) {
-        console.error('제품 조회 실패:', err);
-        // 오류 발생 시 prodPlan을 빈 배열로 유지하거나 사용자에게 알림
+        console.error('제품 조회 및 수주량 합계 조회 실패:', err);
         prodPlan.value = [];
     }
 };
@@ -120,18 +168,18 @@ const initPlan = () => {
                     <!-- 3번째 줄: 제품코드, 리비전 -->
                     <label for="modelCode" class="flex items-center col-span-2">제품코드</label>
                     <div class="col-span-4 flex">
-                        <InputText v-model="selectedModel.modelCode" id="modelCode" class="flex-grow mr-2" />
+                        <InputText v-model="selectedModel.modelCode" id="modelCode" class="flex-grow mr-2" readonly />
                         <Button @click="ModalSearch = true" icon="pi pi-search" />
                     </div>
                     <label for="revision" class="flex items-center col-span-2">리비전</label>
                     <div class="col-span-4">
-                        <InputText v-model="selectedModel.revision" id="revision" class="w-full" />
+                        <InputText v-model="selectedModel.revision" id="revision" class="w-full" readonly />
                     </div>
 
                     <!-- 4번째 줄: 제품명, 공정선택 -->
                     <label for="modelName" class="flex items-center col-span-2">제품명</label>
                     <div class="col-span-4">
-                        <InputText v-model="selectedModel.modelName" id="modelName" class="w-full" />
+                        <InputText v-model="selectedModel.modelName" id="modelName" class="w-full" readonly />
                     </div>
                     <label for="selectProc" class="flex items-center col-span-2">공정선택</label>
                     <div class="col-span-4">
@@ -157,7 +205,7 @@ const initPlan = () => {
             <Column field="revision" header="리비전" sortable style="min-width: 16rem"></Column>
             <Column field="modelName" header="제품명" sortable style="min-width: 16rem"></Column>
             <Column field="procName" header="공정" sortable style="min-width: 16rem"></Column>
-            <Column field="Qty" header="수주량" sortable style="min-width: 12rem"></Column>
+            <Column field="totalInordQty" header="수주량" sortable style="min-width: 12rem"></Column>
             <Column field="planQty" header="계획수량" sortable style="min-width: 16rem"></Column>
             <Column field="unit" header="단위" sortable style="min-width: 16rem"></Column>
         </DataTable>
