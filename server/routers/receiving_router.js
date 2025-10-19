@@ -5,8 +5,8 @@ const receivingService = require('../services/receiving_service');
 // LOT 스캔 요청
 router.get('/receiving', async (req, res) => {
     try {
-        const lotNo = req.params.lotNo;
-        const result = await receivingService.findLotInfo(lotNo);
+        const lotInfo = req.params.lotNo;
+        const result = await receivingService.findLotInfo(lotInfo);
         res.json(result);
     } catch (err) {
         console.error(err);

@@ -1,14 +1,16 @@
 // mapper.js 불러오기
 const mariadb = require("../database/mapper.js");
-// 별도 sql 파일
+
+//객체 -> 배열 변환 (유틸함수)
 const { convertObjToAry } = require("../utils/converts.js");
 
 // LOT 스캔 시 정보 조회
 const findLotInfo = async (lotNo) => {
-    let data = convertObjToAry({lotNo},[lotNo]);
+    
     try {
-        //const params = [lotNo];
-        const result = await db.query(sql.selectLotInfo, [lotNo]);
+        const params = convertObjToAry({ lotNo });
+
+        const result = await mariadb.query(sql.selectLotInfo, params);
 
         if (result.length === 0) {
             return { status: 'NOT_FOUND', message: '해당 LOT번호가 존재하지 않습니다.' };
