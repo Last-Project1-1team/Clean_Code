@@ -27,6 +27,7 @@ const totalMenuRouter = require("./routers/totalMenu_router.js");
 const codeGroupRouter = require("./routers/codeGroup_router.js");
 const resultWorkRouter = require("./routers/resultWork_router.js");
 const shiopRouter = require("./routers/ship_router.js");
+const prodPlan = require("./routers/prodPlan_router.js");
 
 // 기본 라우팅
 app.get("/", (req, res) => {
@@ -43,3 +44,4 @@ app.use("/", totalMenuRouter);
 app.use("/", codeGroupRouter);
 app.use("/", resultWorkRouter);
 app.use("/", shiopRouter);
+app.use("/", prodPlan);
