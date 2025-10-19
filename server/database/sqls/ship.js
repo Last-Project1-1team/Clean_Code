@@ -14,7 +14,7 @@ SELECT 	  L.PROD_LOT_NO
 		, L.MODEL_CODE MODEL_CODE
 		, M.REVISION
 		, M.MODEL_NAME MODEL_NAME
-		, M.LOT_P_QTY LOT_QTY
+		, L.LOT_QTY 
 		, M.SPEC SPEC
 		, M.UNIT
 FROM	TB_PROD_LOT L JOIN TB_MODEL_MASTER M       ON L.MODEL_CODE = M.MODEL_CODE
@@ -72,9 +72,10 @@ INSERT INTO tb_ship_detail
         ( ?
         , ?
         , ?
-        , '0'
+        , ?
 		, ?
         , ?
+		, ?
         , NOW())
         `;
 
