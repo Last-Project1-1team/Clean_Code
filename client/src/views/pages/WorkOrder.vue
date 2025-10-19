@@ -69,7 +69,7 @@ function removeSearch() {
 
 const dt = ref([]);
 const filters = ref([]);
-const onCellEditComplete = ref([]);
+// const onCellEditComplete = ref([]);
 const selectedPlans = ref([]);
 
 // 저장버튼 이벤트
@@ -105,6 +105,29 @@ const saveWorkOrder = () => {
                 life: 2500
             });
         });
+};
+// 선택된 행 처리 함수
+const checkon = (rowData) => {
+    // 이미 선택된 항목인지 확인
+    const isAlreadySelected = selectedPlans.value.some((item) => item === rowData);
+
+    // 선택되지 않은 항목이면 선택 목록에 추가
+    if (!isAlreadySelected) {
+        // 이전 선택 항목은 유지하면서 현재 항목 추가 (다중 선택 모드이므로)
+        selectedPlans.value = [...selectedPlans.value, rowData];
+    }
+
+    // 필요하다면 여기에 다른 로직을 추가할 수 있어
+    // 예: 수정된 값 검증 또는 다른 계산 수행
+};
+
+// 셀 편집 완료 핸들러
+const onCellEditComplete = (event) => {
+    // 셀 편집 완료 후 필요한 처리
+    // event.data: 편집된 행 데이터
+    // event.field: 편집된 필드
+    // event.value: 새 값
+    // event.originalEvent: 원본 이벤트
 };
 </script>
 

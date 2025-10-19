@@ -84,6 +84,7 @@ router.get("/prodplan/inordqty", async (req, res) => {
 // 생산계획 등록
 router.post("/prodplan/save", async (req, res) => {
   try {
+    console.log("📩 받은 데이터:", req.body);
     const planData = req.body;
 
     // 필수 필드 검증
@@ -92,21 +93,25 @@ router.post("/prodplan/save", async (req, res) => {
     }
 
     const result = await prodPlanService.insertProdPlan(planData);
+    console.log("✅ 저장 결과:", result);
 
-    if (result.success) {
+    // ⚠️ result.success → result.isSuccessed 로 변경
+    if (result.isSuccessed) {
       res.status(201).json({
         message: "생산계획이 성공적으로 등록되었습니다.",
-        data: result.data,
+        data: result.data || null,
       });
     } else {
       res.status(500).json({
         error: "생산계획 등록 중 오류가 발생했습니다.",
-        details: result.error,
+        details: result.error || null,
       });
     }
   } catch (error) {
-    console.error("생산계획 등록 라우트 오류:", error);
-    res.status(500).json({ error: "생산계획 등록 중 오류가 발생했습니다." });
+    console.error("❌ 생산계획 저장 중 서버 오류:", error);
+    res
+      .status(500)
+      .json({ error: "생산계획 등록 중 서버 내부 오류가 발생했습니다." });
   }
 });
 

@@ -31,6 +31,13 @@ SELECT common_code code,
 FROM tb_code
 WHERE group_code = 'proc'
 `;
+// 생산계획번호 조회용 쿼리
+const selectLastProdPlanNo = `
+SELECT prod_plan_no
+  FROM tb_prod_plan
+ ORDER BY prod_plan_no DESC
+ LIMIT 1
+`;
 
 // 수주량 합계
 const sumQty = `
@@ -58,7 +65,8 @@ GROUP BY p.model_code, p.revision, p.proc_code, c.code_name
 
 const insertProdPlan = `
 INSERT INTO tb_prod_plan
-(create_date,
+(prod_plan_no,
+create_date,
 start_date,
 end_date,
 plan_qty,
@@ -72,6 +80,7 @@ VALUES
 ?,
 ?,
 ?,
+?,
 ?)
 `;
 
@@ -80,4 +89,5 @@ module.exports = {
   selectProc,
   sumQty,
   insertProdPlan,
+  selectLastProdPlanNo,
 };
