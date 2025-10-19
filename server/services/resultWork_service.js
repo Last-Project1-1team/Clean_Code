@@ -12,7 +12,36 @@ const findWorkOrd = async (workOrdNo = "") => {
   let list = await mariadb
     .query("selectWorkOrd", [`%${workOrdNo}%`])
     .catch((err) => console.log(err));
-  return list;
+
+  // 작업지시번호별로 데이터 그룹화
+  const groupedData = {};
+
+  if (list && list.length) {
+    list.forEach((item) => {
+      if (!groupedData[item.workOrdNo]) {
+        // 첫 데이터로 기본 정보 설정
+        groupedData[item.workOrdNo] = {
+          workOrdNo: item.workOrdNo,
+          modelCode: item.modelCode,
+          revision: item.revision,
+          modelName: item.modelName,
+          workOrdQty: item.workOrdQty,
+          proc: item.proc, // 작업지시에 지정된 원래 공정
+          procCode: item.procCode,
+          allProcs: [], // 모든 공정 정보를 저장할 배열
+        };
+      }
+
+      // 모든 공정 정보 추가
+      groupedData[item.workOrdNo].allProcs.push({
+        procCode: item.procCode,
+        proc: item.proc,
+        procSeq: item.procSeq,
+      });
+    });
+  }
+  // 객체를 배열로 변환
+  return Object.values(groupedData);
 };
 
 // 작업지시에 따른 Bom 조회
@@ -33,7 +62,7 @@ const findLot = async (lotNo = "") => {
 
 // 시작버튼 생산실적 등록
 const addProdResult = async (resultInfo) => {
-  const { workOrdNo, modelCode, revision, proc_code, workQty, workStartTime } =
+  const { workOrdNo, modelCode, revision, proc_code, status, workStartTime } =
     resultInfo;
   // resultInfo : 사용자가 전달한 실적정보, Object 타입
   // console.log("resultInfo : ", resultInfo);
@@ -43,6 +72,7 @@ const addProdResult = async (resultInfo) => {
     modelCode,
     revision,
     proc_code,
+    status,
     workStartTime,
   ];
   console.log("🧩 insertColumns:", insertColumns);
@@ -53,7 +83,8 @@ const addProdResult = async (resultInfo) => {
 
   console.log(resInfo.insertId);
   let result = null;
-  if (resInfo.insertId == 0) {
+  if (resInfo.insertId > 0) {
+    // 0보다 크면 성공!
     // 정상적으로 등록된 경우
     result = {
       isSuccessed: true,
@@ -69,11 +100,11 @@ const addProdResult = async (resultInfo) => {
 
 // 일시정지버튼 종료시간 업데이트
 const updatePause = async (resultInfo) => {
-  const { workEndTime, workOrdNo } = resultInfo;
+  const { work_qty, status, workEndTime, workOrdNo, proc_code } = resultInfo;
   // resultInfo : 사용자가 전달한 실적정보, Object 타입
   // console.log("resultInfo : ", resultInfo);
 
-  let insertColumns = [workEndTime, workOrdNo];
+  let insertColumns = [work_qty, status, workEndTime, workOrdNo, proc_code];
   console.log("🧩 insertColumns:", insertColumns);
 
   const resInfo = await mariadb
@@ -98,11 +129,11 @@ const updatePause = async (resultInfo) => {
 
 // 정지버튼 종료시간 업데이트
 const updateEnd = async (resultInfo) => {
-  const { workQty, workEndTime, workOrdNo } = resultInfo;
+  const { proc_code, work_qty, status, workEndTime, workOrdNo } = resultInfo;
   // resultInfo : 사용자가 전달한 실적정보, Object 타입
   // console.log("resultInfo : ", resultInfo);
 
-  let insertColumns = [workQty, workEndTime, workOrdNo];
+  let insertColumns = [proc_code, work_qty, status, workEndTime, workOrdNo];
   console.log("🧩 insertColumns:", insertColumns);
 
   const resInfo = await mariadb
@@ -131,4 +162,5 @@ module.exports = {
   findLot,
   addProdResult,
   updatePause,
+  updateEnd,
 };

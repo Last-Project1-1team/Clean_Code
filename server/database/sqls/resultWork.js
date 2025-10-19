@@ -3,16 +3,27 @@ SELECT wo.work_ord_no workOrdNo,
        wo.model_code modelCode,
        wo.revision,
        m.model_name modelName,
-       wo.proc_code,
+       pr.proc_code,
        c.code_name proc,
        wo.work_ord_qty workOrdQty
 FROM tb_work_ord wo
 JOIN tb_model_master m
   ON (wo.model_code = m.model_code
  AND wo.revision = m.revision)
+JOIN tb_proc_routing pr
+  ON (wo.model_code = pr.model_code
+ AND wo.revision = pr.revision)
 JOIN tb_code c
-  ON (wo.proc_code = c.common_code)
+  ON (pr.proc_code = c.common_code)
 WHERE wo.work_ord_no LIKE ?
+  AND pr.proc_seq <= (
+      SELECT MAX(routing.proc_seq)
+      FROM tb_proc_routing routing
+      WHERE routing.model_code = wo.model_code
+        AND routing.revision = wo.revision
+        AND routing.proc_code = wo.proc_code
+  )
+ORDER BY pr.proc_seq, wo.work_ord_no
 `;
 
 const selectBom = `
@@ -78,9 +89,11 @@ INSERT INTO tb_prod_result
  model_code,
  revision,
  proc_code,
+ status,
  work_start_time)
 VALUES
 (?,
+?,
 ?,
 ?,
 ?,
@@ -89,16 +102,22 @@ VALUES
 
 const updatePause = `
 UPDATE tb_prod_result
-SET work_end_time = ?
+SET work_qty = ?,
+    status= ?,
+    work_end_time = ?
 WHERE work_ord_no = ?
-
+  AND proc_code = ?
+  AND status = 'IN_PROGRESS'
 `;
 
 const updateEnd = `
 UPDATE tb_prod_result
-SET work_qty = ?,
+SET proc_code = ?,
+    work_qty = ?,
+    status= ?,
     work_end_time = ?
 WHERE work_ord_no = ?
+  AND status = 'START'
 `;
 module.exports = {
   selectWorkOrd,
