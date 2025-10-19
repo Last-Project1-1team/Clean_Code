@@ -215,6 +215,11 @@ const model = ref([
                         label: '제품출하',
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/ModelShip'
+                    },
+                    {
+                        label: '수주조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/OrderList'
                     }
                 ]
             }

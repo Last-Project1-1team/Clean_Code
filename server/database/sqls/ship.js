@@ -1,5 +1,7 @@
 const shipmodel = `
-SELECT    C.cust_name
+SELECT    MAS.inord_no INORD_NO
+		, C.cust_name
+		, C.CUST_CODE
 		, DET.MODEL_CODE
 		, DET.REVISION
 FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	 MAS.INORD_NO = DET.INORD_NO
@@ -7,19 +9,80 @@ FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	 MAS.INORD_NO = DET.INORD_N
 WHERE 	MAS.INORD_NO = ?`;
 
 const lotnoscan = `
-SELECT 	L.MODEL_CODE
-		, M.MODEL_NAME
-        , M.REVISION
-FROM	TB_PROD_LOT L JOIN TB_MODEL_MASTER M 
-						ON L.MODEL_CODE = M.MODEL_CODE
-WHERE	PROD_LOT_NO = 'PLOT25101600001`;
+SELECT 	  L.PROD_LOT_NO
+		, LH.LOT_NO
+		, L.MODEL_CODE MODEL_CODE
+		, M.REVISION
+		, M.MODEL_NAME MODEL_NAME
+		, M.LOT_P_QTY LOT_QTY
+		, M.SPEC SPEC
+		, M.UNIT
+FROM	TB_PROD_LOT L JOIN TB_MODEL_MASTER M       ON L.MODEL_CODE = M.MODEL_CODE
+					  JOIN TB_LOT_INPUT_HISTORY LH ON L.PROD_LOT_NO = LH.PROD_LOT_NO
+WHERE	L.PROD_LOT_NO = ?`;
 
 const modelinfo = `
 SELECT 	MODEL_NAME
 		, SPEC
         , UNIT
 FROM	TB_MODEL_MASTER
-WHERE	MODEL_CODE IN (?);
-`;
+WHERE	MODEL_CODE IN (?)`;
 
-module.exports = { shipmodel, lotnoscan, modelinfo };
+//발주번호 가져오기
+const selectLastShipNo = `
+    SELECT SHIP_NO 
+      FROM TB_SHIP_MASTER 
+     WHERE SHIP_NO LIKE ?
+     ORDER BY SHIP_NO DESC
+     LIMIT 1
+  `;
+
+const insertshipmaster = `
+INSERT INTO tb_ship_master 
+        ( ship_no
+        , cust_no
+        , lot_no
+        , status
+		, ship_date
+        , inord_no
+        , created_by
+        , create_date)
+        VALUES 
+        ( ?
+        , ?
+        , ?
+        , '0'
+		,  STR_TO_DATE(?, '%Y-%m-%d')
+		, ?
+        , ?
+        , NOW())
+        `;
+
+const insertshipdetail = `
+INSERT INTO tb_ship_detail 
+        ( ship_detail_no
+		, ship_no
+		, prod_lot_no
+		, model_code
+		, revision
+        , ship_qty
+        , created_by
+        , create_date)
+        VALUES 
+        ( ?
+        , ?
+        , ?
+        , '0'
+		, ?
+        , ?
+        , NOW())
+        `;
+
+module.exports = {
+  shipmodel,
+  lotnoscan,
+  modelinfo,
+  selectLastShipNo,
+  insertshipmaster,
+  insertshipdetail,
+};

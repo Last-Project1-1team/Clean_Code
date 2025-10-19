@@ -2,7 +2,7 @@
 import { ProductService } from '@/service/ProductService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { ref } from 'vue';
+import { ref, computed, toRaw, unref } from 'vue';
 import axios from 'axios';
 
 const selectedmodel = ref([]);
@@ -14,8 +14,11 @@ const customers = ref([]);
 const inordlist = ref([]);
 const revision = ref([]);
 const lotNolist = ref([]);
+const matchedlot = ref([]);
+const matchedinord = ref([]);
 const scanbox = ref([]);
 const LotNo = ref([]);
+const merged = ref([]);
 const selectedRows = ref([]);
 const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -31,15 +34,16 @@ const getInordList = async () => {
             console.error('수주 조회 실패:', err);
             customers.value = [];
         });
-    console.log(result);
+    console.log('수주업체: ', result);
     customers.value = result.data[0].cust_name;
     inordlist.value = result.data;
+    console.log('inordlist:', inordlist.value);
+    console.log('inordlist.value.CUST_CODE', inordlist.value[0].CUST_CODE);
     // console.log(result.data[0].cust_name);
 };
 
 //생산lot조회
 const getLotList = async () => {
-    // console.log('lot번호 : ', lotScan.value);
     let result1 = await axios
         .get(`${apiUrl}/lotNo?`, {
             params: {
@@ -50,45 +54,98 @@ const getLotList = async () => {
             console.error('LOT번호 조회 실패:', err);
             customers.value = [];
         });
-    // console.log('lot제품리비전lot수당:', result1.data);
+    console.log('result1: ', result1);
     lotNolist.value = result1.data;
-    console.log(result1.data);
-};
-
-//수주 lot 비교
-const shipList = async () => {
-    // console.log('수주제품리비전: ', inordlist.value);
+    console.log('lotNolist: ', lotNolist.value);
+    console.log('selectedmodel.value', selectedmodel.value);
+    console.log('selectedRows.value', selectedRows.value);
 
     const shipcheck = inordlist.value.some((inordno) => lotNolist.value.some((lotno) => lotno.MODEL_CODE === inordno.MODEL_CODE || lotno.REVISION === inordno.REVISION));
     console.log('일치확인: ', shipcheck);
+
+    matchedlot.value = lotNolist.value.filter((lot) => inordlist.value.some((inord) => inord.MODEL_CODE === lot.MODEL_CODE || inord.REVISION === lot.REVISION));
+    matchedinord.value = inordlist.value.filter((inord) => lotNolist.value.some((lot) => lot.MODEL_CODE === inord.MODEL_CODE || lot.REVISION === inord.REVISION));
+    console.log('matchedlot.value: ', matchedlot.value);
+    console.log('matchedinord.value: ', matchedinord.value);
+    selectedmodel.value = matchedlot.value;
+
+    merged.value = inordlist.value
+        .map((inord) => {
+            const matched = lotNolist.value.find((lot) => lot.MODEL_CODE === inord.MODEL_CODE || lot.REVISION === inord.REVISION);
+            return matched ? { ...inord, ...matched } : null;
+        })
+        .filter(Boolean);
+
+    console.log('merged: ', merged.value);
+
+    // console.log('matchedlist: ', matchedlist);
+    // console.log('matchedlist.value: ', matchedlist.value);
+    // console.log(toRaw(matchedlist.value)); // Proxy 제거
+    // console.log(unref(matchedlist));
+    // // 2) Proxy 제거(깊은 복사) 후 DataTable 바인딩 값에 대입
+    // selectedmodel.value = JSON.parse(JSON.stringify(matchedlist.value));
+    // // 3) 콘솔에서 axios처럼 보이게 출력
+    // console.log({
+    //     data: selectedmodel.value,
+    //     status: 200,
+    //     statusText: 'OK'
+    // });
+
+    // selectedmodel.value = [...matchedlist.value];
+
+    // console.log('selectedmodel.value: ', selectedmodel.value);
+
+    const prodLotNos = merged.value.map((item) => item.PROD_LOT_NO);
+    console.log('prodLotNos: ', prodLotNos);
+
+    // const shiplist = {
+    //     inord: merged.value.map((ship) => ({
+    //         custcode: ship.CUST_CODE,
+    //         inordno: ship.INORD_NO,
+    //         prodlotno: ship.PROD_LOT_NO,
+    //         lotno: ship.LOT_NO,
+    //         lotqty: ship.LOT_QTY,
+    //         modelcode: ship.MODEL_CODE,
+    //         revision: ship.REVISION
+    //     }))
+    // };
+    // console.log('shiplist: ', shiplist);
 
     if (shipcheck == false) {
         toast.add({ severity: 'error', summary: ' 수주서에 일치하는 값이 없음.', life: 3000 });
         return;
     }
-    const shiplist = inordlist.value.filter((inordno) => lotNolist.value.some((lotno) => lotno.MODEL_CODE === inordno.MODEL_CODE || lotno.REVISION === inordno.REVISION));
-    console.log('출하리스트: ', shiplist);
-    selectedmodel.value = shiplist;
-    selectedmodel.value.forEach((item) => {
-        item.LOT_NUMBER = lotScan.value;
-    });
 };
-//제품정보조회
-const getModelList = async () => {
-    const modellist = await axios
-        .get(`${apiUrl}/modelno?`, {
-            params: {
-                modelNo: selectedmodel.value.map((model) => model.MODEL_CODE)
-            }
-        })
-        .catch((err) => {
-            console.error('제품정보 조회 실패:', err);
-        });
-    console.log('제품정보리스트:', modellist.data);
-    // selectedmodel.value = modellist.data;
+
+const onSave = async () => {
+    if (selectedmodel.value == '') {
+        toast.add({ severity: 'error', summary: '제품 정보가 없습니다.', life: 3000 });
+        return;
+    }
+
+    const payload = {
+        ships: merged.value.map((ship) => ({
+            custcode: ship.CUST_CODE,
+            inordno: ship.INORD_NO,
+            prodlotno: ship.PROD_LOT_NO,
+            lotno: ship.LOT_NO,
+            lotqty: ship.LOT_QTY,
+            modelcode: ship.MODEL_CODE,
+            revision: ship.REVISION
+        }))
+    };
+    console.log('payload:', payload);
+    try {
+        const response = await axios.post(`${apiUrl}/insertship`, payload);
+        toast.add({ severity: 'success', summary: '출하가 등록되었습니다.', life: 3000 });
+        selectedmodel.value = [];
+        selectedRows.value = [];
+    } catch (error) {
+        console.error(error);
+        toast.add({ severity: 'error', summary: '저장 중 오류가 발생했습니다.', life: 3000 });
+    }
 };
-//
-//
+
 const handleInordEnter = () => {
     InordShow.value = InordScan.value; // 입력값을 복사해서 표시
     getInordList();
@@ -100,7 +157,6 @@ const handleLotEnter = async () => {
         return;
     }
     await getLotList();
-    await shipList();
     // await getModelList();
 };
 </script>
@@ -139,7 +195,7 @@ const handleLotEnter = async () => {
         </div>
 
         <DataTable :value="selectedmodel" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
-            <Column field="LOT_NUMBER" header="Lot.No" sortable style="width: 15em"></Column>
+            <Column field="PROD_LOT_NO" header="Lot.No" sortable style="width: 15em"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>
             <Column field="SPEC" header="규격" sortable style="min-width: 10em"></Column>
