@@ -104,15 +104,20 @@ const fetchOrderQty = async (modelCode, revision, procCode) => {
     }
 };
 
-// 수주량 조회 후 formData에 반영
-const updateOrderQty = (qty) => {
-    formData.value.product.totalInordQty = qty; // 또는 formData.value.totalInordQty = qty;
-};
-
-// 입력 버튼 이벤트
 // 입력 버튼 이벤트
 const addPlan = async () => {
-    // 수주량 조회 그리드의 Qty에 사용 (여전히 이전에 전달된 searchParams 기준으로 조회됨)
+    // 필수 값 검증
+    if (!formData.value.product.modelCode || !formData.value.product.revision || !formData.value.process.procCode || !formData.value.planPeriod.startDate || !formData.value.planPeriod.endDate) {
+        toast.add({
+            severity: 'warn',
+            summary: '입력 오류',
+            detail: '모든 필수 항목을 입력해주세요.',
+            life: 3000
+        });
+        return; // 함수 실행 중단
+    }
+
+    // 수주량 조회 그리드의 Qty에 사용
     await fetchOrderQty(formData.value.product.modelCode, formData.value.product.revision, formData.value.process.procCode);
 
     // dataTable의 prodPlan에 추가할 데이터 객체 생성
@@ -128,7 +133,7 @@ const addPlan = async () => {
         // 공정
         procName: procDropDown.value.find((proc) => proc.value === formData.value.process.procCode)?.label,
 
-        totalInordQty: formData.value.totalInordQty, // ✨ Qty 대신 totalInordQty 사용 및 formData 경로 변경
+        totalInordQty: formData.value.totalInordQty,
 
         // 계획수량(planQty)은 그리드에서 입력할 예정이므로 0 또는 null로 초기화
         planQty: 0 // 또는 null, 사용자 입력 대기
@@ -136,6 +141,14 @@ const addPlan = async () => {
 
     // prodPlan 배열에 입력받은 데이터들 추가
     prodPlan.value.push(newPlanItem);
+
+    // 성공 알림 추가
+    toast.add({
+        severity: 'success',
+        summary: '입력 성공',
+        detail: '입력이 완료되었습니다.',
+        life: 3000
+    });
 
     // 폼 초기화
     initPlan();
@@ -263,25 +276,25 @@ const deletePlan = () => {
 
                     <div class="col-span-2"></div>
 
-                    <Button label="초기화" @click="initPlan"></Button>
-                    <Button label="입력" @click="addPlan"></Button>
-                    <Button label="저장" @click="insertPlan"></Button>
+                    <Button label="초기화" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="initPlan"></Button>
+                    <Button label="입력" class="p-button-success px-6 py-3 text-lg font-bold" @click="addPlan"></Button>
+                    <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" @click="insertPlan"></Button>
 
                     <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품코드</label>
                     <div class="col-span-3">
-                        <InputText v-model="formData.product.modelCode" id="modelName" type="text" style="width: 175px" />
+                        <InputText v-model="formData.product.modelCode" id="modelName" type="text" style="width: 175px" readonly />
                         <Button @click="ModalSearch = true" class="w-full" type="button" icon="pi pi-search" />
                     </div>
                     <label for="revision" class="flex items-center col-span-1 mb-2 md:mb-0">리비전</label>
                     <div class="col-span-2">
-                        <InputText v-model="formData.product.revision" id="revision" type="text" class="w-full" />
+                        <InputText v-model="formData.product.revision" id="revision" type="text" class="w-full" readonly />
                     </div>
 
                     <div class="col-span-5"></div>
 
                     <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품명</label>
                     <div class="col-span-3">
-                        <InputText v-model="formData.product.modelName" id="modelName" type="text" style="width: 210px" />
+                        <InputText v-model="formData.product.modelName" id="modelName" type="text" style="width: 210px" readonly />
                     </div>
                     <label for="selectProc" class="flex items-center col-span-1">공정선택</label>
                     <div class="col-span-2">
@@ -289,13 +302,13 @@ const deletePlan = () => {
                     </div>
 
                     <div class="col-span-4"></div>
-                    <Button label="삭제" @click="deletePlan"></Button>
+                    <Button label="삭제" icon="pi pi-trash" class="p-button-danger px-4 py-2 font-bold" @click="deletePlan"></Button>
                 </div>
             </template>
         </Toolbar>
 
         <!-- 생산계획 등록 그리드 -->
-        <DataTable v-model:selection="selectedPlans" :value="prodPlan" dataKey="prodPlanNo" :rows="10" style="border: 1px solid #ddd; height: 60vh">
+        <DataTable v-model:selection="selectedPlans" :value="prodPlan" selectionMode="multiple" :rows="10" style="border: 1px solid #ddd; height: 60vh">
             <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
             <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 12rem"></Column>
             <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 12rem"></Column>
@@ -318,3 +331,8 @@ const deletePlan = () => {
         </Dialog>
     </div>
 </template>
+<style scoped>
+#button_ {
+    margin: 20px;
+}
+</style>

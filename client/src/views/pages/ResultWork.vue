@@ -724,7 +724,7 @@ const finishWorkOrder = async () => {
 
 <style scoped>
 .readingPart {
-    padding: 5px;
+    padding: 15px;
     margin-bottom: 20px;
 }
 :deep(.custom-table .p-datatable-tbody > tr > td) {
@@ -732,7 +732,7 @@ const finishWorkOrder = async () => {
     padding: 4px 8px;
 }
 .custom-table {
-    height: 23vh;
+    height: 22vh;
     border: 1px solid #ddd;
     margin-bottom: 20px;
 }
@@ -745,5 +745,6 @@ const finishWorkOrder = async () => {
 }
 .modalform {
     padding: 20px;
+    margin-bottom: 0;
 }
 </style>
