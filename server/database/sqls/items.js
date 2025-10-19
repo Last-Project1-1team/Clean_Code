@@ -1,6 +1,6 @@
 const selectItemList =
-    //
-    `SELECT itm.item_code itemCode
+  //
+  `SELECT itm.item_code itemCode
         , itm.item_name itemName
         , itm.spec spec
         , itm.item_class itemClass
@@ -21,14 +21,14 @@ const selectItemList =
     WHERE itm.item_code LIKE ?
       AND itm.item_name LIKE ?`;
 const selectClass =
-    //
-    `SELECT common_code code
+  //
+  `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'item_class'`;
 const selectUnit =
-    //
-    `SELECT common_code code
+  //
+  `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'unit'`;
@@ -218,20 +218,37 @@ const selectInputList = `
         ON inp.item_code = itm.item_code
      WHERE inp.status = ?
        AND inp.item_code like ?
-       AND itm.item_name like ?;
+       AND itm.item_name like ?
 `;
 
+const selectItemInput = `
+    SELECT inp.input_no inputNo
+         , to_char(inp.input_date, 'YYYY-MM-DD') inputDate
+         , inp.item_code itemCode
+         , itm.item_name itemName
+         , itm.spec spec
+         , itm.unit unit
+         , inp.input_qty inputQty
+         , CASE inp.status WHEN 0 THEN '가입고' WHEN 5 THEN '검사완료' ELSE '입고완료' END status
+      FROM tb_input inp
+      JOIN tb_item_master itm 
+        ON inp.item_code = itm.item_code
+     WHERE inp.item_code like ?
+       AND itm.item_name like ?
+       AND inp.input_date BETWEEN ? AND DATE_ADD(?, INTERVAL 1 DAY)
+     ORDER BY itm.item_code
+`;
 const selectOutputStock =
-    //
-    `SELECT common_code code
+  //
+  `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'STOCK'
         AND common_code <> '0H01'`;
 
 const selectOutputLot =
-    //
-    ` SELECT lot.item_code itemCode
+  //
+  ` SELECT lot.item_code itemCode
           , itm.item_name itemName
           , lot.lot_qty  lotQty
         FROM tb_lot lot 
@@ -250,6 +267,7 @@ const selectLastOutputNo = `
 
 const selectOutputList = `
     SELECT opt.output_no outputNo
+         , TO_CHAR(opt.output_date,'YYYY-MM-DD') outputDate
          , opt.item_code itemCode
          , itm.item_name itemName
          , itm.spec spec
@@ -260,7 +278,9 @@ const selectOutputList = `
       FROM tb_output opt
       JOIN tb_item_master itm
         ON opt.item_code = itm.item_code
-     WHERE OUTPUT_DATE = ?
+     WHERE opt.item_code like ?
+       AND itm.item_name like ?
+       AND opt.output_date BETWEEN ? AND DATE_ADD(?, INTERVAL 1 DAY);
 `;
 const selectInspList = `
 SELECT mst.insp_code inspCode
@@ -280,24 +300,45 @@ const selectLastInspNo = `
      ORDER BY item_insp_no DESC
      LIMIT 1
   `;
+
+const outordSelect = `
+SELECT mst.outord_no outordNo
+	 , DATE_FORMAT(mst.outord_date, '%Y-%m-%d') outordDate
+     , itm.item_code itemCode
+     , itm.item_name itemName
+     , itm.spec spec
+     , (SELECT code_name FROM tb_code WHERE itm.unit = common_code AND group_code = 'unit') unit
+     , dtl.outord_qty outordQty
+     , dtl.input_qty inputQty
+  FROM tb_outord_master mst
+  JOIN tb_outord_detail dtl
+    ON mst.outord_no = dtl.outord_no
+  JOIN tb_item_master itm
+    ON dtl.item_code = itm.item_code
+ WHERE mst.OUTORD_DATE BETWEEN ? AND ?
+ ORDER BY mst.outord_no, dtl.OUTORD_DETAIL_NO
+ `;
+
 module.exports = {
-    selectItemList,
-    selectClass,
-    selectUnit,
-    insertItems,
-    itemOutordSelect,
-    custOutordSelect,
-    insertOutordMaster,
-    insertOutordDetail,
-    selectLastOutordNo,
-    outordListSelect,
-    outorderDetailSelect,
-    selectLastInputNo,
-    selectInputList,
-    selectOutputStock,
-    selectOutputLot,
-    selectLastOutputNo,
-    selectOutputList,
-    selectInspList,
-    selectLastInspNo,
+  selectItemList,
+  selectClass,
+  selectUnit,
+  insertItems,
+  itemOutordSelect,
+  custOutordSelect,
+  insertOutordMaster,
+  insertOutordDetail,
+  selectLastOutordNo,
+  outordListSelect,
+  outorderDetailSelect,
+  selectLastInputNo,
+  selectInputList,
+  selectOutputStock,
+  selectOutputLot,
+  selectLastOutputNo,
+  selectOutputList,
+  selectInspList,
+  selectLastInspNo,
+  outordSelect,
+  selectItemInput,
 };

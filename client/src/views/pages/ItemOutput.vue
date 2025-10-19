@@ -88,7 +88,14 @@ const onSearch = async () => {
     try {
         const rawDate = today?.value ?? today;
         const formatted = rawDate instanceof Date ? rawDate.toISOString().slice(0, 10) : rawDate || '';
-        const response = await axios.get(`${apiUrl}/itemOutput?outputDate=` + formatted);
+        const response = await axios.get(`${apiUrl}/itemOutput`, {
+            params: {
+                itemCode: '',
+                itemName: '',
+                outputDatefr: formatted,
+                outputDateto: formatted
+            }
+        });
         outputItems.value = response.data;
     } catch (error) {
         console.error(error);
