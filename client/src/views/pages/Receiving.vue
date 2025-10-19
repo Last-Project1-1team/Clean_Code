@@ -7,30 +7,17 @@ import { Button } from 'primevue';
 
 const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
 const inputLotNo = ref('');
-const lotInfo = ref([]);
-const receiving = ref([]);
+const lotInfo = ref(null);
+const receiving = ref('');
 
-const getInordList = async () => {
-    let result = await axios
-        .get(`${apiUrl}/customerNo?`, {
-            params: {
-                Code: InordScan.value
-            }
-        })
-        .catch((err) => {
-            console.error('수주 조회 실패:', err);
-            customers.value = [];
-        });
-    console.log(result);
-    customers.value = result.data[0].cust_name;
-    inordlist.value = result.data;
-    // console.log(result.data[0].cust_name);
-};
-
+// ✅ 엔터키 처리 함수
 const handleLotNoEnter = () => {
-    LotNoShow.value = LotNoScan.value; // 입력값을 복사해서 표시
-    getLotNoScan();
+    if (!inputLotNo.value) {
+        toast.add({ severity: 'warn', summary: '안내', detail: 'LOT번호를 입력하세요.' });
+        return;
+    }
 };
 // ✅ 스캔 (조회) 함수
 const scanLot = async () => {
@@ -70,6 +57,7 @@ const getScanData = async (lotNo, itemCode, itemName, lotQty) => {
     receiving.value = result.data;
 };
 </script>
+
 <template>
     <div class="p-4">
         <!-- 제목 -->
@@ -78,7 +66,7 @@ const getScanData = async (lotNo, itemCode, itemName, lotQty) => {
         <!-- LOT 입력창 -->
         <div class="flex justify-center mb-6">
             <InputText v-model="inputLotNo" placeholder="LOT번호를 스캔 또는 입력하세요" @keyup.enter="handleLotNoEnter" class="w-[400px] text-center p-inputtext-lg" />
-            <Button label="조회" icon="pi pi-search" class="ml-3" @click="getScanData(inputLotNo.value)" />
+            <Button label="입력" icon="pi pi-search" class="ml-3" @click="handleLotNoEnter" />
         </div>
 
         <!-- LOT 정보 표시 영역 -->
