@@ -21,25 +21,16 @@ router.get("/custselect", async (req, res) => {
 });
 //
 //
-// // 수주마스터등록    : 자원(데이터) -> books / 등록 -> POST
-// router.post("/insertinsert", async (req, res) => {
-//   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
-//   let masterinfo = req.body;
-//   // console.log(inordinfo);
-//   let result = await inordService
-//     .addNewinord(masterinfo)
-//     .catch((err) => console.log(err));
-//   res.send(result);
-
-//   const detailinfo = req.body;
-//   // console.log(inordinfo);
-//   let result1 = await inordService
-//     .addNewinord(detailinfo)
-//     .catch((err) => console.log(err));
-//   res.send(result1);
-// });
-//
-//
+// 수주단건조회
+router.get("/custinord", async (req, res) => {
+  let custcode = req.query.custCode;
+  let inorddate = req.query.today;
+  console.log("inorddate: ", inorddate);
+  let inordlist = await inordService
+    .findinord(custcode, inorddate)
+    .catch((err) => console.log(err));
+  res.send(inordlist);
+});
 // 수주등록
 router.post("/insertinord", async (req, res) => {
   const { orderDate, paprdDate, custCode, custName, models } = req.body;

@@ -57,7 +57,21 @@ const selectLastInordNo = `
      LIMIT 1
   `;
 
-// 수정
+// 수주단건조회
+const selectInord = `
+SELECT 	MAS.CUST_CODE
+		  , C.CUST_NAME
+      , DET.MODEL_CODE
+      , MM.MODEL_NAME
+      , MM.REVISION
+      , DET.INORD_QTY
+      , MAS.INORD_DATE
+      , MAS.PAPRD_DATE
+FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	MAS.INORD_NO = DET.INORD_NO
+                          JOIN TB_MODEL_MASTER MM	 ON DET.MODEL_CODE = MM.MODEL_CODE
+                          JOIN TB_CUST C			     ON MAS.CUST_CODE = C.CUST_CODE
+WHERE MAS.CUST_CODE LIKE ?
+  AND MAS.INORD_DATE = STR_TO_DATE(?, '%Y-%m-%d')`;
 
 // 삭제
 const deleteinorddetail = `DELETE TB_INORD_DETAIL
@@ -71,4 +85,5 @@ module.exports = {
   insertInordMaster,
   insertInordDetail,
   selectLastInordNo,
+  selectInord,
 };
