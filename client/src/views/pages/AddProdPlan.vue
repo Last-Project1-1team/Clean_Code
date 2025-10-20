@@ -1,9 +1,272 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import ModalSearchModel from '@/components/ModalSearchModel.vue';
+import { useToast } from 'primevue/usetoast';
 
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+const toast = useToast();
+// 제품 검색 모달
 const ModalSearch = ref(false);
+
+// 날짜 데이터 포멧
+const formatDate = (date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+};
+
+// 공정드롭다운
+const procDropDown = ref([]);
+const prodPlan = ref([]);
+const totalInordQty = ref(0);
+// 그리드 선택 행 정보 저장
+const selectedPlans = ref([]);
+
+onMounted(async () => {
+    const response = await axios.get(`${apiUrl}/prodplan/proc`);
+    procDropDown.value = response.data.map((proc) => ({
+        label: proc.name, // 보여줄 이름
+        value: proc.code // 실제 값
+    }));
+});
+
+// 모달에서 가져온 제품정보
+const handleModelRegister = (data) => {
+    formData.value.product.modelCode = data.modelCode;
+    formData.value.product.revision = data.revision;
+    formData.value.product.modelName = data.modelName;
+    ModalSearch.value = false;
+};
+
+// 입력폼 데이터가 담기는 곳
+const formData = ref({
+    planPeriod: {
+        startDate: new Date(),
+        endDate: new Date()
+    },
+    product: {
+        modelCode: '',
+        revision: '',
+        modelName: ''
+    },
+    process: {
+        procCode: null
+    },
+    totalInordQty: 0,
+    totalShipQty: 0,
+    unshippedQty: 0
+});
+
+// 초기화 버튼 이벤트
+const initPlan = () => {
+    formData.value = {
+        planPeriod: {
+            startDate: new Date(),
+            endDate: new Date()
+        },
+        product: {
+            modelCode: '',
+            revision: '',
+            modelName: ''
+        },
+        process: {
+            procCode: null
+        },
+        totalInordQty: 0,
+        unshippedQty: 0
+    };
+};
+
+// 수주량, 출하량 조회 후 그리드에 반영
+const fetchOrderQty = async (modelCode, revision, procCode) => {
+    if (!modelCode || !revision || !procCode) {
+        formData.value.totalInordQty = 0;
+        formData.value.totalShipQty = 0;
+        formData.value.unshippedQty = 0;
+        return;
+    }
+
+    try {
+        const response = await axios.get(`${apiUrl}/prodplan/inordqty`, {
+            params: { modelCode, revision, procCode }
+        });
+
+        const data = response.data && response.data.length > 0 ? response.data[0] : null;
+
+        const totalInordQty = data ? data.totalInordQty || 0 : 0;
+        const totalShipQty = data ? data.totalShipQty || 0 : 0;
+
+        // console.log('총 출하량 totalShipQty:', totalShipQty);
+        // console.log('총 수주량 totalInordQty:', totalInordQty);
+
+        formData.value.totalInordQty = totalInordQty;
+        formData.value.totalShipQty = totalShipQty;
+        formData.value.unshippedQty = totalInordQty - totalShipQty; // 미 출하수량 계산
+    } catch (err) {
+        console.error('수주 및 출하량 조회 중 오류:', err);
+        formData.value.totalInordQty = 0;
+        formData.value.totalShipQty = 0;
+        formData.value.unshippedQty = 0;
+    }
+};
+
+// 입력 버튼 이벤트
+const addPlan = async () => {
+    // 필수 값 검증
+    if (!formData.value.product.modelCode || !formData.value.product.revision || !formData.value.process.procCode || !formData.value.planPeriod.startDate || !formData.value.planPeriod.endDate) {
+        toast.add({
+            severity: 'warn',
+            summary: '입력 오류',
+            detail: '모든 필수 항목을 입력해주세요.',
+            life: 3000
+        });
+        return; // 함수 실행 중단
+    }
+
+    // 수주량 조회 그리드의 Qty에 사용
+    await fetchOrderQty(formData.value.product.modelCode, formData.value.product.revision, formData.value.process.procCode);
+
+    // dataTable의 prodPlan에 추가할 데이터 객체 생성
+    const newPlanItem = {
+        // formData에서 가져온 데이터를 DataTable 컬럼에 사용
+        regPlanDate: new Date().toISOString().split('T')[0], // 현재 날짜
+        startPlanDate: formData.value.planPeriod.startDate ? formData.value.planPeriod.startDate.toISOString().split('T')[0] : null,
+        endPlanDate: formData.value.planPeriod.endDate ? formData.value.planPeriod.endDate.toISOString().split('T')[0] : null,
+        modelCode: formData.value.product.modelCode,
+        revision: formData.value.product.revision,
+        modelName: formData.value.product.modelName,
+
+        // 공정
+        procName: procDropDown.value.find((proc) => proc.value === formData.value.process.procCode)?.label,
+
+        totalInordQty: formData.value.totalInordQty,
+        unshippedQty: formData.value.unshippedQty,
+
+        // 계획수량(planQty)은 그리드에서 입력할 예정이므로 0 또는 null로 초기화
+        planQty: 0 // 또는 null, 사용자 입력 대기
+    };
+
+    // prodPlan 배열에 입력받은 데이터들 추가
+    prodPlan.value.push(newPlanItem);
+
+    // 성공 알림 추가
+    toast.add({
+        severity: 'success',
+        summary: '입력 성공',
+        detail: '입력이 완료되었습니다.',
+        life: 3000
+    });
+
+    // 폼 초기화
+    initPlan();
+};
+
+// 저장 버튼 이벤트
+const insertPlan = async () => {
+    try {
+        // 그리드에 데이터가 없으면 알림
+        if (!prodPlan.value || prodPlan.value.length === 0) {
+            toast.add({ severity: 'warn', summary: '알림', detail: '저장할 데이터가 없습니다. 먼저 계획을 입력해주세요.', life: 3000 });
+            return;
+        }
+
+        // 성공 및 실패 카운터
+        let successCount = 0;
+        let failCount = 0;
+
+        // 그리드의 각 행을 순회하면서 서버에 저장
+        for (const plan of prodPlan.value) {
+            // 서버에 전송할 형태로 데이터 가공
+            const planData = {
+                createDate: plan.regPlanDate,
+                startDate: plan.startPlanDate,
+                endDate: plan.endPlanDate,
+                planQty: plan.planQty,
+                modelCode: plan.modelCode,
+                revision: plan.revision,
+                procCode: procDropDown.value.find((proc) => proc.label === plan.procName)?.value
+            };
+
+            // 필수 데이터 검증
+            if (!planData.planQty) {
+                failCount++;
+                continue; // 계획수량이 없으면 건너뛰기
+            }
+
+            try {
+                // 서버에 POST 요청 보내기
+                await axios.post(`${apiUrl}/prodplan/save`, planData);
+                successCount++;
+            } catch (err) {
+                console.error('계획 저장 중 오류:', err);
+                failCount++;
+            }
+        }
+
+        // 결과 메시지 표시
+        if (successCount > 0) {
+            toast.add({
+                severity: 'success',
+                summary: '저장 성공',
+                detail: `${successCount}건의 생산계획이 저장되었습니다.${failCount > 0 ? `\n${failCount}건은 저장에 실패했습니다.` : ''}`,
+                life: 3000
+            });
+
+            // 저장 성공 후 그리드 초기화 또는 새로고침
+            prodPlan.value = [];
+        } else {
+            toast.add({
+                severity: 'error',
+                summary: '저장 실패',
+                detail: '생산계획 저장에 실패했습니다.',
+                life: 3000
+            });
+        }
+    } catch (err) {
+        console.error('생산계획 저장 중 오류 발생:', err);
+        toast.add({
+            severity: 'error',
+            summary: '오류 발생',
+            detail: '생산계획 저장 중 오류가 발생했습니다.',
+            life: 3000
+        });
+    }
+};
+
+// 삭제 버튼 이벤트
+const deletePlan = () => {
+    // 선택된 항목이 있는지 확인
+    if (!selectedPlans.value || selectedPlans.value.length === 0) {
+        // PrimeVue Toast를 사용하는 경우
+        toast.add({
+            severity: 'warn',
+            summary: '알림',
+            detail: '삭제할 행을 선택해주세요.',
+            life: 3000
+        });
+        return;
+    }
+    // 선택된 항목들을 prodPlan 배열에서 제거
+    selectedPlans.value.forEach((selectedItem) => {
+        const index = prodPlan.value.findIndex((item) => item.prodPlanNo === selectedItem.prodPlanNo);
+        if (index !== -1) {
+            prodPlan.value.splice(index, 1);
+        }
+    });
+
+    // 선택 초기화
+    selectedPlans.value = [];
+
+    // 삭제 완료 알림
+    toast.add({
+        severity: 'success',
+        summary: '삭제 완료',
+        detail: '선택한 행이 삭제되었습니다.',
+        life: 3000
+    });
+};
 </script>
 <template>
     <div class="card">
@@ -12,67 +275,73 @@ const ModalSearch = ref(false);
                 <div class="grid grid-cols-12 gap-2">
                     <label for="startPlan" class="flex items-center col-span-1 mb-2 md:mb-0">계획시작일</label>
                     <div class="col-span-3">
-                        <DatePicker id="startPlan" :showIcon="true" :showButtonBar="true" v-model="startPlanDate" date-format="yy-mm-dd" style="width: 250px"></DatePicker>
+                        <DatePicker id="startPlan" :showIcon="true" :showButtonBar="true" v-model="formData.planPeriod.startDate" date-format="yy-mm-dd" style="width: 250px"></DatePicker>
                     </div>
 
                     <label for="endPlan" class="flex items-center col-span-1 mb-2 md:mb-0">계획종료일</label>
                     <div class="col-span-2">
-                        <DatePicker class="col-span-2" id="endPlan" :showIcon="true" :showButtonBar="true" v-model="endPlanDate" date-format="yy-mm-dd"></DatePicker>
+                        <DatePicker id="endPlan" :showIcon="true" :showButtonBar="true" v-model="formData.planPeriod.endDate" date-format="yy-mm-dd"></DatePicker>
                     </div>
 
                     <div class="col-span-2"></div>
 
-                    <Button label="초기화" @click="initPlan"></Button>
-                    <Button label="저장" @click="addPlan"></Button>
-                    <Button label="조회" @click="searchPlan"></Button>
+                    <Button label="초기화" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="initPlan"></Button>
+                    <Button label="입력" class="p-button-success px-6 py-3 text-lg font-bold" @click="addPlan"></Button>
+                    <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" @click="insertPlan"></Button>
 
                     <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품코드</label>
                     <div class="col-span-3">
-                        <InputText v-model="modelName" id="modelName" type="text" style="width: 175px" />
+                        <InputText v-model="formData.product.modelCode" id="modelName" type="text" style="width: 175px" readonly />
                         <Button @click="ModalSearch = true" class="w-full" type="button" icon="pi pi-search" />
-                        <ModalSearchModel v-model:visible="ModalSearch" @selectModel="onModelSelected" />
                     </div>
-                    <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">리비전</label>
+                    <label for="revision" class="flex items-center col-span-1 mb-2 md:mb-0">리비전</label>
                     <div class="col-span-2">
-                        <InputText v-model="modelName" id="modelName" type="text" class="w-full" />
+                        <InputText v-model="formData.product.revision" id="revision" type="text" class="w-full" readonly />
                     </div>
 
                     <div class="col-span-5"></div>
 
                     <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품명</label>
                     <div class="col-span-3">
-                        <InputText v-model="modelName" id="modelName" type="text" style="width: 210px" />
+                        <InputText v-model="formData.product.modelName" id="modelName" type="text" style="width: 210px" readonly />
                     </div>
-                    <label for="selectProc" class="flex items-center col-span-1 mb-2 md:mb-0">공정선택</label>
+                    <label for="selectProc" class="flex items-center col-span-1">공정선택</label>
                     <div class="col-span-2">
-                        <Select id="selectProc" v-model="dropdownValue" :options="dropdownValues" optionLabel="name" placeholder="공정선택" class="w-full" />
+                        <Select v-model="formData.process.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" />
                     </div>
 
                     <div class="col-span-4"></div>
-                    <Button label="삭제" @click="deletePlan"></Button>
+                    <Button label="삭제" icon="pi pi-trash" class="p-button-danger px-4 py-2 font-bold" @click="deletePlan"></Button>
                 </div>
             </template>
         </Toolbar>
 
         <!-- 생산계획 등록 그리드 -->
-        <DataTable ref="dt" v-model:selection="selectedPlans" :value="prodPlan" dataKey="prodPlanNo" :rows="10" :filters="filters" editMode="cell" @cell-edit-complete="onCellEditComplete" style="border: 1px solid #ddd; height: 60vh">
+        <DataTable v-model:selection="selectedPlans" :value="prodPlan" selectionMode="multiple" :rows="10" style="border: 1px solid #ddd; height: 60vh">
             <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-            <Column field="prodPlanDate" header="계획등록일자" sortable style="min-width: 12rem"></Column>
-            <Column field="prodPlanDate" header="계획시작일자" sortable style="min-width: 12rem"></Column>
-            <Column field="prodPlanDate" header="생산종료일자" sortable style="min-width: 12rem"></Column>
-            <Column field="modelCode" header="제품코드" sortable style="min-width: 16rem"></Column>
-            <Column field="revision" header="리비전" sortable style="min-width: 16rem"></Column>
-            <Column field="modelName" header="제품명" sortable style="min-width: 16rem"></Column>
-            <Column field="proc" header="공정" sortable style="min-width: 16rem"></Column>
-            <Column field="prodPlanDate" header="수주량" sortable style="min-width: 12rem"></Column>
-            <Column field="prodPlanDate" header="기 출고량" sortable style="min-width: 12rem"></Column>
-            <Column field="prodPlanDate" header="미 출고량" sortable style="min-width: 12rem"></Column>
-            <Column field="workOrderQty" header="계획수량" sortable style="min-width: 16rem">
-                <template #editor="{ data, field }">
-                    <InputNumber v-model="data[field]" showButtons mode="decimal" />
+            <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 10rem"></Column>
+            <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 10rem"></Column>
+            <Column field="endPlanDate" header="생산종료일자" sortable style="min-width: 10em"></Column>
+            <Column field="planQty" header="계획수량" sortable style="min-width: 12rem">
+                <template #body="{ data }">
+                    <input v-model.number="data.planQty" type="number" min="0" step="1" class="w-40 border p-1" />
                 </template>
             </Column>
-            <Column field="unit" header="단위" sortable style="min-width: 16rem"></Column>
+            <Column field="modelCode" header="제품코드" sortable style="min-width: 10rem"></Column>
+            <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
+            <Column field="modelName" header="제품명" sortable style="min-width: 10rem"></Column>
+            <Column field="procName" header="공정" sortable style="min-width: 8rem"></Column>
+            <Column field="totalInordQty" header="수주량" sortable style="min-width: 9rem"></Column>
+            <Column field="unshippedQty" header="미 출하량" sortable style="min-width: 9rem"></Column>
         </DataTable>
+
+        <Dialog v-model:visible="ModalSearch" header="제품 검색" modal style="width: 80vw; height: 80vh">
+            <ModalSearchModel @register="handleModelRegister" />
+        </Dialog>
     </div>
 </template>
+<style scoped>
+#button_ {
+    margin: 20px;
+}
+</style>

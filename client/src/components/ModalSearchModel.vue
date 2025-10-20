@@ -1,35 +1,85 @@
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue';
+import { onMounted, ref } from 'vue';
 import axios from 'axios';
-import Dialog from 'primevue/dialog';
 
-const emit = defineEmits([]);
+const emit = defineEmits(['register']);
+
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+const modelList = ref([]);
+const selectedModels = ref([]);
+const modelCode = ref('');
+const revision = ref('');
+const modelName = ref('');
+
+onMounted(async () => {
+    getModelList();
+});
+
+const registerModels = () => {
+    // 부모로 선택된 데이터 전달
+    emit('register', selectedModels.value);
+};
+
+// 저장버튼
+const tossModel = () => {
+    registerModels();
+};
+
+// 조회버튼
+const selectModel = () => {
+    getModelList(modelCode.value, revision.value, modelName.value);
+};
+
+const getModelList = async (code, revision, name) => {
+    let result = await axios
+        .get(`${apiUrl}/modelMaster?`, {
+            params: {
+                modelCode: code || '',
+                revision: revision || '',
+                modelName: name || ''
+            }
+        })
+        .catch((err) => {
+            console.error('아이템 조회 실패:', err);
+            modelList.value = [];
+        });
+    modelList.value = result.data;
+};
 </script>
 
 <template>
-    <Dialog v-model:modelModal="custmodal" modal header="제품선택" style="width: 70vw">
-        <div class="grid grid-cols-10 gap-2">
-            <label for="model_code" class="flex items-center">제품코드</label>
-            <div class="col-span-2">
-                <InputText id="model_code" type="text" class="w-full" />
-            </div>
-            <label for="model_name" class="flex items-center">제품명</label>
-            <div class="col-span-2">
-                <InputText id="model_name" type="text" class="w-full" />
-            </div>
-            <Button class="col-start-8" label="초기화"></Button>
-            <Button class="col-start-9" label="등록" @click="searchModel"></Button>
-            <Button class="col-start-10" label="조회"></Button>
-        </div>
-        <DataTable :value="modelList" v-model:selection="selectedModel" selectionMode="single" @rowSelect="onRowSelect" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
-            <Column field="modelCode" header="제품코드" sortable style="min-width: 5em"></Column>
-            <Column field="modelName" header="제품명" sortable style="min-width: 10em"></Column>
-            <Column field="revision" header="리비전" sortable style="min-width: 3em"></Column>
-            <Column field="modelFlag" header="제품구분" sortable style="min-width: 5em"></Column>
-            <Column field="inordQty" header="수주량" sortable style="min-width: 5em"></Column>
-            <Column field="completeOut" header="기 출고량" sortable style="min-width: 5em"></Column>
-            <Column field="notOut" header="미 출고량" sortable style="min-width: 5em"></Column>
-            <Column field="unit" header="단위" sortable style="min-width: 5em"></Column>
+    <div>
+        <Toolbar class="mb-6">
+            <template #start>
+                <div class="grid grid-cols-12 gap-2">
+                    <label for="modelCode" class="flex items-center">제품코드</label>
+                    <div class="col-span-3">
+                        <InputText id="modelCode" type="text" class="w-full" v-model="modelCode" />
+                    </div>
+
+                    <label for="revision" class="flex items-center">리비전</label>
+                    <div class="col-span-3">
+                        <InputText id="revision" type="text" class="w-full" v-model="revision" />
+                    </div>
+
+                    <label for="modelName" class="flex items-center">제품명</label>
+                    <div class="col-span-3">
+                        <InputText id="modelName" type="text" class="w-full" v-model="modelName" />
+                    </div>
+                </div>
+            </template>
+            <template #end>
+                <Button label="저장" @click="tossModel"></Button>
+                <Button label="조회" @click="selectModel"></Button>
+            </template>
+        </Toolbar>
+
+        <DataTable :value="modelList" v-model:selection="selectedModels" :dataKey="(row) => row.modelCode + '_' + row.revision" selectionMode="single" scrollable scrollHeight="40vh">
+            <Column field="modelCode" style="width: 100px" header="제품코드" />
+            <Column field="modelName" style="width: 150px" header="제품명" />
+            <Column field="revision" style="width: 150px" header="리비전" />
+            <Column field="modelFlag" style="width: 150px" header="제품구분" />
+            <Column field="unit" style="width: 50px" header="단위" />
         </DataTable>
-    </Dialog>
+    </div>
 </template>

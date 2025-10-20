@@ -11,5 +11,5 @@ WHERE l.lot_no = ?
  `;
 
 module.exports = {
-    selectLotInfo
+    selectLotInfo,
 };

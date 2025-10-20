@@ -47,12 +47,17 @@ const modelSearch = () => {
         </template>
         <template #end>
             <!-- 조회버튼 -->
-            <Button label="조회" icon="pi pi-search" @click="modelSearch"></Button>
+            <Button label="조회" @click="modelSearch"></Button>
         </template>
     </Toolbar>
 </template>
 <style scoped>
 .mb-6 {
     padding: 15px;
+}
+button {
+    margin-right: 10px;
+    width: 100px;
+    height: 50px;
 }
 </style>

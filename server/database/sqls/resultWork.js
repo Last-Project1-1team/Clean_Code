@@ -3,16 +3,27 @@ SELECT wo.work_ord_no workOrdNo,
        wo.model_code modelCode,
        wo.revision,
        m.model_name modelName,
-       wo.proc_code,
+       pr.proc_code,
        c.code_name proc,
        wo.work_ord_qty workOrdQty
 FROM tb_work_ord wo
 JOIN tb_model_master m
   ON (wo.model_code = m.model_code
  AND wo.revision = m.revision)
+JOIN tb_proc_routing pr
+  ON (wo.model_code = pr.model_code
+ AND wo.revision = pr.revision)
 JOIN tb_code c
-  ON (wo.proc_code = c.common_code)
+  ON (pr.proc_code = c.common_code)
 WHERE wo.work_ord_no LIKE ?
+  AND pr.proc_seq <= (
+      SELECT MAX(routing.proc_seq)
+      FROM tb_proc_routing routing
+      WHERE routing.model_code = wo.model_code
+        AND routing.revision = wo.revision
+        AND routing.proc_code = wo.proc_code
+  )
+ORDER BY pr.proc_seq, wo.work_ord_no
 `;
 
 const selectBom = `
@@ -39,6 +50,7 @@ JOIN v_item_master itm
  AND bom.low_revision = itm.revision)
 WHERE wor.model_code LIKE ?
   AND wor.revision LIKE ?
+  AND wor.work_ord_no LIKE ?
 ORDER BY itm.item_code, wor.model_code
 `;
 
@@ -55,7 +67,7 @@ SELECT lot.lot_no lotNo,
 FROM tb_lot lot
 JOIN v_item_master itm
   ON (lot.item_code = itm.item_code)
-WHERE lot.lot_no LIKE ?
+WHERE lot.item_code LIKE ?
 UNION ALL
 SELECT plot.prod_lot_no lotNo,
        itm.item_code itemCode,
@@ -69,7 +81,15 @@ SELECT plot.prod_lot_no lotNo,
 FROM tb_prod_lot plot
 JOIN v_item_master itm
   ON (plot.model_code = itm.item_code)
-WHERE plot.prod_lot_no LIKE ?
+WHERE itm.item_code LIKE ?
+`;
+
+// 생산계획번호 조회용 쿼리
+const selectLastProdLotNo = `
+SELECT prod_lot_no
+  FROM tb_prod_lot
+ ORDER BY prod_lot_no DESC
+ LIMIT 1
 `;
 
 const insertProdResult = `
@@ -78,9 +98,11 @@ INSERT INTO tb_prod_result
  model_code,
  revision,
  proc_code,
+ status,
  work_start_time)
 VALUES
 (?,
+?,
 ?,
 ?,
 ?,
@@ -89,16 +111,37 @@ VALUES
 
 const updatePause = `
 UPDATE tb_prod_result
-SET work_end_time = ?
+SET work_qty = ?,
+    status= ?,
+    work_end_time = ?
 WHERE work_ord_no = ?
+  AND proc_code = ?
+  AND status = 'IN_PROGRESS'
+`;
 
+const updateProc = `
+UPDATE tb_prod_result
+SET work_qty = ?,
+    status= ?,
+    work_end_time = ?
+WHERE work_ord_no = ?
+  AND proc_code = ?
+  AND status = 'IN_PROGRESS'
 `;
 
 const updateEnd = `
 UPDATE tb_prod_result
-SET work_qty = ?,
+SET proc_code = ?,
+    work_qty = ?,
+    status= ?,
     work_end_time = ?
 WHERE work_ord_no = ?
+  AND status = 'START'
+`;
+
+// 프로시저 호출 쿼리 추가
+const callFinishWorkAndInsertLot = `
+CALL sp_finish_work_and_insert_lot(?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 module.exports = {
   selectWorkOrd,
@@ -106,5 +149,8 @@ module.exports = {
   selectLot,
   insertProdResult,
   updatePause,
+  updateProc,
   updateEnd,
+  selectLastProdLotNo,
+  callFinishWorkAndInsertLot,
 };

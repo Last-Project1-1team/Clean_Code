@@ -22,6 +22,9 @@ const workOrderList = ref([]);
 // 선택된 행
 const selectedWorkOrder = ref(null);
 
+// 선택된 작업지시의 모든 공정
+const selectedWorkOrderProcs = ref([]);
+
 // 부모의 값이 바뀌면 local에도 반영
 watch(
     () => props.searchWorkOrdNo,
@@ -58,6 +61,8 @@ const fetchWorkOrder = async (workOrdNo = '') => {
             // 결과 없을 때 초기화
             workOrderList.value = [];
         }
+        // 선택된 작업지시 초기화
+        selectedWorkOrderProcs.value = [];
     } catch (err) {
         console.error('작업지시서 조회 실패:', err);
         workOrderList.value = [];
@@ -69,7 +74,15 @@ const fetchWorkOrder = async (workOrdNo = '') => {
 // ✅ 행 선택 시 부모에게 전달
 const onRowSelect = (event) => {
     workOrderData.value = event.data;
-    emit('workOrdreg', event.data);
+
+    // 선택된 작업지시의 모든 공정 정보 저장
+    selectedWorkOrderProcs.value = event.data.allProcs || [];
+
+    // 선택된 데이터를 부모에게 전달
+    emit('workOrdreg', {
+        ...event.data,
+        allProcs: selectedWorkOrderProcs.value
+    });
 };
 </script>
 

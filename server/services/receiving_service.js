@@ -14,5 +14,5 @@ const findLotInfo = async (lotNo) => {
 };
 
 module.exports = {
-findLotInfo
+    findLotInfo,
 };

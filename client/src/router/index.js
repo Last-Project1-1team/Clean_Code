@@ -142,9 +142,34 @@ const router = createRouter({
                     component: () => import('@/views/pages/ItemOutput.vue')
                 },
                 {
+                    path: '/pages/itemoutputsearch',
+                    name: 'itemoutputsearch',
+                    component: () => import('@/views/pages/ItemOutputSearch.vue')
+                },
+                {
                     path: '/pages/iteminspreg',
                     name: 'iteminspreg',
                     component: () => import('@/views/pages/ItemInspReg.vue')
+                },
+                {
+                    path: '/pages/outordersearch',
+                    name: 'outordersearch',
+                    component: () => import('@/views/pages/OutOrderSearch.vue')
+                },
+                {
+                    path: '/pages/iteminputsearch',
+                    name: 'iteminputsearch',
+                    component: () => import('@/views/pages/ItemInputSearch.vue')
+                },
+                {
+                    path: '/pages/itemstock',
+                    name: 'itemstock',
+                    component: () => import('@/views/pages/ItemStockSearch.vue')
+                },
+                {
+                    path: '/pages/itemlot',
+                    name: 'itemlot',
+                    component: () => import('@/views/pages/ItemLotSearch.vue')
                 },
                 //
                 // 생산관리
@@ -198,9 +223,9 @@ const router = createRouter({
                     component: () => import('@/views/pages/InOrderReg.vue')
                 },
                 {
-                    path: '/pages/OrderSelect',
-                    name: 'OrderSelect',
-                    component: () => import('@/views/pages/OrderSelect.vue')
+                    path: '/pages/OrderList',
+                    name: 'OrderList',
+                    component: () => import('@/views/pages/InOrderList.vue')
                 },
                 {
                     path: '/pages/ModelShip',

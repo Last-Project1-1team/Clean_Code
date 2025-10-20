@@ -21,15 +21,25 @@ router.get("/lotNo", async (req, res) => {
   res.send(LotInfo);
 });
 
-//제품 단건조회 (최종)
-router.get("/modelno", async (req, res) => {
-  console.log("제품정보router:", req.query.modelNo);
+// 발주등록
+router.post("/insertship", async (req, res) => {
+  const { ships } = req.body;
+  console.log("ships: ", ships);
 
-  const ModelNos = Array.isArray(req.query.modelNo)
-    ? req.query.modelNo
-    : [req.query.modelNo]; // 단일값일 때도 배열로 맞춤
-  const modelInfo = await shipService.findmodel(ModelNos).catch(console.log);
-  res.send(modelInfo);
+  try {
+    const result = await shipService.addNewShip(ships);
+    res.status(200).json({
+      message: "발주정보 저장 성공",
+      shipNo: result.shipNo,
+      shipCount: result.shipCount,
+    });
+  } catch (error) {
+    console.error("❌ 수주 저장 실패:", error);
+    res.status(500).json({
+      message: "수주정보 저장 중 오류가 발생했습니다.",
+      error: error.message,
+    });
+  }
 });
 
 module.exports = router;
