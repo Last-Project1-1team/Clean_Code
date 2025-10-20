@@ -318,6 +318,48 @@ SELECT mst.outord_no outordNo
  WHERE mst.OUTORD_DATE BETWEEN ? AND ?
  ORDER BY mst.outord_no, dtl.OUTORD_DETAIL_NO
  `;
+const selectItemStock = `
+SELECT itm.item_code itemCode
+	 , MAX(itm.item_name) itemName
+     , MAX(itm.spec) spec
+     , MAX(cou.code_name) unit
+     , cos.code_name stock
+     , SUM(LOT_QTY) stockQty
+  FROM tb_lot lot
+  JOIN tb_item_master itm
+    ON lot.item_code = itm.item_code
+  JOIN tb_code cos
+    ON (lot.location = cos.common_code
+   AND cos.group_code = 'STOCK')
+  JOIN tb_code cou
+    ON (itm.unit = cou.common_code
+   AND cou.group_code = 'unit')
+ WHERE itm.item_code LIKE ?
+   AND itm.item_name LIKE ?
+ GROUP BY itemCode, stock
+ ORDER BY itemCode, cos.common_code
+`;
+
+const selectItemLot = `
+SELECT lot.lot_no lotNo
+	 , itm.item_code itemCode
+     , itm.item_name itemName
+     , itm.spec spec
+     , cou.code_name unit
+     , cos.code_name stock
+     , lot_qty stockQty
+  FROM tb_lot lot
+  JOIN tb_item_master itm
+    ON lot.item_code = itm.item_code
+  JOIN tb_code cos
+    ON (lot.location = cos.common_code
+   AND cos.group_code = 'STOCK')
+  JOIN tb_code cou
+    ON (itm.unit = cou.common_code
+   AND cou.group_code = 'unit')
+ WHERE itm.item_code LIKE ?
+   AND itm.item_name LIKE ?
+`;
 
 module.exports = {
   selectItemList,
@@ -341,4 +383,6 @@ module.exports = {
   selectLastInspNo,
   outordSelect,
   selectItemInput,
+  selectItemStock,
+  selectItemLot,
 };

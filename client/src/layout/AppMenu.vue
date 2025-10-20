@@ -123,6 +123,16 @@ const model = ref([
                         label: '자재출고조회',
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/itemoutputsearch'
+                    },
+                    {
+                        label: '품번별 재고조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/itemstock'
+                    },
+                    {
+                        label: '자재LOT 전체조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/itemlot'
                     }
                 ]
             },
