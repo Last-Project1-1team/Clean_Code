@@ -45,9 +45,9 @@ const findWorkOrd = async (workOrdNo = "") => {
 };
 
 // 작업지시에 따른 Bom 조회
-const findBom = async (modelCode, revision) => {
+const findBom = async (modelCode, revision, workOrdNo) => {
   let list = await mariadb
-    .query("selectBom", [`%${modelCode}%`, `%${revision}%`])
+    .query("selectBom", [`%${modelCode}%`, `%${revision}%`, `%${workOrdNo}%`])
     .catch((err) => console.log(err));
   return list;
 };
@@ -100,11 +100,11 @@ const addProdResult = async (resultInfo) => {
 
 // 일시정지버튼 종료시간 업데이트
 const updatePause = async (resultInfo) => {
-  const { work_qty, status, workEndTime, workOrdNo, proc_code } = resultInfo;
+  const { status, workEndTime, workOrdNo, proc_code } = resultInfo;
   // resultInfo : 사용자가 전달한 실적정보, Object 타입
   // console.log("resultInfo : ", resultInfo);
 
-  let insertColumns = [work_qty, status, workEndTime, workOrdNo, proc_code];
+  let insertColumns = [status, workEndTime, workOrdNo, proc_code];
   console.log("🧩 insertColumns:", insertColumns);
 
   const resInfo = await mariadb
@@ -125,6 +125,107 @@ const updatePause = async (resultInfo) => {
     };
   }
   return result;
+};
+
+// 공정완료버튼 종료시간 업데이트
+const updateProc = async (resultInfo) => {
+  const { work_qty, status, workEndTime, workOrdNo, proc_code } = resultInfo;
+  // resultInfo : 사용자가 전달한 실적정보, Object 타입
+  // console.log("resultInfo : ", resultInfo);
+
+  let insertColumns = [work_qty, status, workEndTime, workOrdNo, proc_code];
+  console.log("🧩 insertColumns:", insertColumns);
+
+  const resInfo = await mariadb
+    .query("updateProc", insertColumns)
+    .catch((err) => console.log(err));
+
+  console.log(resInfo.insertId);
+  let result = null;
+  if (resInfo.insertId == 0) {
+    // 정상적으로 등록된 경우
+    result = {
+      isSuccessed: true,
+    };
+  } else {
+    // 등록되지 않은 경우
+    result = {
+      isSuccessed: false,
+    };
+  }
+  return result;
+};
+
+// 종료버튼 실적UPDATE 생산LOT INSERT
+const finishAndInsertLot = async (payload) => {
+  // 기존 payload에서 파라미터 추출 (p_prod_lot_no 제외)
+  const {
+    p_proc_code,
+    p_work_qty,
+    p_work_end_time,
+    p_work_ord_no,
+    p_model_code,
+    p_revision,
+    p_lot_qty,
+    p_location,
+  } = payload;
+
+  try {
+    // 1. 오늘 날짜 YYMMDD 구하기
+    const datePart = formatDate(new Date());
+
+    // 2. 해당 날짜로 시작하는 생산계획번호 최근 조회
+    const lastList = await mariadb.query("selectLastProdLotNo", []);
+
+    let seq = 1; // seq 변수는 항상 초기화
+
+    if (lastList && lastList.length > 0) {
+      const lastNo = lastList[0].prod_lot_no;
+      // PP로 시작하는 번호에서 날짜 다음 5자리가 시퀀스
+      if (lastNo && lastNo.startsWith("PP") && lastNo.length >= 13) {
+        const lastSeq = parseInt(lastNo.slice(-5));
+        if (!isNaN(lastSeq)) {
+          seq = lastSeq + 1;
+        }
+      }
+    }
+
+    // 3. 신규 생산계획번호 생성
+    const prodLotNo = `PL${datePart}${String(seq).padStart(5, "0")}`;
+    console.log("✨ 생성된 생산 LOT 번호:", prodLotNo);
+
+    // 프로시저에 전달할 파라미터 배열 (자동 생성한 prodLotNo 사용)
+    const procParams = [
+      p_proc_code,
+      p_work_qty,
+      p_work_end_time,
+      p_work_ord_no,
+      prodLotNo, // 자동 생성한 LOT 번호 사용
+      p_model_code,
+      p_revision,
+      p_lot_qty,
+      p_location,
+    ];
+
+    console.log("⭐️ 프로시저 호출 파라미터:", procParams);
+
+    // 프로시저 호출 (기존과 동일)
+    const resInfo = await mariadb.query(
+      "callFinishWorkAndInsertLot",
+      procParams
+    );
+
+    console.log("✅ 프로시저 실행 결과:", resInfo);
+
+    // 프론트엔드에 생성된 LOT 번호도 함께 반환
+    return {
+      isSuccessed: true,
+      prodLotNo: prodLotNo, // 생성된 LOT 번호도 함께 반환
+    };
+  } catch (err) {
+    console.error("❌ finishAndInsertLot 서비스 실행 중 오류:", err);
+    throw new Error("프로시저 실행 실패: " + err.message);
+  }
 };
 
 // 정지버튼 종료시간 업데이트
@@ -162,5 +263,7 @@ module.exports = {
   findLot,
   addProdResult,
   updatePause,
+  updateProc,
   updateEnd,
+  finishAndInsertLot,
 };
