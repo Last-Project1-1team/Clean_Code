@@ -131,6 +131,15 @@ const saveButton = async () => {
     } else {
         toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
     }
+    if (formData.value.retireDate && formData.value.retireYn === 'N') {
+        toast.add({
+            severity: 'warn',
+            summary: '저장 불가',
+            detail: '퇴사일자가 선택되어 있으면 퇴사여부는 Y로 설정해야 합니다.',
+            life: 3000
+        });
+        return; // 저장 중단
+    }
     getAccountList();
 };
 </script>
@@ -168,7 +177,6 @@ const saveButton = async () => {
                 <InputText id="phone" type="text" class="w-full" v-model="formData.phone" />
             </div>
             <div class="col-span-3 flex justify-end items-center gap-2">
-                <Button label="비밀번호초기화" :fluid="false"></Button>
                 <Button label="초기화" :fluid="false" @click="onClearItem"></Button>
                 <Button label="저장" :fluid="false" @click="saveButton"></Button>
             </div>

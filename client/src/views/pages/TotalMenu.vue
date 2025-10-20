@@ -119,9 +119,9 @@ const saveButton = async () => {
     const payload = {
         bMenuCode: formData.value.bMenuCode,
         bMenuName: formData.value.bMenuName,
-        sMenuCode: formData.value.sMenuCode,
-        sMenuName: formData.value.sMenuName,
-        programName: formData.value.programName
+        sMenuCode: formData.value.sMenuCode || null,
+        sMenuName: formData.value.sMenuName || null,
+        programName: formData.value.programName || null
     };
 
     console.log('저장 payload:', payload);
