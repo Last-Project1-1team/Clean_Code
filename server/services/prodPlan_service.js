@@ -36,6 +36,7 @@ const findProc = async () => {
   return list;
 };
 
+// 수주량 합계
 const findInordQty = async (
   regPlanDate = "",
   startPlanDate = "",

@@ -6,10 +6,13 @@ const receivingService = require("../services/receiving_service");
 router.get("/lotNo", async (req, res) => {
   const { lotNo } = req.params;
   try {
-    const rows = await conn.query(selectLotInfo, [lotNo]);
+    const rows = await conn.query("selectLotInfo", [lotNo]);
 
     if (rows.length === 0) {
-      return res.json({ status: "NOT_FOUND", message: "LOT 정보가 존재하지 않습니다." });
+      return res.json({
+        status: "NOT_FOUND",
+        message: "LOT 정보가 존재하지 않습니다.",
+      });
     }
 
     res.json({ status: "OK", data: rows[0] });

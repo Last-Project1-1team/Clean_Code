@@ -39,36 +39,6 @@ const handleModelRegister = (data) => {
     ModalSearch.value = false;
 };
 
-// const getProdList = async (searchParams) => {
-//     try {
-//         prodPlan.value = [];
-
-//         const response = await axios.get(`${apiUrl}/prodplan`, {
-//             params: {
-//                 regPlanDate: searchParams.regPlanDate, // 객체에서 값을 꺼내서 사용
-//                 startPlanDate: searchParams.startPlanDate,
-//                 endPlanDate: searchParams.endPlanDate,
-//                 modelCode: searchParams.modelCode,
-//                 revision: searchParams.revision,
-//                 procCode: searchParams.procCode
-//             }
-//         });
-
-//         // 응답 데이터가 배열인지 확인하고 할당
-//         if (Array.isArray(response.data)) {
-//             prodPlan.value = response.data;
-//         } else {
-//             console.warn('서버 응답이 예상된 배열 형태가 아닙니다:', response.data);
-//             // 배열이 아니면 빈 배열로 설정하거나, 오류 처리
-//             prodPlan.value = [];
-//         }
-//     } catch (err) {
-//         console.error('제품 조회 실패:', err);
-//         // 오류 발생 시 prodPlan을 빈 배열로 유지하거나 사용자에게 알림
-//         prodPlan.value = [];
-//     }
-// };
-
 const getProdList = async (searchParams) => {
     try {
         prodPlan.value = [];

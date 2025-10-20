@@ -54,7 +54,9 @@ const formData = ref({
     process: {
         procCode: null
     },
-    totalInordQty: 0
+    totalInordQty: 0,
+    totalShipQty: 0,
+    unshippedQty: 0
 });
 
 // 초기화 버튼 이벤트
@@ -72,35 +74,41 @@ const initPlan = () => {
         process: {
             procCode: null
         },
-        totalInordQty: 0
+        totalInordQty: 0,
+        unshippedQty: 0
     };
 };
 
-// 수주량 조회 후 그리드에 반영
+// 수주량, 출하량 조회 후 그리드에 반영
 const fetchOrderQty = async (modelCode, revision, procCode) => {
     if (!modelCode || !revision || !procCode) {
-        formData.value.totalInordQty = 0; // ✨ 여기도 변경
+        formData.value.totalInordQty = 0;
+        formData.value.totalShipQty = 0;
+        formData.value.unshippedQty = 0;
         return;
     }
 
     try {
         const response = await axios.get(`${apiUrl}/prodplan/inordqty`, {
-            params: {
-                modelCode,
-                revision,
-                procCode
-            }
+            params: { modelCode, revision, procCode }
         });
 
-        const fetchedQty =
-            response.data && response.data.length > 0
-                ? response.data[0].totalInordQty // DB 쿼리에서 넘어오는 이름
-                : 0;
+        const data = response.data && response.data.length > 0 ? response.data[0] : null;
 
-        formData.value.totalInordQty = fetchedQty; // ✨ 여기도 변경
+        const totalInordQty = data ? data.totalInordQty || 0 : 0;
+        const totalShipQty = data ? data.totalShipQty || 0 : 0;
+
+        // console.log('총 출하량 totalShipQty:', totalShipQty);
+        // console.log('총 수주량 totalInordQty:', totalInordQty);
+
+        formData.value.totalInordQty = totalInordQty;
+        formData.value.totalShipQty = totalShipQty;
+        formData.value.unshippedQty = totalInordQty - totalShipQty; // 미 출하수량 계산
     } catch (err) {
-        console.error('수주량 조회 중 오류:', err);
-        formData.value.totalInordQty = 0; // ✨ 여기도 변경
+        console.error('수주 및 출하량 조회 중 오류:', err);
+        formData.value.totalInordQty = 0;
+        formData.value.totalShipQty = 0;
+        formData.value.unshippedQty = 0;
     }
 };
 
@@ -134,6 +142,7 @@ const addPlan = async () => {
         procName: procDropDown.value.find((proc) => proc.value === formData.value.process.procCode)?.label,
 
         totalInordQty: formData.value.totalInordQty,
+        unshippedQty: formData.value.unshippedQty,
 
         // 계획수량(planQty)은 그리드에서 입력할 예정이므로 0 또는 null로 초기화
         planQty: 0 // 또는 null, 사용자 입력 대기
@@ -310,20 +319,20 @@ const deletePlan = () => {
         <!-- 생산계획 등록 그리드 -->
         <DataTable v-model:selection="selectedPlans" :value="prodPlan" selectionMode="multiple" :rows="10" style="border: 1px solid #ddd; height: 60vh">
             <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-            <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 12rem"></Column>
-            <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 12rem"></Column>
-            <Column field="endPlanDate" header="생산종료일자" sortable style="min-width: 12rem"></Column>
-            <Column field="planQty" header="계획수량" sortable style="min-width: 16rem">
+            <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 10rem"></Column>
+            <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 10rem"></Column>
+            <Column field="endPlanDate" header="생산종료일자" sortable style="min-width: 10em"></Column>
+            <Column field="planQty" header="계획수량" sortable style="min-width: 12rem">
                 <template #body="{ data }">
                     <input v-model.number="data.planQty" type="number" min="0" step="1" class="w-40 border p-1" />
                 </template>
             </Column>
-            <Column field="modelCode" header="제품코드" sortable style="min-width: 16rem"></Column>
-            <Column field="revision" header="리비전" sortable style="min-width: 16rem"></Column>
-            <Column field="modelName" header="제품명" sortable style="min-width: 16rem"></Column>
-            <Column field="procName" header="공정" sortable style="min-width: 16rem"></Column>
-            <Column field="totalInordQty" header="수주량" sortable style="min-width: 12rem"></Column>
-            <Column field="nonOutQty" header="미 출고량" sortable style="min-width: 12rem"></Column>
+            <Column field="modelCode" header="제품코드" sortable style="min-width: 10rem"></Column>
+            <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
+            <Column field="modelName" header="제품명" sortable style="min-width: 10rem"></Column>
+            <Column field="procName" header="공정" sortable style="min-width: 8rem"></Column>
+            <Column field="totalInordQty" header="수주량" sortable style="min-width: 9rem"></Column>
+            <Column field="unshippedQty" header="미 출하량" sortable style="min-width: 9rem"></Column>
         </DataTable>
 
         <Dialog v-model:visible="ModalSearch" header="제품 검색" modal style="width: 80vw; height: 80vh">

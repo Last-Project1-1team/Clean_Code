@@ -50,6 +50,7 @@ JOIN v_item_master itm
  AND bom.low_revision = itm.revision)
 WHERE wor.model_code LIKE ?
   AND wor.revision LIKE ?
+  AND wor.work_ord_no LIKE ?
 ORDER BY itm.item_code, wor.model_code
 `;
 
@@ -83,6 +84,14 @@ JOIN v_item_master itm
 WHERE itm.item_code LIKE ?
 `;
 
+// 생산계획번호 조회용 쿼리
+const selectLastProdLotNo = `
+SELECT prod_lot_no
+  FROM tb_prod_lot
+ ORDER BY prod_lot_no DESC
+ LIMIT 1
+`;
+
 const insertProdResult = `
 INSERT INTO tb_prod_result
 (work_ord_no,
@@ -110,6 +119,16 @@ WHERE work_ord_no = ?
   AND status = 'IN_PROGRESS'
 `;
 
+const updateProc = `
+UPDATE tb_prod_result
+SET work_qty = ?,
+    status= ?,
+    work_end_time = ?
+WHERE work_ord_no = ?
+  AND proc_code = ?
+  AND status = 'IN_PROGRESS'
+`;
+
 const updateEnd = `
 UPDATE tb_prod_result
 SET proc_code = ?,
@@ -119,11 +138,19 @@ SET proc_code = ?,
 WHERE work_ord_no = ?
   AND status = 'START'
 `;
+
+// 프로시저 호출 쿼리 추가
+const callFinishWorkAndInsertLot = `
+CALL sp_finish_work_and_insert_lot(?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
 module.exports = {
   selectWorkOrd,
   selectBom,
   selectLot,
   insertProdResult,
   updatePause,
+  updateProc,
   updateEnd,
+  selectLastProdLotNo,
+  callFinishWorkAndInsertLot,
 };
