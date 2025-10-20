@@ -21,13 +21,6 @@ FROM	TB_PROD_LOT L JOIN TB_MODEL_MASTER M       ON L.MODEL_CODE = M.MODEL_CODE
 					  JOIN TB_LOT_INPUT_HISTORY LH ON L.PROD_LOT_NO = LH.PROD_LOT_NO
 WHERE	L.PROD_LOT_NO = ?`;
 
-const modelinfo = `
-SELECT 	MODEL_NAME
-		, SPEC
-        , UNIT
-FROM	TB_MODEL_MASTER
-WHERE	MODEL_CODE IN (?)`;
-
 //발주번호 가져오기
 const selectLastShipNo = `
     SELECT SHIP_NO 
@@ -41,7 +34,6 @@ const insertshipmaster = `
 INSERT INTO tb_ship_master 
         ( ship_no
         , cust_no
-        , lot_no
         , status
 		, ship_date
         , inord_no
@@ -49,7 +41,6 @@ INSERT INTO tb_ship_master
         , create_date)
         VALUES 
         ( ?
-        , ?
         , ?
         , '0'
 		,  STR_TO_DATE(?, '%Y-%m-%d')
@@ -82,7 +73,6 @@ INSERT INTO tb_ship_detail
 module.exports = {
   shipmodel,
   lotnoscan,
-  modelinfo,
   selectLastShipNo,
   insertshipmaster,
   insertshipdetail,

@@ -65,6 +65,7 @@ const addNewShip = async (ships) => {
     const lastList = await conn.query(sqlList.selectLastShipNo, [
       `OI${datePart}%`,
     ]);
+
     let seq = 1;
     if (lastList.length > 0) {
       const lastNo = lastList[0].SHIP_NO;
@@ -76,12 +77,12 @@ const addNewShip = async (ships) => {
     // 신규 출하번호 생성 (OO + YYMMDD + 5자리SEQ)
     const shipNo = `OI${datePart}${String(seq).padStart(5, "0")}`;
     const createdBy = "tester";
+    console.log("shipNo: ", shipNo);
 
     // 마스터 등록
     let insertMaster = [
       shipNo,
       ships[0].custcode,
-      ships[0].lotno,
       shipDate,
       ships[0].inordno,
       createdBy,
