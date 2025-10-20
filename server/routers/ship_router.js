@@ -21,17 +21,6 @@ router.get("/lotNo", async (req, res) => {
   res.send(LotInfo);
 });
 
-//제품 단건조회 (최종)
-router.get("/modelno", async (req, res) => {
-  console.log("제품정보router:", req.query.modelNo);
-
-  const ModelNos = Array.isArray(req.query.modelNo)
-    ? req.query.modelNo
-    : [req.query.modelNo]; // 단일값일 때도 배열로 맞춤
-  const modelInfo = await shipService.findmodel(ModelNos).catch(console.log);
-  res.send(modelInfo);
-});
-
 // 발주등록
 router.post("/insertship", async (req, res) => {
   const { ships } = req.body;
