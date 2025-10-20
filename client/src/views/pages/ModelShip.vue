@@ -57,8 +57,8 @@ const getLotList = async () => {
     console.log('result1: ', result1);
     lotNolist.value = result1.data;
     console.log('lotNolist: ', lotNolist.value);
-    console.log('selectedmodel.value', selectedmodel.value);
-    console.log('selectedRows.value', selectedRows.value);
+    // console.log('selectedmodel.value', selectedmodel.value);
+    // console.log('selectedRows.value', selectedRows.value);
 
     const shipcheck = inordlist.value.some((inordno) => lotNolist.value.some((lotno) => lotno.MODEL_CODE === inordno.MODEL_CODE || lotno.REVISION === inordno.REVISION));
     console.log('일치확인: ', shipcheck);
@@ -67,7 +67,8 @@ const getLotList = async () => {
     matchedinord.value = inordlist.value.filter((inord) => lotNolist.value.some((lot) => lot.MODEL_CODE === inord.MODEL_CODE || lot.REVISION === inord.REVISION));
     console.log('matchedlot.value: ', matchedlot.value);
     console.log('matchedinord.value: ', matchedinord.value);
-    selectedmodel.value = matchedlot.value;
+    // selectedmodel.value = matchedlot.value;
+    selectedmodel.value.push(...matchedlot.value);
 
     merged.value = inordlist.value
         .map((inord) => {
@@ -78,38 +79,8 @@ const getLotList = async () => {
 
     console.log('merged: ', merged.value);
 
-    // console.log('matchedlist: ', matchedlist);
-    // console.log('matchedlist.value: ', matchedlist.value);
-    // console.log(toRaw(matchedlist.value)); // Proxy 제거
-    // console.log(unref(matchedlist));
-    // // 2) Proxy 제거(깊은 복사) 후 DataTable 바인딩 값에 대입
-    // selectedmodel.value = JSON.parse(JSON.stringify(matchedlist.value));
-    // // 3) 콘솔에서 axios처럼 보이게 출력
-    // console.log({
-    //     data: selectedmodel.value,
-    //     status: 200,
-    //     statusText: 'OK'
-    // });
-
-    // selectedmodel.value = [...matchedlist.value];
-
-    // console.log('selectedmodel.value: ', selectedmodel.value);
-
     const prodLotNos = merged.value.map((item) => item.PROD_LOT_NO);
     console.log('prodLotNos: ', prodLotNos);
-
-    // const shiplist = {
-    //     inord: merged.value.map((ship) => ({
-    //         custcode: ship.CUST_CODE,
-    //         inordno: ship.INORD_NO,
-    //         prodlotno: ship.PROD_LOT_NO,
-    //         lotno: ship.LOT_NO,
-    //         lotqty: ship.LOT_QTY,
-    //         modelcode: ship.MODEL_CODE,
-    //         revision: ship.REVISION
-    //     }))
-    // };
-    // console.log('shiplist: ', shiplist);
 
     if (shipcheck == false) {
         toast.add({ severity: 'error', summary: ' 수주서에 일치하는 값이 없음.', life: 3000 });
@@ -127,7 +98,7 @@ const onSave = async () => {
         ships: merged.value.map((ship) => ({
             custcode: ship.CUST_CODE,
             inordno: ship.INORD_NO,
-            prodlotno: ship.PROD_LOT00_NO,
+            prodlotno: ship.PROD_LOT_NO,
             lotno: ship.LOT_NO,
             lotpqty: ship.LOT_QTY,
             modelcode: ship.MODEL_CODE,
