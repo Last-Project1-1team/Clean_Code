@@ -319,6 +319,14 @@ const addNewInsp = async (inputNo, result, items) => {
     if (conn) conn.release?.();
   }
 };
+const finditemStockList = async (itemCode, itemName) => {
+  let list = await mariadb.query("selectItemStock", [`%${itemCode || ""}%`, `%${itemName || ""}%`]).catch((err) => console.log(err));
+  return list;
+};
+const finditemLotList = async (itemCode, itemName) => {
+  let list = await mariadb.query("selectItemLot", [`%${itemCode || ""}%`, `%${itemName || ""}%`]).catch((err) => console.log(err));
+  return list;
+};
 
 module.exports = {
   findAll,
@@ -341,6 +349,8 @@ module.exports = {
   addNewInsp,
   findOutOrder,
   findInput,
+  finditemStockList,
+  finditemLotList,
 
   // findByBookNo,
   // addNewBook,

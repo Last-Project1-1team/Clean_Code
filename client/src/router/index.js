@@ -161,6 +161,16 @@ const router = createRouter({
                     name: 'iteminputsearch',
                     component: () => import('@/views/pages/ItemInputSearch.vue')
                 },
+                {
+                    path: '/pages/itemstock',
+                    name: 'itemstock',
+                    component: () => import('@/views/pages/ItemStockSearch.vue')
+                },
+                {
+                    path: '/pages/itemlot',
+                    name: 'itemlot',
+                    component: () => import('@/views/pages/ItemLotSearch.vue')
+                },
                 //
                 // 생산관리
                 //

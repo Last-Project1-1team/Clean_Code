@@ -182,4 +182,17 @@ router.post("/inspResult", async (req, res) => {
   }
 });
 
+router.get("/itemStock", async (req, res) => {
+  const itemCode = req.query.itemCode;
+  const itemName = req.query.itemName;
+  let itemStock = await itemService.finditemStockList(itemCode, itemName).catch((err) => console.log(err));
+  res.send(itemStock);
+});
+
+router.get("/itemLot", async (req, res) => {
+  const itemCode = req.query.itemCode;
+  const itemName = req.query.itemName;
+  let itemLot = await itemService.finditemLotList(itemCode, itemName).catch((err) => console.log(err));
+  res.send(itemLot);
+});
 module.exports = router;
