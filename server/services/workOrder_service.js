@@ -26,14 +26,6 @@ const findPlan = async (proc, prodPlanDate) => {
   return list;
 };
 
-// const findPlanNo = async (keyword) => {
-//   let list = await mariadb
-//     .query("selectProdPlanNo", [`%${keyword}%`])
-//     .catch((err) => console.log(err));
-//   // console.log("🧾 조회 결과:", list);
-//   return list;
-// };
-
 const findProc = async () => {
   let list = await mariadb.query("selectProc").catch((err) => console.log(err));
   return list;

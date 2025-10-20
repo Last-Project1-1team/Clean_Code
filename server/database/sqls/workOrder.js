@@ -10,7 +10,8 @@ SELECT
     m.model_name AS modelName,
     r.proc_code AS procCode,
     c.code_name AS procCodeName,
-    m.unit
+    m.unit,
+    p.plan_qty planQty
 FROM tb_prod_plan p
 JOIN tb_model_master m
   ON p.model_code = m.model_code
@@ -28,7 +29,7 @@ JOIN tb_code c
   ON c.common_code = r.proc_code
 WHERE r.proc_code LIKE ?
   AND TO_CHAR(p.create_date, 'YYYY-MM-DD') LIKE ?
-ORDER BY r.proc_seq DESC;
+ORDER BY r.proc_seq DESC
 `;
 
 // 생산계획번호

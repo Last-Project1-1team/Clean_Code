@@ -317,9 +317,9 @@ const deletePlan = () => {
         </Toolbar>
 
         <!-- 생산계획 등록 그리드 -->
-        <DataTable v-model:selection="selectedPlans" :value="prodPlan" selectionMode="multiple" :rows="10" style="border: 1px solid #ddd; height: 60vh">
+        <DataTable v-model:selection="selectedPlans" :value="prodPlan" selectionMode="multiple" :rows="10" style="border: 1px solid #ddd; height: 60.6vh">
             <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-            <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 10rem"></Column>
+            <!-- <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 10rem"></Column> -->
             <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 10rem"></Column>
             <Column field="endPlanDate" header="생산종료일자" sortable style="min-width: 10em"></Column>
             <Column field="planQty" header="계획수량" sortable style="min-width: 12rem">
