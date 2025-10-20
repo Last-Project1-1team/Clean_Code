@@ -9,7 +9,7 @@ const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 const inputLotNo = ref('');
-const lotInfo = ref(null);
+const lotInfo = ref([]);
 const receiving = ref('');
 
 // ✅ 엔터키 처리 함수
@@ -19,24 +19,6 @@ const handleLotNoEnter = () => {
         return;
     }
 };
-// ✅ 스캔 (조회) 함수
-const scanLot = async () => {
-    try {
-        const res = await axios.get(`${apiUrl}/receiving/${inputLotNo.value}`);
-
-        const data = res.data;
-
-        if (data.status === 'INVALID') {
-            toast.add({ severity: 'error', summary: '오류', detail: data.message });
-        } else if (data.status === 'NOT_FOUND') {
-            toast.add({ severity: 'warn', summary: '미존재', detail: data.message });
-        } else {
-            lotInfo.value = data.data;
-        }
-    } catch (err) {
-        console.error('스캔 오류:', err);
-    }
-};
 
 // ✅ 조회 함수
 const getScanData = async (lotNo, itemCode, itemName, lotQty) => {
@@ -44,10 +26,10 @@ const getScanData = async (lotNo, itemCode, itemName, lotQty) => {
     let result = await axios
         .get(`${apiUrl}/receiving?`, {
             params: {
-                lotNo: lotNo || '',
-                itemCode: itemCode || '',
-                itemName: itemName || '',
-                lotQty: lotQty || ''
+                lotNo: lotNo.value,
+                itemCode: itemCode.value,
+                itemName: itemName.value,
+                lotQty: lotQty.value
             }
         })
         .catch((err) => {
@@ -65,8 +47,8 @@ const getScanData = async (lotNo, itemCode, itemName, lotQty) => {
 
         <!-- LOT 입력창 -->
         <div class="flex justify-center mb-6">
-            <InputText v-model="inputLotNo" placeholder="LOT번호를 스캔 또는 입력하세요" @keyup.enter="handleLotNoEnter" class="w-[400px] text-center p-inputtext-lg" />
-            <Button label="입력" icon="pi pi-search" class="ml-3" @click="handleLotNoEnter" />
+            <InputText v-model="selectLotInfo" placeholder="LOT번호를 스캔 또는 입력하세요" enter="handleToss" @keyup.enter="handleLotNoEnter" class="w-[400px] text-center p-inputtext-lg" />
+            <Button label="입력" icon="pi pi-search" class="ml-3" enter="handleToss" @click="getScanData(selectLotInfo)" />
         </div>
 
         <!-- LOT 정보 표시 영역 -->
@@ -87,10 +69,8 @@ const getScanData = async (lotNo, itemCode, itemName, lotQty) => {
                 <div class="font-semibold">LOT수량</div>
                 <div>{{ lotInfo.lotQty }}</div>
             </div>
-
-            <!-- 오류 메시지 -->
-            <div v-if="errorMessage" class="p-4 text-center text-red-600 font-bold">
-                {{ errorMessage }}
+            <div class="grid grid-cols-2 border-b border-gray-300 p-10">
+                <div class="font-semibold"></div>
             </div>
         </div>
     </div>

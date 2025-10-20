@@ -7,7 +7,7 @@ SELECT
 FROM tb_lot l
 JOIN tb_item_master i 
 ON l.item_code = i.item_code
-WHERE i.item_code= ?
+WHERE l.lot_no = ?
  `;
 
 module.exports = {
