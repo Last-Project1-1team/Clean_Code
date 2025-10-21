@@ -36,10 +36,10 @@ const prodPlan = require("./routers/prodPlan_router.js");
 const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 
-// ✅ SPA 라우팅 처리 (Vue router 지원)
-app.get("/", (req, res) => {
-    res.sendFile(path.join(publicPath, "index.html"));
-});
+// // ✅ SPA 라우팅 처리 (Vue router 지원)
+// app.get("/", (req, res) => {
+//     res.sendFile(path.join(publicPath, "index.html"));
+// });
 
 // 기본 라우팅
 // 라우터 모듈 등록
