@@ -40,9 +40,6 @@ app.use(express.static(publicPath));
 app.get("/", (req, res) => {
     res.sendFile(path.join(publicPath, "index.html"));
 });
-app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, "./public", "index.html"));
-});
 
 // 기본 라우팅
 // 라우터 모듈 등록
@@ -60,3 +57,7 @@ app.use("/", shiopRouter);
 app.use("/", receivingRouter);
 
 app.use("/", prodPlan);
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
