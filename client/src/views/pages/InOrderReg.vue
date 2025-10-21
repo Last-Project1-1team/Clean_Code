@@ -66,6 +66,12 @@ const onSave = async () => {
         return;
     }
 
+    const shipnull = selectedRows.value.some((m) => m.INORD_QTY === null || m.INORD_QTY === undefined || m.INORD_QTY === '');
+    if (shipnull) {
+        toast.add({ severity: 'error', summary: '수주량을 모두 입력해주세요.', life: 3000 });
+        return;
+    }
+
     const payload = {
         orderDate: today.value,
         paprdDate: selectedDate.value,

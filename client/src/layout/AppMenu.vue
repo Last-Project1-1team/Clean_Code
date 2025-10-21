@@ -230,6 +230,11 @@ const model = ref([
                         label: '수주조회',
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/OrderList'
+                    },
+                    {
+                        label: '출하조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/ShipList'
                     }
                 ]
             }
