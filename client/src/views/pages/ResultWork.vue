@@ -165,8 +165,6 @@ const onSelectLot = (data) => {
         return;
     }
 
-    // Bom에는 반제품이 들어가서 modelCode가 있지만 lot에는 자재만 있어서 modelCode 검증 필요가 없음
-
     // 2단계: itemCode 일치    조건 추가하려면 && 넣고 추가하면됨
     // targetBom에서 itemCode가 일치하면 true로 나와서 if(true)로 작동   == some의 결과는 true or false
     const targetBom = bomList.value.find((item) => item.itemCode === data.itemCode);
