@@ -3,6 +3,7 @@ require("dotenv").config({ path: "./database/dbConfig.env" });
 
 const express = require("express");
 const app = express();
+const path = require("path");
 
 // 미들웨어 등록 영역
 // 1. body parser
@@ -12,8 +13,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 // Server 실행
 app.listen(3000, () => {
-  console.log("Server Start");
-  console.log("http://localhost:3000");
+    console.log("Server Start");
+    console.log("http://localhost:3000");
 });
 
 // 라우팅 등록 영역
@@ -31,10 +32,15 @@ const shiopRouter = require("./routers/ship_router.js");
 const receivingRouter = require("./routers/receiving_router.js");
 const prodPlan = require("./routers/prodPlan_router.js");
 
-// 기본 라우팅
+// ✅ Vue build 결과물이 복사될 실제 폴더와 일치시킴
+const publicPath = path.join(__dirname, "public");
+app.use(express.static(publicPath));
+
+// ✅ SPA 라우팅 처리 (Vue router 지원)
 app.get("/", (req, res) => {
-  res.send("Welcome!!");
+    res.sendFile(path.join(publicPath, "index.html"));
 });
+// 기본 라우팅
 // 라우터 모듈 등록
 app.use("/", modelRouter);
 app.use("/", itemRouter);
