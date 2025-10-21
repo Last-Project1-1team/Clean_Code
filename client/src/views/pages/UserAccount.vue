@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import UserAccountSearch from '@/components/UserAccountSearch.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
@@ -32,7 +32,7 @@ const formData = ref({
     email: '',
     hireDate: '',
     retireYn: '',
-    retireDate: ''
+    retireDate: null
 });
 
 //초기화버튼
@@ -121,9 +121,26 @@ const saveButton = async () => {
         retireYn: formData.value.retireYn,
         retireDate: formatDate(formData.value.retireDate)
     };
-
     console.log('저장 payload:', payload);
 
+    // 입력값 검증
+    if (!formData.value.name?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '이름을 입력하세요', life: 3000 });
+        return;
+    }
+    if (!formData.value.userId?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '계정ID를 입력하세요', life: 3000 });
+        return;
+    }
+
+    // 중복 체크
+    const isDuplicate = formData.value.some((item) => item.userId === formData.value.userId);
+    if (isDuplicate) {
+        toast.add({ severity: 'warn', summary: '중복 오류', detail: '이미 존재하는 계정ID입니다', life: 3000 });
+        return;
+    }
+
+    //퇴사 여부 Y/N시 체크로직
     let result = await axios.post(`${apiUrl}/useraccount`, payload).catch((err) => console.log(err));
     let addRes = result.data;
     if (addRes.isSuccessed) {
@@ -142,6 +159,15 @@ const saveButton = async () => {
     }
     getAccountList();
 };
+// ✅ 퇴사일자 감시 → 값이 선택되면 자동으로 Y 설정
+watch(
+    () => formData.value.retireDate,
+    (newVal) => {
+        if (newVal) {
+            formData.value.retireYn = 'Y';
+        }
+    }
+);
 </script>
 
 <template>
@@ -150,7 +176,17 @@ const saveButton = async () => {
         <UserAccountSearch @search="userAccountSearch" />
 
         <!--정보테이블-->
-        <DataTable :value="userAccount" v-model:selection="selectAccount" selectionMode="single" @rowSelect="formData = { ...$event.data }" class="w-full" stripedRows responsiveLayout="scroll" style="height: 40vh; border: 1px solid #ddd">
+        <DataTable
+            :value="userAccount"
+            scrollable
+            scrollHeight="38vh"
+            v-model:selection="selectAccount"
+            selectionMode="single"
+            @rowSelect="formData = { ...$event.data }"
+            stripedRows
+            responsiveLayout="scroll"
+            style="height: 38vh; border: 1px solid #ddd"
+        >
             <Column field="userId" header="계정" />
             <Column field="name" header="이름" />
             <Column field="workGradeName" header="직급" />
@@ -177,8 +213,8 @@ const saveButton = async () => {
                 <InputText id="phone" type="text" class="w-full" v-model="formData.phone" />
             </div>
             <div class="col-span-3 flex justify-end items-center gap-2">
-                <Button label="초기화" :fluid="false" @click="onClearItem"></Button>
-                <Button label="저장" :fluid="false" @click="saveButton"></Button>
+                <Button label="초기화" :fluid="false" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem"></Button>
+                <Button label="저장" :fluid="false" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton"></Button>
             </div>
         </div>
         <!--단락 end-->
@@ -210,7 +246,7 @@ const saveButton = async () => {
 
             <label for="hireDate" class="flex items-center col-span-1 mb-2">입사일자</label>
             <div class="col-span-3">
-                <DatePicker class="w-full" :showIcon="true" :showButtonBar="true" v-model="formData.hireDate" dateFormat="yy-mm-dd"></DatePicker>
+                <DatePicker v-model="formData.hireDate" dateFormat="yy-mm-dd" :showIcon="true" :showButtonBar="true" inputStyle="width: 350px"></DatePicker>
             </div>
         </div>
         <!--단락 end-->
@@ -230,12 +266,14 @@ const saveButton = async () => {
         <div class="grid grid-cols-12 gap-2">
             <label for="retireYn" class="flex items-center">퇴사여부</label>
             <div class="col-span-3">
-                <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex items-center gap-6">
                     <div class="flex items-center">
-                        <RadioButton id="retireYn" value="Y" v-model="formData.retireYn" />
-                        <label for="retireYn" class="leading-none ml-2 col-3">Y</label>
-                        <RadioButton id="retireYn" value="N" v-model="formData.retireYn" />
-                        <label for="retireYn" class="leading-none ml-2">N</label>
+                        <RadioButton id="retireYn" value="Y" v-model="formData.retireYn" class="mt-[4px]" />
+                        <label for="retireY" class="ml-2 leading-none">Y</label>
+                    </div>
+                    <div class="flex items-center">
+                        <RadioButton id="retireYn" value="N" v-model="formData.retireYn" class="mt-[4px]" />
+                        <label for="retireN" class="ml-2 leading-none">N</label>
                     </div>
                 </div>
             </div>
@@ -244,7 +282,7 @@ const saveButton = async () => {
 
             <label for="retireDate" class="flex items-center col-span-1 mb-2">퇴사일자</label>
             <div class="col-span-3">
-                <DatePicker class="w-full" :showIcon="true" :showButtonBar="true" v-model="formData.retireDate" dateFormat="yy-mm-dd"></DatePicker>
+                <DatePicker v-model="formData.retireDate" dateFormat="yy-mm-dd" :showIcon="true" :showButtonBar="true" inputStyle="width: 350px"></DatePicker>
             </div>
         </div>
     </div>

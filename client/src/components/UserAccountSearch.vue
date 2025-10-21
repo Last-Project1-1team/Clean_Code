@@ -72,7 +72,7 @@ onMounted(async () => {
                 <!-- 계정 -->
                 <label for="userId" class="flex items-center col-span-1">계정</label>
                 <div class="col-span-3">
-                    <InputText v-model="userId" id="userId" type="text" class="w-full" />
+                    <InputText v-model="userId" id="userId" type="text" class="w-[300px]" />
                 </div>
 
                 <div class="col-span-1"></div>
@@ -103,9 +103,17 @@ onMounted(async () => {
 
         <template #end>
             <div class="flex justify-end gap-2">
-                <Button label="초기화" severity="secondary" @click="onClearItem" />
-                <Button label="조회" icon="pi pi-search" @click="userAccountSearch" />
+                <Button label="초기화" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem" />
+                <Button label="조회" class="p-button-success" @click="userAccountSearch" />
             </div>
         </template>
     </Toolbar>
 </template>
+
+<style scoped>
+button {
+    margin-right: 2px;
+    width: 100px;
+    height: 50px;
+}
+</style>
