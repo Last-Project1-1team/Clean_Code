@@ -158,7 +158,6 @@ const updateProc = async (resultInfo) => {
 
 // 종료버튼 실적UPDATE 생산LOT INSERT
 const finishAndInsertLot = async (payload) => {
-  // 기존 payload에서 파라미터 추출 (p_prod_lot_no 제외)
   const {
     p_proc_code,
     p_work_qty,
@@ -174,33 +173,34 @@ const finishAndInsertLot = async (payload) => {
     // 1. 오늘 날짜 YYMMDD 구하기
     const datePart = formatDate(new Date());
 
-    // 2. 해당 날짜로 시작하는 생산계획번호 최근 조회
+    // 2. 최근 LOT 번호 조회
     const lastList = await mariadb.query("selectLastProdLotNo", []);
 
-    let seq = 1; // seq 변수는 항상 초기화
+    let seq = 1;
 
     if (lastList && lastList.length > 0) {
       const lastNo = lastList[0].prod_lot_no;
-      // PP로 시작하는 번호에서 날짜 다음 5자리가 시퀀스
-      if (lastNo && lastNo.startsWith("PP") && lastNo.length >= 13) {
+
+      // model_code로 시작하는 경우만 시퀀스 추출
+      if (lastNo && lastNo.startsWith(p_model_code)) {
         const lastSeq = parseInt(lastNo.slice(-5));
-        if (!isNaN(lastSeq)) {
-          seq = lastSeq + 1;
-        }
+        if (!isNaN(lastSeq)) seq = lastSeq + 1;
       }
     }
 
-    // 3. 신규 생산계획번호 생성
-    const prodLotNo = `PL${datePart}${String(seq).padStart(5, "0")}`;
+    // 3. 신규 LOT 번호 생성 (model_code + 날짜 + 5자리 시퀀스)
+    const prodLotNo = `${p_model_code}${datePart}${String(seq).padStart(
+      5,
+      "0"
+    )}`;
     console.log("✨ 생성된 생산 LOT 번호:", prodLotNo);
 
-    // 프로시저에 전달할 파라미터 배열 (자동 생성한 prodLotNo 사용)
     const procParams = [
       p_proc_code,
       p_work_qty,
       p_work_end_time,
       p_work_ord_no,
-      prodLotNo, // 자동 생성한 LOT 번호 사용
+      prodLotNo,
       p_model_code,
       p_revision,
       p_lot_qty,
@@ -209,24 +209,91 @@ const finishAndInsertLot = async (payload) => {
 
     console.log("⭐️ 프로시저 호출 파라미터:", procParams);
 
-    // 프로시저 호출 (기존과 동일)
     const resInfo = await mariadb.query(
       "callFinishWorkAndInsertLot",
       procParams
     );
-
     console.log("✅ 프로시저 실행 결과:", resInfo);
 
-    // 프론트엔드에 생성된 LOT 번호도 함께 반환
     return {
       isSuccessed: true,
-      prodLotNo: prodLotNo, // 생성된 LOT 번호도 함께 반환
+      prodLotNo: prodLotNo,
     };
   } catch (err) {
     console.error("❌ finishAndInsertLot 서비스 실행 중 오류:", err);
     throw new Error("프로시저 실행 실패: " + err.message);
   }
 };
+// const finishAndInsertLot = async (payload) => {
+//   // 기존 payload에서 파라미터 추출 (p_prod_lot_no 제외)
+//   const {
+//     p_proc_code,
+//     p_work_qty,
+//     p_work_end_time,
+//     p_work_ord_no,
+//     p_model_code,
+//     p_revision,
+//     p_lot_qty,
+//     p_location,
+//   } = payload;
+
+//   try {
+//     // 1. 오늘 날짜 YYMMDD 구하기
+//     const datePart = formatDate(new Date());
+
+//     // 2. 해당 날짜로 시작하는 생산계획번호 최근 조회
+//     const lastList = await mariadb.query("selectLastProdLotNo", []);
+
+//     let seq = 1; // seq 변수는 항상 초기화
+
+//     if (lastList && lastList.length > 0) {
+//       const lastNo = lastList[0].prod_lot_no;
+//       // PL로 시작하는 번호에서 날짜 다음 5자리가 시퀀스
+//       if (lastNo && lastNo.startsWith("PL") && lastNo.length >= 13) {
+//         const lastSeq = parseInt(lastNo.slice(-5));
+//         if (!isNaN(lastSeq)) {
+//           seq = lastSeq + 1;
+//         }
+//       }
+//     }
+
+//     // 3. 신규 생산계획번호 생성
+//     const prodLotNo = `PL${datePart}${String(seq).padStart(5, "0")}`;
+//     console.log("✨ 생성된 생산 LOT 번호:", prodLotNo);
+
+//     // 프로시저에 전달할 파라미터 배열 (자동 생성한 prodLotNo 사용)
+//     const procParams = [
+//       p_proc_code,
+//       p_work_qty,
+//       p_work_end_time,
+//       p_work_ord_no,
+//       prodLotNo, // 자동 생성한 LOT 번호 사용
+//       p_model_code,
+//       p_revision,
+//       p_lot_qty,
+//       p_location,
+//     ];
+
+//     console.log("⭐️ 프로시저 호출 파라미터:", procParams);
+
+//     // 프로시저 호출 (기존과 동일)
+//     const resInfo = await mariadb.query(
+//       "callFinishWorkAndInsertLot",
+//       procParams
+//     );
+
+//     console.log("✅ 프로시저 실행 결과:", resInfo);
+
+//     // 프론트엔드에 생성된 LOT 번호도 함께 반환
+//     return {
+//       isSuccessed: true,
+//       prodLotNo: prodLotNo, // 생성된 LOT 번호도 함께 반환
+//     };
+//   } catch (err) {
+//     console.error("❌ finishAndInsertLot 서비스 실행 중 오류:", err);
+//     throw new Error("프로시저 실행 실패: " + err.message);
+//   }
+// };
 
 // 정지버튼 종료시간 업데이트
 const updateEnd = async (resultInfo) => {

@@ -118,8 +118,8 @@ const saveButton = async () => {
             selectionMode="single"
             datakey="modelCode"
             scrollable
-            scrollHeight="400px"
-            style="height: 40vh; border: 1px solid #ddd"
+            scrollHeight="40.8px"
+            style="height: 41.1vh; border: 1px solid #ddd"
             @rowSelect="formData = { ...$event.data }"
         >
             <Column field="modelCode" header="제품코드" style="min-width: 200px"></Column>
@@ -134,70 +134,76 @@ const saveButton = async () => {
         </DataTable>
 
         <!-- 제품Master 하단 제품 등록 / 수정-->
-        <div class="grid grid-cols-12 gap-2" style="padding-top: 50px">
-            <label for="modelCode" class="flex items-center col-span-1 mb-2 md:mb-0">제품코드</label>
-            <div class="col-span-3">
-                <InputText id="modelCode" type="text" class="w-full" v-model="formData.modelCode" />
-            </div>
+        <div class="relative">
+            <div class="card flex flex-col gap-1">
+                <div class="grid grid-cols-12 gap-2">
+                    <label for="modelCode" class="flex items-center col-span-1 mb-2 md:mb-0">제품코드</label>
+                    <div class="col-span-3">
+                        <InputText id="modelCode" type="text" class="w-full" v-model="formData.modelCode" />
+                    </div>
 
-            <div class="col-span-1"></div>
+                    <div class="col-span-1"></div>
 
-            <label for="revision" class="flex items-center col-span-1 mb-2 md:mb-0">리비전</label>
-            <div class="col-span-3">
-                <InputText id="revision" type="text" class="w-full" v-model="formData.revision" />
-            </div>
+                    <label for="revision" class="flex items-center col-span-1 mb-2 md:mb-0">리비전</label>
+                    <div class="col-span-3">
+                        <InputText id="revision" type="text" class="w-full" v-model="formData.revision" />
+                    </div>
 
-            <div class="col-span-1"></div>
+                    <div class="col-span-3"></div>
 
-            <Button label="초기화" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem" />
-            <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton" />
+                    <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품명</label>
+                    <div class="col-span-3">
+                        <InputText id="modelName" type="text" class="w-full" v-model="formData.modelName" />
+                    </div>
 
-            <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품명</label>
-            <div class="col-span-3">
-                <InputText id="modelName" type="text" class="w-full" v-model="formData.modelName" />
-            </div>
+                    <div class="col-span-1"></div>
 
-            <div class="col-span-1"></div>
+                    <label for="unit" class="flex items-center col-span-1 mb-2 md:mb-0">단위</label>
+                    <div class="col-span-3">
+                        <Select class="w-full" v-model="formData.unit" :options="flagDropdownUnit" optionLabel="label" optionValue="value" />
+                    </div>
 
-            <label for="unit" class="flex items-center col-span-1 mb-2 md:mb-0">단위</label>
-            <div class="col-span-3">
-                <Select class="w-full" v-model="formData.unit" :options="flagDropdownUnit" optionLabel="label" optionValue="value" />
-            </div>
+                    <div class="col-span-3"></div>
 
-            <div class="col-span-3"></div>
+                    <!-- 여기에 제품구분(완/반제) , LOT당 수량 -->
+                    <label for="modelFlag" class="flex items-center col-span-1 mb-2 md:mb-0">제품구분</label>
+                    <div class="col-span-3">
+                        <Select class="w-full" v-model="formData.modelFlag" :options="flagDropdown" optionLabel="label" optionValue="value" />
+                    </div>
 
-            <!-- 여기에 제품구분(완/반제) , LOT당 수량 -->
-            <label for="modelFlag" class="flex items-center col-span-1 mb-2 md:mb-0">제품구분</label>
-            <div class="col-span-3">
-                <Select class="w-full" v-model="formData.modelFlag" :options="flagDropdown" optionLabel="label" optionValue="value" />
-            </div>
+                    <div class="col-span-1"></div>
 
-            <div class="col-span-1"></div>
+                    <label for="lotPQty" class="flex items-center col-span-1 mb-2 md:mb-0">LOT당 수량</label>
+                    <div class="col-span-3">
+                        <InputNumber class="w-full" v-model="formData.lotPQty" showButtons mode="decimal"></InputNumber>
+                    </div>
 
-            <label for="lotPQty" class="flex items-center col-span-1 mb-2 md:mb-0">LOT당 수량</label>
-            <div class="col-span-3">
-                <InputNumber class="w-full" v-model="formData.lotPQty" showButtons mode="decimal"></InputNumber>
-            </div>
+                    <div class="col-span-3"></div>
 
-            <div class="col-span-3"></div>
+                    <label for="spec" class="flex items-center col-span-1 mb-2 md:mb-0">규격</label>
+                    <div class="col-span-8">
+                        <InputText id="spec" type="text" class="w-full" v-model="formData.spec" />
+                    </div>
 
-            <label for="spec" class="flex items-center col-span-1 mb-2 md:mb-0">규격</label>
-            <div class="col-span-8">
-                <InputText id="spec" type="text" class="w-full" v-model="formData.spec" />
-            </div>
+                    <div class="col-span-3"></div>
 
-            <div class="col-span-3"></div>
+                    <label for="width" class="flex items-center col-span-1 mb-2 md:mb-0">폭</label>
+                    <div class="col-span-3">
+                        <InputText id="width" type="text" class="w-full" v-model="formData.width" />
+                    </div>
 
-            <label for="width" class="flex items-center col-span-1 mb-2 md:mb-0">폭</label>
-            <div class="col-span-3">
-                <InputText id="width" type="text" class="w-full" v-model="formData.width" />
-            </div>
+                    <div class="col-span-1"></div>
 
-            <div class="col-span-1"></div>
+                    <label for="height" class="flex items-center col-span-1 mb-2 md:mb-0">길이</label>
+                    <div class="col-span-3">
+                        <InputText id="height" type="text" class="w-full" v-model="formData.height" />
+                    </div>
 
-            <label for="height" class="flex items-center col-span-1 mb-2 md:mb-0">길이</label>
-            <div class="col-span-3">
-                <InputText id="height" type="text" class="w-full" v-model="formData.height" />
+                    <div id="button_" class="absolute top-0 right-0 flex gap-2">
+                        <Button label="초기화" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem" />
+                        <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton" />
+                    </div>
+                </div>
             </div>
         </div>
     </div>

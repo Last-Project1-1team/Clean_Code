@@ -10,19 +10,16 @@ SELECT DATE_FORMAT(p.create_date, '%Y-%m-%d') regPlanDate,
        m.unit,
        p.plan_qty planQty
 FROM tb_prod_plan p
-JOIN tb_code c
-  ON (p.proc_code = c.common_code
- AND c.group_code = 'proc')
-JOIN tb_model_master m
-  ON (p.model_code = m.model_code
- AND p.revision = m.revision)
-WHERE p.create_date LIKE ?
-  AND p.start_date <= ?
-  AND p.end_date >= ?
+JOIN tb_code c ON (p.proc_code = c.common_code AND c.group_code = 'proc')
+JOIN tb_model_master m ON (p.model_code = m.model_code AND p.revision = m.revision)
+WHERE DATE_FORMAT(p.create_date, '%Y-%m-%d') LIKE ?
+  AND p.start_date <= ?  
+  AND p.end_date >= ? 
   AND p.model_code LIKE ?
   AND p.revision LIKE ?
   AND p.proc_code LIKE ?
-`;
+  AND p.start_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+ `;
 
 // 공정 select
 const selectProc = `

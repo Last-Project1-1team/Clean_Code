@@ -133,7 +133,7 @@ const onCellEditComplete = (event) => {
 
 <template>
     <div class="card">
-        <Toolbar class="mb-6">
+        <Toolbar class="tools mb-6">
             <template #start>
                 <!-- 화면 상단 생산계획 검색 부분-->
                 <div class="grid grid-cols-12 gap-2">
@@ -164,7 +164,8 @@ const onCellEditComplete = (event) => {
             class="custom-table"
             v-model:selection="selectedPlans"
             :value="prodPlanList"
-            :rows="10"
+            scrollable
+            scrollHeight="69.7vh"
             :filters="filters"
             selectionMode="single"
             editMode="cell"
@@ -197,7 +198,12 @@ const onCellEditComplete = (event) => {
 :deep(.p-datatable .p-selectable-row.p-highlight:hover) {
     background-color: #c0ddff !important;
 }
-#button_ {
-    margin: 20px;
+.tools {
+    padding: 18px;
+}
+button {
+    margin-right: 2px;
+    width: 100px;
+    height: 50px;
 }
 </style>
