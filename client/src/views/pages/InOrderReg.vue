@@ -58,11 +58,11 @@ const onDelete = () => {
 
 const onSave = async () => {
     if (custCode.value == '') {
-        toast.add({ severity: 'error', summary: '업체를 먼저 선택해주세요.', life: 3000 });
+        toast.add({ severity: 'error', summary: '업체를 선택해주세요.', life: 3000 });
         return;
     }
-    if (selectedmodel.value == '') {
-        toast.add({ severity: 'error', summary: '제품 정보가 없습니다.', life: 3000 });
+    if (selectedRows.value == '') {
+        toast.add({ severity: 'error', summary: '제품을 선택해주세요.', life: 3000 });
         return;
     }
 
@@ -71,6 +71,7 @@ const onSave = async () => {
         toast.add({ severity: 'error', summary: '수주량을 모두 입력해주세요.', life: 3000 });
         return;
     }
+    console.log('selectedRows: ', selectedRows);
 
     const payload = {
         orderDate: today.value,
@@ -81,6 +82,8 @@ const onSave = async () => {
             inordQty: model.INORD_QTY
         }))
     };
+
+    console.log('payload: ', payload);
 
     try {
         const response = await axios.post(`${apiUrl}/insertinord`, payload);
@@ -97,7 +100,7 @@ const onSave = async () => {
 </script>
 
 <template>
-    <div class="card flex flex-col gap-4 relative" style="height: 100vh">
+    <div class="card flex flex-col gap-4 relative" style="height: 80vh">
         <div id="button_" class="absolute top-4 right-10 flex gap-2 z-10">
             <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" style="width: 100px; height: 50px" @click="onSave" />
         </div>
@@ -157,7 +160,7 @@ const onSave = async () => {
             <ModelSearchModal @register="handleModelRegister" />
         </Dialog>
 
-        <DataTable :value="selectedmodel" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
+        <DataTable :value="selectedmodel" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 55vh; border: 1px solid #ddd">
             <Column selectionMode="multiple" style="width: 3rem"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>
@@ -165,7 +168,14 @@ const onSave = async () => {
             <!-- 수주량 인풋박스 -->
             <Column field="INORD_QTY" header="수주량" sortable style="min-width: 3em">
                 <template #body="{ data }">
-                    <input v-model.number="data.INORD_QTY" type="number" min="0" step="1" class="w-24 border p-1" />
+                    <input
+                        v-model.number="data.INORD_QTY"
+                        @input="data.INORD_QTY ? selectedRows.includes(data) || selectedRows.push(data) : (selectedRows = selectedRows.filter((r) => r !== data))"
+                        type="number"
+                        min="0"
+                        step="1"
+                        class="w-24 border p-1"
+                    />
                 </template>
             </Column>
 

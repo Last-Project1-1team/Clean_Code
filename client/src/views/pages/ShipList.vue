@@ -72,7 +72,7 @@ const getShipList = async () => {
 </script>
 
 <template>
-    <div class="card flex flex-col gap-4 relative" style="height: 100vh">
+    <div class="card flex flex-col gap-4 relative" style="height: 80vh">
         <div id="button_" class="absolute top-4 right-10 flex gap-2 z-10">
             <Button label="조회" class="p-button-success px-6 py-3 text-lg font-bold" style="width: 100px; height: 50px" @click="onselect" />
         </div>
@@ -107,15 +107,13 @@ const getShipList = async () => {
             <ModelSearchModal @register="handleModelRegister" />
         </Dialog>
 
-        <DataTable :value="selectedmodel" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
+        <DataTable :value="selectedmodel" scrollable scrollHeight="400px" style="height: 80vh; border: 1px solid #ddd">
             <Column field="CUST_NO" header="업체코드" sortable style="min-width: 5em"></Column>
             <Column field="CUST_NAME" header="업체명" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>
             <Column field="REVISION" header="리비전" sortable style="min-width: 3em"></Column>
-            <!-- 수주량 인풋박스 -->
-            <Column field="SIHP_QTY" header="출하량" sortable style="min-width: 3em"> </Column>
-
+            <Column field="SHIP_QTY" header="출하량" sortable style="min-width: 3em"> </Column>
             <Column field="SHIP_DATE" header="출하일" sortable style="min-width: 3em"></Column>
         </DataTable>
     </div>

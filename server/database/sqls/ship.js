@@ -35,7 +35,7 @@ INSERT INTO tb_ship_master
         ( ship_no
         , cust_no
         , status
-		, ship_date
+		    , ship_date
         , inord_no
         , created_by
         , create_date)
