@@ -11,6 +11,19 @@ const apiUrl = import.meta.env.VITE_API_BASE_URL;
 const toast = useToast();
 const selectedRow = ref(null);
 const showForm = ref(null);
+const selectedSubRow = ref(null);
+
+// 사용자가 선택한 대메뉴 정보
+const selecteBMenuModal = ref(null);
+const changeBMenu = (event) => {
+    const selected = event.value;
+    formData.value.bMenuCode = selected.bMenuCode;
+    formData.value.bMenuName = selected.bMenuName;
+    // 소메뉴 폼 필드는 초기화
+    formData.value.sMenuCode = '';
+    formData.value.sMenuName = '';
+    formData.value.programName = '';
+};
 
 //선택된 행, 그리드 데이터
 const selectedBmenu = ref(null);
@@ -38,11 +51,16 @@ const formData = ref({
 const onClearItemB = () => {
     formData.value = {
         bMenuCode: '',
-        bMenuName: ''
+        bMenuName: '',
+        sMenuCode: '',
+        sMenuName: '',
+        programName: ''
     };
 };
 const onClearItemA = () => {
     formData.value = {
+        bMenuCode: '',
+        bMenuName: '',
         sMenuCode: '',
         sMenuName: '',
         programName: ''
@@ -77,6 +95,9 @@ const getTotalList = async () => {
             const firstRow = result.data[0];
             selectedRow.value = result.data[0]; // 왼쪽 테이블 첫 행 자동 선택
             formData.value = { ...firstRow };
+
+            // 첫 번째 대메뉴에 대한 소메뉴도 같이 조회
+            await getSubMenu(firstRow.bMenuCode);
         } else {
             selectedSmenu.value = null;
             selectedSmenu.value = { sMenuCode: '', sMenuName: '', programName: '' };
@@ -114,26 +135,153 @@ const getSubMenu = async (bMenuCode) => {
     }
 };
 
-//저장(등록)
-const saveButton = async () => {
+// 대메뉴 저장 시 중복 및 빈값 체크 후 저장
+const saveBMenuButton = async () => {
+    // 입력값 검증
+    if (!formData.value.bMenuCode?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '대메뉴 코드를 입력하세요', life: 3000 });
+        return;
+    }
+    if (!formData.value.bMenuName?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '대메뉴 이름을 입력하세요', life: 3000 });
+        return;
+    }
+
+    // 중복 체크
+    const isDuplicate = leftGrid.value.some((item) => item.bMenuCode === formData.value.bMenuCode);
+    if (isDuplicate) {
+        toast.add({ severity: 'warn', summary: '중복 오류', detail: '이미 존재하는 대메뉴 코드입니다', life: 3000 });
+        return;
+    }
+
     const payload = {
         bMenuCode: formData.value.bMenuCode,
-        bMenuName: formData.value.bMenuName,
-        sMenuCode: formData.value.sMenuCode || null,
-        sMenuName: formData.value.sMenuName || null,
-        programName: formData.value.programName || null
+        bMenuName: formData.value.bMenuName
     };
 
     console.log('저장 payload:', payload);
 
-    let result = await axios.post(`${apiUrl}/totalMenu/insert`, payload).catch((err) => console.log(err));
-    let addRes = result.data;
-    if (addRes.isSuccessed) {
-        toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
-    } else {
-        toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
+    try {
+        const result = await axios.post(`${apiUrl}/totalMenu/insertBMenu`, payload);
+
+        console.log('서버 응답 전체:', result);
+        console.log('서버 응답 데이터:', result.data);
+
+        if (result?.data?.success) {
+            toast.add({
+                severity: 'success',
+                summary: '저장 완료',
+                detail: result.data.message || '대메뉴가 성공적으로 저장되었습니다',
+                life: 3000
+            });
+
+            formData.value = {
+                bMenuCode: '',
+                bMenuName: '',
+                sMenuCode: '',
+                sMenuName: '',
+                programName: ''
+            };
+
+            await getTotalList(true);
+
+            // 2. 그 후 formData 강제로 초기화
+            formData.value = { ...onClearItemA };
+            selectedRow.value = null;
+        } else {
+            toast.add({
+                severity: 'error',
+                summary: '저장 실패',
+                detail: result?.data?.message || '저장 중 오류가 발생했습니다',
+                life: 3000
+            });
+        }
+    } catch (error) {
+        console.error('저장 오류:', error);
+
+        let msg = '서버 오류가 발생했습니다.';
+        if (error.response?.data) {
+            const serverResponse = error.response.data;
+            if (serverResponse.errno === 1062 || (serverResponse.sqlMessage && serverResponse.sqlMessage.toLowerCase().includes('duplicate'))) {
+                msg = '중복된 대메뉴 코드입니다. 다른 코드를 사용해주세요.';
+            } else if (serverResponse.message) {
+                msg = serverResponse.message;
+            }
+        }
+
+        toast.add({
+            severity: 'error',
+            summary: '저장 실패',
+            detail: msg,
+            life: 4000
+        });
     }
-    getTotalList();
+};
+
+// 소메뉴 저장 시 중복 및 빈값 체크 후 저장
+const saveSMenuButton = async () => {
+    if (!formData.value.bMenuCode?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '대메뉴 코드를 선택하세요', life: 3000 });
+        return;
+    }
+    if (!formData.value.sMenuCode?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '소메뉴 코드를 입력하세요', life: 3000 });
+        return;
+    }
+    if (!formData.value.sMenuName?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '소메뉴 이름을 입력하세요', life: 3000 });
+        return;
+    }
+    // 프로그램명 필수 검증 추가
+    if (!formData.value.programName?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '프로그램명을 입력하세요', life: 3000 });
+        return;
+    }
+
+    const isDuplicate = rightGrid.value.some((item) => item.bMenuCode === formData.value.bMenuCode && item.sMenuCode === formData.value.sMenuCode);
+    if (isDuplicate) {
+        toast.add({ severity: 'warn', summary: '중복 오류', detail: '이미 존재하는 소메뉴 코드입니다', life: 3000 });
+        return;
+    }
+
+    const payload = {
+        bMenuCode: formData.value.bMenuCode,
+        sMenuCode: formData.value.sMenuCode,
+        sMenuName: formData.value.sMenuName,
+        programName: formData.value.programName
+    };
+
+    try {
+        const res = await axios.post(`${apiUrl}/totalMenu/insertSMenu`, payload);
+        console.log('응답 데이터:', res.data);
+
+        if (res.data.success) {
+            // ✅ 여기를 변경!
+            toast.add({ severity: 'success', summary: '저장 완료', detail: res.data.message, life: 3000 });
+
+            await getSubMenu(formData.value.bMenuCode, true);
+
+            formData.value.sMenuCode = '';
+            formData.value.sMenuName = '';
+            formData.value.programName = '';
+            selectedSubRow.value = null;
+        } else {
+            toast.add({
+                severity: 'error',
+                summary: '저장 실패',
+                detail: res.data.message || '알 수 없는 오류',
+                life: 3000
+            });
+        }
+    } catch (error) {
+        console.error('catch 실행됨:', error);
+        toast.add({
+            severity: 'error',
+            summary: '저장 실패',
+            detail: '서버 오류가 발생했습니다.',
+            life: 3000
+        });
+    }
 };
 </script>
 
@@ -143,7 +291,7 @@ const saveButton = async () => {
             <!-- 🔹 상단 버튼 -->
             <div class="w-full flex justify-end gap-2">
                 <Button label="신규" :fluid="false" @click="openModal"></Button>
-                <Button label="저장" :fluid="false" @click="saveButton"></Button>
+                <!-- <Button label="저장" :fluid="false" @click="saveButton"></Button> -->
             </div>
 
             <!-- 🔹 등록용 모달 -->
@@ -164,7 +312,7 @@ const saveButton = async () => {
                         <!-- 🔹 대메뉴용 버튼 (초기화 / 저장) -->
                         <div class="flex justify-end gap-2 mt-2">
                             <Button label="초기화" icon="pi pi-refresh" severity="secondary" @click="onClearItemB" />
-                            <Button label="저장" icon="pi pi-save" @click="saveButton" />
+                            <Button label="저장" icon="pi pi-save" @click="saveBMenuButton" />
                         </div>
                     </section>
 
@@ -173,6 +321,8 @@ const saveButton = async () => {
                     <!-- 🔸 소메뉴 입력 구역 -->
                     <section class="flex flex-col gap-3">
                         <h3 class="text-base font-semibold text-gray-700">소메뉴 그룹</h3>
+
+                        <Dropdown v-model="selecteBMenuModal" :options="leftGrid" optionLabel="bMenuName" placeholder="대메뉴를 선택하세요" class="w-full" filterPlaceholder="대메뉴명으로 검색" @change="changeBMenu" />
 
                         <div class="flex flex-col gap-2">
                             <label class="text-sm text-gray-600">소메뉴코드</label>
@@ -191,7 +341,7 @@ const saveButton = async () => {
                 <template #footer>
                     <div class="flex justify-end gap-2">
                         <Button label="초기화" icon="pi pi-refresh" severity="secondary" @click="onClearItemA" />
-                        <Button label="저장" icon="pi pi-save" @click="saveButton" />
+                        <Button label="저장" icon="pi pi-save" @click="saveSMenuButton" />
                     </div>
                 </template>
             </Dialog>

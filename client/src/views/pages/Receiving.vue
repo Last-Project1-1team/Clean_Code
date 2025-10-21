@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import InputText from 'primevue/inputtext';
@@ -8,38 +8,43 @@ import Button from 'primevue/button';
 const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-const inputLotNo = ref('');
-const lotInfo = ref([]);
-const receiving = ref('');
+const selectLotInfo = ref('');
+const lotInfo = reactive({
+    lotNo: '',
+    itemCode: '',
+    itemName: '',
+    lotQty: ''
+});
 
-
-//✅ 엔터키 처리함수
 const handleLotNoEnter = () => {
-    if (!inputLotNo.value) {
-        toast.add({ severity: 'warn', summary: '안내', detail: 'LOT번호를 입력하세요.' });
+    if (!selectLotInfo.value.trim()) {
+        console.warn('⚠️ LOT번호가 비어 있습니다.');
+        return;
     }
-    getScanData(inputLotNo.value);
+    getScanData(selectLotInfo.value); // 여기서 입력값 파라미터로 전달
 };
 
-// ✅ 조회 함수
-const getScanData = async (lotNo, itemCode, itemName, lotQty) => {
-    //console.log('🌐 서버 요청 보냄', code, revision, name);
-    let result = await axios
-        .get(`${apiUrl}/receiving?`, {
-            params: {
-                lotNo: lotNo.value,
-                itemCode: itemCode.value,
-                itemName: itemName.value,
-                lotQty: lotQty.value
-            }
-        })
-        .catch((err) => {
-            console.error('제품 조회 실패:', err);
-            receiving.value = result.data;
+const getScanData = async (lotNo = '') => {
+    try {
+        console.log('📡 조회 요청:', lotNo);
+        const result = await axios.get(`${apiUrl}/receiving`, {
+            params: { lotNo }
         });
-    receiving.value = result.data;
-};
+        console.log('✅ 조회 결과:', result.data);
 
+        // 단건조회 결과일 때 그대로 넣기
+        if (result.data) {
+            lotInfo.lotNo = result.data.lotNo;
+            lotInfo.itemCode = result.data.itemCode;
+            lotInfo.itemName = result.data.itemName;
+            lotInfo.lotQty = result.data.lotQty;
+            lotInfo.location = result.data.location;
+            lotInfo.status = result.data.status;
+        }
+    } catch (err) {
+        console.error('Lot 조회 실패:', err);
+    }
+};
 </script>
 <template>
     <div class="p-4">
@@ -48,13 +53,12 @@ const getScanData = async (lotNo, itemCode, itemName, lotQty) => {
 
         <!-- LOT 입력창 -->
         <div class="flex justify-center mb-6">
-
             <InputText v-model="selectLotInfo" placeholder="LOT번호를 스캔 또는 입력하세요" enter="handleToss" @keyup.enter="handleLotNoEnter" class="w-[400px] text-center p-inputtext-lg" />
             <Button label="입력" icon="pi pi-search" class="ml-3" enter="handleToss" @click="getScanData(selectLotInfo)" />
         </div>
 
         <!-- LOT 정보 표시 영역 -->
-        <div v-if="lotInfo" class="w-[600px] mx-auto border border-gray-300 rounded-lg p-6 text-lg">
+        <div class="w-[600px] mx-auto border border-gray-300 rounded-lg p-6 text-lg">
             <div class="grid grid-cols-2 border-b border-gray-300 p-10">
                 <div class="font-semibold">LOT번호</div>
                 <div>{{ lotInfo.lotNo }}</div>

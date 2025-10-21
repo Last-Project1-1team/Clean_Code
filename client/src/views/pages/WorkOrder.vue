@@ -166,30 +166,36 @@ const onCellEditComplete = (event) => {
             :value="prodPlanList"
             :rows="10"
             :filters="filters"
-            selectionMode="multiple"
+            selectionMode="single"
             editMode="cell"
             @cell-edit-complete="onCellEditComplete"
             style="border: 1px solid #ddd; height: 70vh"
         >
-            <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-            <Column field="prodPlanDate" header="생산계획일자" sortable style="min-width: 12rem"></Column>
-            <Column field="modelCode" header="제품코드" sortable style="min-width: 16rem"></Column>
-            <Column field="revision" header="리비전" sortable style="min-width: 16rem"></Column>
-            <Column field="modelName" header="제품명" sortable style="min-width: 16rem"></Column>
-            <Column field="procCodeName" header="공정" sortable style="min-width: 16rem"></Column>
-            <Column field="workOrdQty" header="작업지시수량" sortable style="min-width: 16rem">
+            <Column selectionMode="single" style="width: 3rem" :exportable="false"></Column>
+            <Column field="prodPlanDate" header="생산계획일자" sortable style="min-width: 9rem"></Column>
+            <Column field="modelCode" header="제품코드" sortable style="min-width: 8rem"></Column>
+            <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
+            <Column field="modelName" header="제품명" sortable style="min-width: 14rem"></Column>
+            <Column field="procCodeName" header="공정" sortable style="min-width: 6rem"></Column>
+            <Column field="planQty" header="생산계획수량" sortable style="min-width: 8rem"></Column>
+            <Column field="workOrdQty" header="작업지시수량" sortable style="min-width: 10rem">
                 <template #body="{ data }">
                     <input v-model.number="data.workOrdQty" type="number" min="0" step="1" class="w-40 border p-1" @blur="checkon(data)" />
                 </template>
             </Column>
-            <Column field="unit" header="단위" sortable style="min-width: 16rem"></Column>
+            <Column field="unit" header="단위" sortable style="min-width: 5rem"></Column>
         </DataTable>
     </div>
 </template>
+
 <style scoped>
-:deep(.custom-table .p-datatable-tbody > tr > td) {
-    font-size: 1rem !important;
-    padding: 4px 8px;
+:deep(.p-datatable .p-selectable-row.p-highlight) {
+    background-color: #d8eaff !important; /* 연한 파란색 */
+    color: #000; /* 글자색 */
+}
+
+:deep(.p-datatable .p-selectable-row.p-highlight:hover) {
+    background-color: #c0ddff !important;
 }
 #button_ {
     margin: 20px;

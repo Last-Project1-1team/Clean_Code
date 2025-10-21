@@ -19,19 +19,31 @@ WHERE b.b_menu_code = ?
 
 //대메뉴등록
 const insertBmenu = `
-INSERT INTO tb_b_menu (b_menu_code, b_menu_name)
-VALUES (?, ?);
+INSERT INTO tb_b_menu
+(b_menu_code,
+b_menu_name)
+VALUES
+(?,
+?);
 `;
 
 //소메뉴등록
 const insertSmenu = `
-INSERT INTO tb_s_menu (b_menu_code, s_menu_code, s_menu_name, program_name)
-VALUES (?, ?, ?, ?);
+INSERT INTO tb_s_menu 
+(b_menu_code, 
+s_menu_code, 
+s_menu_name, 
+program_name)
+VALUES 
+(?, 
+?, 
+?, 
+?);
 `;
 //
 module.exports = {
   selectBmenu,
   selectSmenu,
   insertBmenu,
-  insertSmenu
+  insertSmenu,
 };

@@ -167,17 +167,17 @@ const initPlan = () => {
         </Toolbar>
 
         <!-- 생산계획 등록 그리드 -->
-        <DataTable :value="prodPlan" dataKey="prodPlanNo" :rows="10" style="border: 1px solid #ddd; height: 60vh">
-            <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 12rem"></Column>
-            <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 12rem"></Column>
-            <Column field="endPlanDate" header="생산종료일자" sortable style="min-width: 12rem"></Column>
-            <Column field="modelCode" header="제품코드" sortable style="min-width: 16rem"></Column>
-            <Column field="revision" header="리비전" sortable style="min-width: 16rem"></Column>
-            <Column field="modelName" header="제품명" sortable style="min-width: 16rem"></Column>
-            <Column field="procName" header="공정" sortable style="min-width: 16rem"></Column>
-            <Column field="totalInordQty" header="수주량" sortable style="min-width: 12rem"></Column>
-            <Column field="planQty" header="계획수량" sortable style="min-width: 16rem"></Column>
-            <Column field="unit" header="단위" sortable style="min-width: 16rem"></Column>
+        <DataTable :value="prodPlan" dataKey="prodPlanNo" :rows="10" style="border: 1px solid #ddd; height: 55vh">
+            <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 10rem"></Column>
+            <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 10rem"></Column>
+            <Column field="endPlanDate" header="생산종료일자" sortable style="min-width: 10rem"></Column>
+            <Column field="modelCode" header="제품코드" sortable style="min-width: 10rem"></Column>
+            <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
+            <Column field="modelName" header="제품명" sortable style="min-width: 10rem"></Column>
+            <Column field="procName" header="공정" sortable style="min-width: 8rem"></Column>
+            <Column field="totalInordQty" header="수주량" sortable style="min-width: 9rem"></Column>
+            <Column field="planQty" header="계획수량" sortable style="min-width: 9rem"></Column>
+            <Column field="unit" header="단위" sortable style="min-width: 5rem"></Column>
         </DataTable>
 
         <Dialog v-model:visible="ModalSearch" header="제품 검색" modal style="width: 80vw; height: 80vh">
