@@ -46,7 +46,7 @@ jobs:
         scp   -r -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} client/dist/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/${{ secrets.SSH_USER }}/Clean_Code/server/public/
         ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }}  ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ~/Clean_Code
-            git pull origin main
+            git pull origin prod
             cd server
             npm ci --no-audit --no-fund
             pm2 restart app || pm2 start app.js --name "app"
