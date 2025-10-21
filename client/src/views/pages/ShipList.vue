@@ -52,12 +52,12 @@ const handleModelRegister = (models) => {
 
 // onMounted(getInordList);
 const onselect = () => {
-    getInordList();
+    getShipList();
 };
 
-const getInordList = async () => {
+const getShipList = async () => {
     let result = await axios
-        .get(`${apiUrl}/custinord?`, {
+        .get(`${apiUrl}/shiplist?`, {
             params: {
                 custCode: custCode.value || '',
                 today: today.value || ''
@@ -92,7 +92,7 @@ const getInordList = async () => {
         </div>
 
         <div class="grid grid-cols-12 gap-2">
-            <label for="INORD_DATE" class="flex items-center">수주일</label>
+            <label for="INORD_DATE" class="flex items-center">출하일</label>
             <div class="col-span-2">
                 <DatePicker v-model="today" class="w-full" name="inordDate" dateFormat="yy-mm-dd" showIcon showButtonBar iconDisplay="input" inputId="icondisplay" />
             </div>
@@ -108,16 +108,15 @@ const getInordList = async () => {
         </Dialog>
 
         <DataTable :value="selectedmodel" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
-            <Column field="CUST_CODE" header="업체코드" sortable style="min-width: 5em"></Column>
+            <Column field="CUST_NO" header="업체코드" sortable style="min-width: 5em"></Column>
             <Column field="CUST_NAME" header="업체명" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>
             <Column field="REVISION" header="리비전" sortable style="min-width: 3em"></Column>
             <!-- 수주량 인풋박스 -->
-            <Column field="INORD_QTY" header="수주량" sortable style="min-width: 3em"> </Column>
+            <Column field="SIHP_QTY" header="출하량" sortable style="min-width: 3em"> </Column>
 
-            <Column field="INORD_DATE" header="수주일" sortable style="min-width: 3em"></Column>
-            <Column field="PAPRD_DATE" header="납기일" sortable style="min-width: 3em"></Column>
+            <Column field="SHIP_DATE" header="출하일" sortable style="min-width: 3em"></Column>
         </DataTable>
     </div>
 </template>

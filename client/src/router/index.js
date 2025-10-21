@@ -232,6 +232,11 @@ const router = createRouter({
                     name: 'ModelShip',
                     component: () => import('@/views/pages/ModelShip.vue')
                 },
+                {
+                    path: '/pages/ShipList',
+                    name: 'ShipList',
+                    component: () => import('@/views/pages/ShipList.vue')
+                },
 
                 //
                 // 재고관리

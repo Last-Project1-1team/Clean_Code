@@ -10,6 +10,7 @@ router.get("/customerNo", async (req, res) => {
     .catch((err) => console.log(err));
   res.send(customerInfo);
 });
+
 //
 //LOT단건조회
 router.get("/lotNo", async (req, res) => {
@@ -19,6 +20,17 @@ router.get("/lotNo", async (req, res) => {
     .findLotNo(lotNo)
     .catch((err) => console.log(err));
   res.send(LotInfo);
+});
+
+// 출하단건조회
+router.get("/shiplist", async (req, res) => {
+  let custcode = req.query.custCode;
+  let shipdate = req.query.today;
+  console.log("shipdate: ", shipdate);
+  let shiplist = await shipService
+    .findship(custcode, shipdate)
+    .catch((err) => console.log(err));
+  res.send(shiplist);
 });
 
 // 발주등록

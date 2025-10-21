@@ -2,7 +2,7 @@
 const mariadb = require("../database/mapper.js");
 const sqlList = require("../database/sqlList.js");
 
-// 수주, lot 단건조회
+// 수주단건조회
 const findCustCodeNo = async (custno) => {
   let inordlist = await mariadb
     .query("shipmodel", [custno])
@@ -10,7 +10,7 @@ const findCustCodeNo = async (custno) => {
   console.log(inordlist);
   return inordlist;
 };
-
+//lot단건조회
 const findLotNo = async (lotno) => {
   let lotlist = await mariadb
     .query("lotnoscan", [lotno])
@@ -20,15 +20,6 @@ const findLotNo = async (lotno) => {
 };
 
 //제품단건조회
-// const findmodel = async (modelno) => {
-//   let modellist = await mariadb
-//     .query("modelinfo", [modelno])
-//     .catch((err) => console.log(err));
-//   console.log(modellist);
-//   return modellist;
-// };
-
-//제품단건조회 (지피티)
 const findmodel = async (modelno) => {
   const inClause = modelno.map((no) => `'${no}'`).join(",");
   const modelsql = sqlList.modelinfoIn.replace("IN (?)", `IN (${inClause})`); //const query = mariadb.query('modelinfoIn', inClause); //이렇게 하면 ('B00001','B00002') => (''B00001','B00002'') 이렇게 되버림
@@ -40,8 +31,16 @@ const findmodel = async (modelno) => {
 };
 //
 //
-//
-//
+//출하단건조회
+const findship = async (custcode, shipdate) => {
+  console.log("custcode: ", custcode);
+  let shipDate = formatFullDate(shipdate);
+  console.log("shipDate:", shipDate);
+  let shiplist = await mariadb
+    .query("selectShip", [`${custcode}%`, `${custcode}%`, shipDate, shipDate])
+    .catch((err) => console.log(err));
+  return shiplist;
+};
 //
 //
 // 발주등록
@@ -124,4 +123,5 @@ module.exports = {
   findLotNo,
   findmodel,
   addNewShip,
+  findship,
 };

@@ -1,22 +1,22 @@
 const shipmodel = `
 SELECT    MAS.inord_no INORD_NO
-		, C.cust_name
-		, C.CUST_CODE
-		, DET.MODEL_CODE
-		, DET.REVISION
+        , C.cust_name
+        , C.CUST_CODE
+        , DET.MODEL_CODE
+        , DET.REVISION
 FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	 MAS.INORD_NO = DET.INORD_NO
 							JOIN TB_CUST C 			 ON	 MAS.cust_code = C.cust_code
 WHERE 	MAS.INORD_NO = ?`;
 
 const lotnoscan = `
-SELECT 	  L.PROD_LOT_NO
-		, LH.LOT_NO
-		, L.MODEL_CODE MODEL_CODE
-		, M.REVISION
-		, M.MODEL_NAME MODEL_NAME
-		, L.LOT_QTY 
-		, M.SPEC SPEC
-		, M.UNIT
+SELECT 	L.PROD_LOT_NO
+      , LH.LOT_NO
+      , L.MODEL_CODE MODEL_CODE
+      , M.REVISION
+      , M.MODEL_NAME MODEL_NAME
+      , L.LOT_QTY 
+      , M.SPEC SPEC
+      , M.UNIT
 FROM	TB_PROD_LOT L JOIN TB_MODEL_MASTER M       ON L.MODEL_CODE = M.MODEL_CODE
 					  JOIN TB_LOT_INPUT_HISTORY LH ON L.PROD_LOT_NO = LH.PROD_LOT_NO
 WHERE	L.PROD_LOT_NO = ?`;
@@ -64,11 +64,25 @@ INSERT INTO tb_ship_detail
         , ?
         , ?
         , ?
-		, ?
+		    , ?
         , ?
-		, ?
+	    	, ?
         , NOW())
         `;
+
+const selectShip = `
+  SELECT  MAS.CUST_NO
+        , C.CUST_NAME
+        , DET.MODEL_CODE
+        , MM.MODEL_NAME
+        , MM.REVISION
+        , DET.SHIP_QTY
+        , to_char(MAS.SHIP_DATE, 'YYYY-MM-DD') SHIP_DATE 
+FROM	TB_SHIP_MASTER MAS JOIN TB_SHIP_DETAIL DET ON	MAS.SHIP_NO = DET.SHIP_NO
+                           JOIN TB_MODEL_MASTER MM ON DET.MODEL_CODE = MM.MODEL_CODE
+                           JOIN TB_CUST C		   ON MAS.CUST_NO = C.CUST_CODE
+WHERE   ( ? IS NULL OR MAS.CUST_NO LIKE ? )
+  AND   ( ? IS NULL OR MAS.SHIP_DATE = STR_TO_DATE(?, '%Y-%m-%d') )`;
 
 module.exports = {
   shipmodel,
@@ -76,4 +90,5 @@ module.exports = {
   selectLastShipNo,
   insertshipmaster,
   insertshipdetail,
+  selectShip,
 };
