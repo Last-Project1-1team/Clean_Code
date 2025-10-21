@@ -32,7 +32,7 @@ const commonCode = ref([]);
 //초기화버튼
 const onClearItem = () => {
     formData.value = {
-        groupCode: formData.value.groupCode,
+        groupCode: '',
         groupName: '',
         groupExp: ''
     };
@@ -83,6 +83,22 @@ const getGroupList = async (groupCode) => {
 
 //저장(등록)
 const saveButton = async () => {
+    // 입력값 검증
+    if (!formData.value.groupCode?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '그룹ID를 입력하세요', life: 3000 });
+        return;
+    }
+    if (!formData.value.groupName?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '그룹명을 입력하세요', life: 3000 });
+        return;
+    }
+
+    // 중복 체크
+    // const isDuplicate = leftGrid.value.some((item) => item.groupCode === formData.value.groupCode);
+    // if (isDuplicate) {
+    //     toast.add({ severity: 'warn', summary: '중복 오류', detail: '이미 존재하는 그룹ID입니다', life: 3000 });
+    //     return;
+    // }
     const payload = {
         groupCode: formData.value.groupCode,
         groupName: formData.value.groupName,
@@ -105,19 +121,21 @@ const saveButton = async () => {
 <template>
     <div class="card flex flex-col gap-4">
         <div class="flex flex-wrap items-start gap-4 justify-between w-full">
-            <div class="grid grid-cols-12 gap-2">
+            <div class="grid grid-cols-6 gap-2">
                 <label for="codeGroup" class="grid grid-cols-2 flex items-center">코드그룹</label>
                 <div class="col-span-3">
                     <Select class="w-full" v-model="selectedGroup" :options="groupDropdown" optionLabel="label" optionValue="value" placeholder="코드그룹선택" @change="getGroupList(selectedGroup)" />
                 </div>
             </div>
             <div class="col-span-4">
-                <Button label="초기화" :fluid="false" @click="onClearItem"></Button>
-                <Button label="저장" :fluid="false" @click="saveButton"></Button>
-                <Button label="조회" :fluid="false" @click="groupSearch"></Button>
+                <Button label="초기화" :fluid="false" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem"></Button>
+                <div class="inline-flex items-center"></div>
+                <Button label="저장" :fluid="false" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton"></Button>
+                <div class="inline-flex items-center"></div>
+                <Button label="조회" :fluid="false" class="p-button-success px-6 py-3 text-lg font-bold" @click="groupSearch"></Button>
             </div>
             <!-- 하단: 좌/우 그리드 -->
-            <div class="flex gap-4 w-full h-[620px]">
+            <div class="flex gap-4 w-full h-[720px]">
                 <!-- 왼쪽 그리드 -->
                 <div class="flex-1 border rounded p-2 overflow-auto">
                     <DataTable :value="leftGrid" v-model:selection="selectedRow" selectionMode="single" class="w-full" @rowSelect="formData = { ...$event.data }" dataKey="codeGroup">
@@ -156,3 +174,11 @@ const saveButton = async () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+button {
+    margin-right: 10px;
+    width: 100px;
+    height: 50px;
+}
+</style>
