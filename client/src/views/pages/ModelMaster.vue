@@ -76,6 +76,7 @@ const getModelList = async (code, revision, name) => {
         });
     // console.log('✅ 서버 응답', result);
     // console.log('📦 응답 데이터 타입:', typeof result?.data, result?.data);
+    console.log(result.data);
     modelMaster.value = result.data;
 };
 

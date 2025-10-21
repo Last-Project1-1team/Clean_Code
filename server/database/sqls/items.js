@@ -290,7 +290,7 @@ SELECT mst.insp_code inspCode
   FROM tb_insp_master mst 
   JOIN tb_insp_detail dtl
     ON mst.INSP_CODE = dtl.insp_code
- WHERE dtl.item_code = 'I00001'
+ WHERE dtl.item_code = ?
 `;
 
 const selectLastInspNo = `
@@ -361,6 +361,43 @@ SELECT lot.lot_no lotNo
    AND itm.item_name LIKE ?
 `;
 
+const selectLastModelInspNo = `
+    SELECT model_insp_no 
+      FROM tb_model_insp_master
+     WHERE model_insp_no LIKE ?
+     ORDER BY model_insp_no DESC
+     LIMIT 1
+  `;
+
+const selectModelInspList = `
+SELECT mst.insp_code inspCode
+     , mst.insp_name inspName
+	   , mst.spec inspSpec
+     , 'OK' judgement
+  FROM tb_insp_master mst 
+  JOIN tb_insp_detail dtl
+    ON mst.INSP_CODE = dtl.insp_code
+ WHERE dtl.item_code = ?
+`;
+const selectProdLotList = `
+    SELECT inp.prod_lot_no prodLot
+         , inp.model_code modelCode
+         , inp.revision revision
+         , itm.model_name modelName
+         , itm.spec spec
+         , itm.unit unit
+         , inp.LOT_QTY lotQty
+      FROM tb_prod_lot inp
+      JOIN tb_model_master itm 
+        ON (inp.model_code = itm.model_code
+	     AND inp.revision = itm.revision)
+     WHERE inp.status = ?
+       AND inp.model_code like ?
+       AND inp.revision like ?
+       AND itm.model_name like ?
+       AND itm.model_flag = '0F01'
+`;
+
 module.exports = {
   selectItemList,
   selectClass,
@@ -385,4 +422,7 @@ module.exports = {
   selectItemInput,
   selectItemStock,
   selectItemLot,
+  selectLastModelInspNo,
+  selectModelInspList,
+  selectProdLotList,
 };

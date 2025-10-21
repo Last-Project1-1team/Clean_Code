@@ -171,6 +171,11 @@ const router = createRouter({
                     name: 'itemlot',
                     component: () => import('@/views/pages/ItemLotSearch.vue')
                 },
+                {
+                    path: '/pages/modelinspreg',
+                    name: 'modelinspreg',
+                    component: () => import('@/views/pages/ModelInspReg.vue')
+                },
                 //
                 // 생산관리
                 //
