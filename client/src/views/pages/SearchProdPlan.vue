@@ -114,63 +114,63 @@ const initPlan = () => {
 
 <template>
     <div class="card">
-        <Toolbar class="mb-6">
+        <Toolbar class="mb-6 relative">
             <template #start>
-                <div class="grid grid-cols-12 gap-4 items-center">
-                    <!-- 1번째 줄: 계획등록일 -->
-                    <label for="regPlan" class="flex items-center col-span-2">계획등록일</label>
-                    <div class="col-span-4">
-                        <DatePicker v-model="regPlanDate" id="regPlan" :showIcon="true" :showButtonBar="true" date-format="yy-mm-dd" class="w-full" />
-                    </div>
-                    <div class="col-span-6"></div>
-                    <!-- 빈 공간 -->
-
-                    <!-- 2번째 줄: 계획시작일, 계획종료일 -->
-                    <label for="startPlan" class="flex items-center col-span-2">계획시작일</label>
-                    <div class="col-span-4">
-                        <DatePicker v-model="startPlanDate" id="startPlan" :showIcon="true" :showButtonBar="true" date-format="yy-mm-dd" class="w-full" />
-                    </div>
-                    <label for="endPlan" class="flex items-center col-span-2">계획종료일</label>
-                    <div class="col-span-4">
-                        <DatePicker v-model="endPlanDate" id="endPlan" :showIcon="true" :showButtonBar="true" date-format="yy-mm-dd" class="w-full" />
+                <div class="grid grid-cols-12 gap-2 w-full">
+                    <!-- 계획시작일 -->
+                    <label for="startPlan" class="flex items-center col-span-1">계획시작일</label>
+                    <div class="col-span-3">
+                        <DatePicker v-model="startPlanDate" id="startPlan" :showIcon="true" :showButtonBar="true" date-format="yy-mm-dd" style="width: 250px" />
                     </div>
 
-                    <!-- 3번째 줄: 제품코드, 리비전 -->
-                    <label for="modelCode" class="flex items-center col-span-2">제품코드</label>
-                    <div class="col-span-4 flex">
-                        <InputText v-model="selectedModel.modelCode" id="modelCode" class="flex-grow mr-2" readonly />
-                        <Button @click="ModalSearch = true" icon="pi pi-search" />
-                    </div>
-                    <label for="revision" class="flex items-center col-span-2">리비전</label>
-                    <div class="col-span-4">
-                        <InputText v-model="selectedModel.revision" id="revision" class="w-full" readonly />
+                    <!-- 계획종료일 -->
+                    <label for="endPlan" class="flex items-center col-span-1">계획종료일</label>
+                    <div class="col-span-2">
+                        <DatePicker v-model="endPlanDate" id="endPlan" :showIcon="true" :showButtonBar="true" date-format="yy-mm-dd" />
                     </div>
 
-                    <!-- 4번째 줄: 제품명, 공정선택 -->
-                    <label for="modelName" class="flex items-center col-span-2">제품명</label>
-                    <div class="col-span-4">
-                        <InputText v-model="selectedModel.modelName" id="modelName" class="w-full" readonly />
+                    <div class="col-span-5"></div>
+
+                    <!-- 제품코드 -->
+                    <label for="modelCode" class="flex items-center col-span-1">제품코드</label>
+                    <div class="col-span-3 flex items-center gap-1">
+                        <InputText v-model="selectedModel.modelCode" id="modelCode" type="text" style="width: 175px" readonly />
+                        <Button @click="ModalSearch = true" icon="pi pi-search" class="lensButton p-button-success" />
                     </div>
-                    <label for="selectProc" class="flex items-center col-span-2">공정선택</label>
-                    <div class="col-span-4">
+
+                    <!-- 리비전 -->
+                    <label for="revision" class="flex items-center col-span-1">리비전</label>
+                    <div class="col-span-2">
+                        <InputText v-model="selectedModel.revision" id="revision" type="text" class="w-full" readonly />
+                    </div>
+
+                    <div class="col-span-5"></div>
+
+                    <!-- 제품명 -->
+                    <label for="modelName" class="flex items-center col-span-1">제품명</label>
+                    <div class="col-span-3">
+                        <InputText v-model="selectedModel.modelName" id="modelName" type="text" style="width: 210px" readonly />
+                    </div>
+
+                    <!-- 공정선택 -->
+                    <label for="selectProc" class="flex items-center col-span-1">공정선택</label>
+                    <div class="col-span-2">
                         <Select v-model="searchData.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" />
                     </div>
-                </div>
-            </template>
 
-            <template #end>
-                <div class="flex space-x-2">
-                    <Button label="초기화" @click="initPlan" />
-                    <Button label="조회" @click="searchPlan" />
+                    <!-- ✅ 버튼 그룹 (등록 화면과 동일 구조) -->
+                    <div class="absolute top-3 right-4 flex gap-2">
+                        <Button label="초기화" class="p-button-outlined px-5 py-2 font-bold" @click="initPlan" />
+                        <Button label="조회" class="p-button-success px-5 py-2 font-bold" @click="searchPlan" />
+                    </div>
                 </div>
             </template>
         </Toolbar>
 
         <!-- 생산계획 등록 그리드 -->
-        <DataTable :value="prodPlan" dataKey="prodPlanNo" :rows="10" style="border: 1px solid #ddd; height: 55vh">
-            <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 10rem"></Column>
+        <DataTable :value="prodPlan" dataKey="prodPlanNo" scrollable scrollHeight="64.2vh" style="border: 1px solid #ddd; height: 64.5vh">
             <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 10rem"></Column>
-            <Column field="endPlanDate" header="생산종료일자" sortable style="min-width: 10rem"></Column>
+            <Column field="endPlanDate" header="계획종료일자" sortable style="min-width: 10rem"></Column>
             <Column field="modelCode" header="제품코드" sortable style="min-width: 10rem"></Column>
             <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
             <Column field="modelName" header="제품명" sortable style="min-width: 10rem"></Column>
@@ -185,3 +185,15 @@ const initPlan = () => {
         </Dialog>
     </div>
 </template>
+
+<style scoped>
+button {
+    margin-right: 2px;
+    width: 100px;
+    height: 50px;
+}
+.lensButton {
+    width: 32px;
+    height: 32px;
+}
+</style>

@@ -213,6 +213,7 @@ const onSave = async () => {
         </div>
     </div>
 </template>
+
 <style>
 :deep(.custom-table .p-datatable-tbody > tr > td) {
     font-size: 1rem !important;

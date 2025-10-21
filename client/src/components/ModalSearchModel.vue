@@ -74,7 +74,7 @@ const getModelList = async (code, revision, name) => {
             </template>
         </Toolbar>
 
-        <DataTable :value="modelList" v-model:selection="selectedModels" :dataKey="(row) => row.modelCode + '_' + row.revision" selectionMode="single" scrollable scrollHeight="40vh">
+        <DataTable :value="modelList" v-model:selection="selectedModels" :dataKey="(row) => row.modelCode + '_' + row.revision" selectionMode="single" scrollable scrollHeight="58vh">
             <Column field="modelCode" style="width: 100px" header="제품코드" />
             <Column field="modelName" style="width: 150px" header="제품명" />
             <Column field="revision" style="width: 150px" header="리비전" />
@@ -83,3 +83,10 @@ const getModelList = async (code, revision, name) => {
         </DataTable>
     </div>
 </template>
+<style scoped>
+button {
+    margin-right: 10px;
+    width: 100px;
+    height: 50px;
+}
+</style>

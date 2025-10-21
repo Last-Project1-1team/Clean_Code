@@ -668,8 +668,8 @@ const finishWorkOrder = async () => {
 
             <div class="col-span-1"></div>
 
-            <label for="email3" class="flex items-center col-span-1">실 작업수량</label>
-            <InputText v-model.number="realWorkQty" class="col-span-5" id="email3" type="number" placeholder="실 작업수량을 입력해주세요." />
+            <label for="email3" class="flex items-center col-span-1">예상작업수량</label>
+            <InputText v-model.number="realWorkQty" class="col-span-5" id="email3" type="number" placeholder="예상작업수량을 입력해주세요." />
         </div>
 
         <div class="grid grid-cols-12 gap-2 mb-4">
@@ -708,7 +708,7 @@ const finishWorkOrder = async () => {
         </div>
 
         <!-- LOT번호 조회 결과-->
-        <DataTable :value="bomList" v-model:selection="selectedLot" datakey="lotNo" scrollable scrollHeight="220px" class="custom-table" @rowSelect="formData = { ...$event.data }">
+        <DataTable :value="bomList" v-model:selection="selectedLot" datakey="lotNo" scrollable scrollHeight="220px" class="custom-table" style="height: 22vh" @rowSelect="formData = { ...$event.data }">
             <Column field="itemCode" header="소요품번" style="min-width: 150px"></Column>
             <Column field="itemName" header="소요품명" style="min-width: 250px"></Column>
             <Column field="needQty" header="필요수량" style="min-width: 150px"></Column>

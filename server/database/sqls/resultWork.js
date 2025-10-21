@@ -111,8 +111,7 @@ VALUES
 
 const updatePause = `
 UPDATE tb_prod_result
-SET work_qty = ?,
-    status= ?,
+SET status= ?,
     work_end_time = ?
 WHERE work_ord_no = ?
   AND proc_code = ?

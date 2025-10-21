@@ -1,6 +1,5 @@
 // mapper.js 불러오기
 const mariadb = require("../database/mapper.js");
-// const sqlList = require("../database/sqlList.js");
 
 // LOT 스캔 시 정보 조회
 const findLotInfo = async (lotNo) => {
@@ -13,6 +12,23 @@ const findLotInfo = async (lotNo) => {
   }
 };
 
+const updateLot = async (resultInfo) => {
+  const { lotNo } = resultInfo;
+  const params = [lotNo];
+
+  const resInfo = await mariadb
+    .query("updateLotStatus", params)
+    .catch((err) => console.error("DB 오류:", err));
+
+  console.log("update 결과:", resInfo);
+
+  if (resInfo.affectedRows > 0) {
+    return { isSuccessed: true };
+  } else {
+    return { isSuccessed: false };
+  }
+};
 module.exports = {
   findLotInfo,
+  updateLot,
 };
