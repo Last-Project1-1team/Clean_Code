@@ -14,7 +14,16 @@ const findinordAll = async () => {
 // modeule.exports에 추가
 //
 //
-//
+//수주단건조회
+const findinord = async (custcode, inorddate) => {
+  console.log("custcode: ", custcode);
+  let inordDate = formatFullDate(inorddate);
+  console.log("inordDate:", inordDate);
+  let inordlist = await mariadb
+    .query("selectInord", [`${custcode}%`, inordDate])
+    .catch((err) => console.log(err));
+  return inordlist;
+};
 // 수주등록
 const {
   convertObjToAry,
@@ -80,5 +89,6 @@ const addNewInord = async (orderDate, paprdDate, custCode, models) => {
 
 module.exports = {
   findinordAll,
+  findinord,
   addNewInord,
 };

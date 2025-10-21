@@ -10,8 +10,8 @@ import axios from 'axios';
 
 const selectedmodel = ref([]);
 const selectedmodels = ref([]);
-const custCode = ref([]);
-const custName = ref([]);
+const custCode = ref('');
+const custName = ref('');
 const pschphone = ref([]);
 const modelcode = ref([]);
 const selectedRows = ref([]);
@@ -50,16 +50,31 @@ const handleModelRegister = (models) => {
     modelmodalVisible.value = false; // 모달 닫기
 };
 
-const onDelete = () => {
-    selectedmodel.value = selectedmodel.value.filter((model) => !selectedRows.value.includes(model));
-    selectedRows.value = [];
+// onMounted(getInordList);
+const onselect = () => {
+    getInordList();
+};
+
+const getInordList = async () => {
+    let result = await axios
+        .get(`${apiUrl}/custinord?`, {
+            params: {
+                custCode: custCode.value || '',
+                today: today.value || ''
+            }
+        })
+        .catch((err) => {
+            console.error('수주 조회 실패:', err);
+            selectedmodel.value = [];
+        });
+    selectedmodel.value = result.data;
 };
 </script>
 
 <template>
     <div class="card flex flex-col gap-4 relative" style="height: 100vh">
         <div id="button_" class="absolute top-4 right-10 flex gap-2 z-10">
-            <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" style="width: 100px; height: 50px" @click="onSave" />
+            <Button label="조회" class="p-button-success px-6 py-3 text-lg font-bold" style="width: 100px; height: 50px" @click="onselect" />
         </div>
 
         <div class="grid grid-cols-12 gap-2">
@@ -94,6 +109,8 @@ const onDelete = () => {
 
         <DataTable :value="selectedmodel" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
             <Column selectionMode="multiple" style="width: 3rem"></Column>
+            <Column field="CUST_CODE" header="업체코드" sortable style="min-width: 5em"></Column>
+            <Column field="CUST_NAME" header="업체명" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>
             <Column field="REVISION" header="리비전" sortable style="min-width: 3em"></Column>
@@ -104,7 +121,8 @@ const onDelete = () => {
                 </template>
             </Column>
 
-            <Column field="UNIT" header="단위" sortable style="min-width: 3em"></Column>
+            <Column field="INORD_DATE" header="수주일" sortable style="min-width: 3em"></Column>
+            <Column field="PAPRD_DATE" header="납기일" sortable style="min-width: 3em"></Column>
         </DataTable>
     </div>
 </template>

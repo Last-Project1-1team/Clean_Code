@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const shipService = require("../services/ship_service.js");
 
-//수주단건조회
+//수주업체단건조회
 router.get("/customerNo", async (req, res) => {
   let customerNo = req.query.inordCode;
   let customerInfo = await shipService
