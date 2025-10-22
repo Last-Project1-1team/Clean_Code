@@ -195,4 +195,35 @@ router.get("/itemLot", async (req, res) => {
   let itemLot = await itemService.finditemLotList(itemCode, itemName).catch((err) => console.log(err));
   res.send(itemLot);
 });
+
+router.get("/prodLotList", async (req, res) => {
+  let status = req.query.status;
+  let modelCode = req.query.modelCode;
+  let modelRevision = req.query.modelRevision;
+  let modelName = req.query.modelName;
+  let itemList = await itemService.findprodLotList(status, modelCode, modelRevision, modelName).catch((err) => console.log(err));
+  res.send(itemList);
+});
+router.get("/modelinspList", async (req, res) => {
+  let modelCode = req.query.modelCode;
+  let modelInspList = await itemService.findmodelinspList(modelCode).catch((err) => console.log(err));
+  res.send(modelInspList);
+});
+
+router.post("/modelInspResult", async (req, res) => {
+  const { prodLot, result, items } = req.body;
+  try {
+    const inspResult = await itemService.addNewModelInsp(prodLot, result, items);
+    res.status(200).json({
+      message: "완제품검사 결과 저장 성공",
+    });
+  } catch (error) {
+    console.error("가입고 저장 실패:", error);
+    res.status(500).json({
+      message: "완제품검사 결과 저장 중 오류가 발생했습니다.",
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
