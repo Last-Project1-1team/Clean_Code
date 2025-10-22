@@ -4,11 +4,15 @@ const sqlList = require("../database/sqlList.js");
 
 // 수주단건조회
 const findCustCodeNo = async (custno) => {
-  let inordlist = await mariadb
+  const inordlist = await mariadb
     .query("shipmodel", [custno])
     .catch((err) => console.log(err));
-  console.log(inordlist);
-  return inordlist;
+
+  const shipmatch = mariadb
+    .query("shipinordmatch", [custno])
+    .catch((err) => console.log(err));
+  console.log(shipmatch);
+  return { inordlist, shipmatch };
 };
 //lot단건조회
 const findLotNo = async (lotno) => {
