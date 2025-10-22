@@ -51,18 +51,18 @@ const getLotList = async () => {
             console.error('LOT번호 조회 실패:', err);
             customers.value = [];
         });
-    lotNolist.value = result1.data;
+    lotNolist.value.push(...result1.data);
     console.log('생산LOT리스트: ', lotNolist.value);
 
     const shipcheck = inordlist.value.some((inordno) => lotNolist.value.some((lotno) => lotno.MODEL_CODE === inordno.MODEL_CODE || lotno.REVISION === inordno.REVISION));
     console.log('일치확인: ', shipcheck);
 
+    // matchedlot.value = lotNolist.value.filter((lot) => inordlist.value.some((inord) => inord.MODEL_CODE === lot.MODEL_CODE || inord.REVISION === lot.REVISION));
     matchedlot.value = lotNolist.value.filter((lot) => inordlist.value.some((inord) => inord.MODEL_CODE === lot.MODEL_CODE || inord.REVISION === lot.REVISION));
     matchedinord.value = inordlist.value.filter((inord) => lotNolist.value.some((lot) => lot.MODEL_CODE === inord.MODEL_CODE || lot.REVISION === inord.REVISION));
-    console.log('생산LOT일치리스트: ', matchedlot.value);
-    console.log('수주일치리스트: ', matchedinord.value);
+    console.log('일치생산LOT리스트: ', matchedlot.value);
+    console.log('일치수주리스트: ', matchedinord.value);
     // selectedmodel.value = matchedlot.value;
-    selectedmodel.value.push(...matchedlot.value);
 
     merged.value = inordlist.value
         .map((inord) => {
@@ -70,8 +70,10 @@ const getLotList = async () => {
             return matched ? { ...inord, ...matched } : null;
         })
         .filter(Boolean);
-
     console.log('모든속성리스트(merged.value): ', merged.value);
+
+    selectedmodel.value = merged.value;
+    console.log('데이터테이블(selectedmodel.value): ', selectedmodel.value);
 
     const prodLotNos = merged.value.map((item) => item.PROD_LOT_NO);
     console.log('수주량공백확인: ', prodLotNos);
@@ -89,7 +91,7 @@ const onSave = async () => {
     }
     console.log('merged: ', merged);
     const payload = {
-        ships: merged.value.map((ship) => ({
+        ships: selectedmodel.value.map((ship) => ({
             custcode: ship.CUST_CODE,
             inordno: ship.INORD_NO,
             prodlotno: ship.PROD_LOT_NO,
@@ -99,7 +101,6 @@ const onSave = async () => {
             revision: ship.REVISION
         }))
     };
-
     console.log('payload: ', payload.ships);
 
     const shipnull = payload.ships.some((m) => m.lotpqty === null || m.lotpqty === undefined || m.lotpqty === '');

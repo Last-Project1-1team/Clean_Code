@@ -72,7 +72,7 @@ const getInordList = async () => {
 </script>
 
 <template>
-    <div class="card flex flex-col gap-4 relative" style="height: 100vh">
+    <div class="card flex flex-col gap-4 relative" style="height: 80vh">
         <div id="button_" class="absolute top-4 right-10 flex gap-2 z-10">
             <Button label="조회" class="p-button-success px-6 py-3 text-lg font-bold" style="width: 100px; height: 50px" @click="onselect" />
         </div>
@@ -107,7 +107,7 @@ const getInordList = async () => {
             <ModelSearchModal @register="handleModelRegister" />
         </Dialog>
 
-        <DataTable :value="selectedmodel" scrollable scrollHeight="400px" style="height: 40vh; border: 1px solid #ddd">
+        <DataTable :value="selectedmodel" scrollable scrollHeight="400px" style="height: 60vh; border: 1px solid #ddd">
             <Column field="CUST_CODE" header="업체코드" sortable style="min-width: 5em"></Column>
             <Column field="CUST_NAME" header="업체명" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
