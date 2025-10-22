@@ -32,7 +32,7 @@ const commonCode = ref([]);
 //초기화버튼
 const onClearItem = () => {
     formData.value = {
-        groupCode: '',
+        groupCode: formData.value.groupCode,
         groupName: '',
         groupExp: ''
     };

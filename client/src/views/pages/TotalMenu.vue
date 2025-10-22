@@ -38,6 +38,13 @@ const rightGrid = ref([]);
 //const onBMenuSelect = ref([]);
 const visible = ref(false); // ✅ Dialog 제어용
 
+// ✅ 수정 완료 이벤트 (엔터 입력 시)
+const onCellEditComplete = (event) => {
+    const { data, field, newValue } = event;
+    data[field] = newValue;
+    console.log('수정됨:', data);
+};
+
 //폼데이터
 const formData = ref({
     bMenuCode: '',
@@ -349,18 +356,40 @@ const saveSMenuButton = async () => {
             <div class="flex gap-4 w-full h-[720px]">
                 <!-- 왼쪽 그리드 -->
                 <div class="flex-1 border rounded p-2 overflow-auto">
-                    <DataTable :value="leftGrid" v-model:selection="selectedRow" selectionMode="single" class="w-full" @rowSelect="onBMenuSelect" dataKey="bMenuCode">
-                        <Column field="bMenuCode" header="대그룹코드"></Column>
-                        <Column field="bMenuName" header="대메뉴명"></Column>
+                    <!-- <DataTable :value="leftGrid" v-model:selection="selectedRow" selectionMode="single" class="w-full" @rowSelect="onBMenuSelect" dataKey="bMenuCode"> -->
+                    <DataTable :value="leftGrid" v-model:selection="selectedRow" selectionMode="single" editMode="cell" @cell-edit-complete="onCellEditComplete" class="w-full" @rowSelect="onBMenuSelect" dataKey="bMenuCode">
+                        <Column field="bMenuCode" header="대메뉴코드">
+                            <template #editor="{ data, field }">
+                                <InputText v-model="data[field]" class="w-full" />
+                            </template>
+                        </Column>
+                        <Column field="bMenuName" header="대메뉴명" :editor="textEditor">
+                            <template #editor="{ data, field }">
+                                <InputText v-model="data[field]" class="w-full" />
+                            </template>
+                        </Column>
                     </DataTable>
                 </div>
 
                 <!-- 오른쪽 그리드 -->
                 <div class="flex-1 border rounded p-2 overflow-auto">
-                    <DataTable :value="rightGrid" v-model:selection="selectedSmenu" selectionMode="single" class="w-full" dataKey="sMenuCode">
-                        <Column field="sMenuCode" header="소메뉴코드"></Column>
-                        <Column field="sMenuName" header="소메뉴명"></Column>
-                        <Column field="programName" header="프로그램명"></Column>
+                    <!-- <DataTable :value="rightGrid" v-model:selection="selectedSmenu" selectionMode="single" class="w-full" dataKey="sMenuCode"> -->
+                    <DataTable :value="rightGrid" v-model:selection="selectedSmenu" selectionMode="single" editMode="cell" @cell-edit-complete="onCellEditComplete" class="w-full" dataKey="sMenuCode">
+                        <Column field="sMenuCode" header="소메뉴코드">
+                            <template #editor="{ data, field }">
+                                <InputText v-model="data[field]" class="w-full" />
+                            </template>
+                        </Column>
+                        <Column field="sMenuName" header="소메뉴명" :editor="textEditor">
+                            <template #editor="{ data, field }">
+                                <InputText v-model="data[field]" class="w-full" />
+                            </template>
+                        </Column>
+                        <Column field="programName" header="프로그램명" :editor="textEditor">
+                            <template #editor="{ data, field }">
+                                <InputText v-model="data[field]" class="w-full" />
+                            </template>
+                        </Column>
                     </DataTable>
                 </div>
             </div>
