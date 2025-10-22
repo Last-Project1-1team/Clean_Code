@@ -294,11 +294,13 @@ const deletePlan = () => {
                         <Button @click="ModalSearch = true" icon="pi pi-search" class="lensButton p-button-success" />
                     </div>
 
+                    <div class="col-span-8"></div>
+
                     <!-- 리비전 -->
                     <label for="revision" class="flex items-center col-span-1 mb-2 md:mb-0">리비전</label>
                     <div class="col-span-2"><InputText v-model="formData.product.revision" id="revision" type="text" class="w-full" readonly /></div>
 
-                    <div class="col-span-5"></div>
+                    <div class="col-span-1"></div>
 
                     <!-- 제품명 -->
                     <label for="modelName" class="flex items-center col-span-1">제품명</label>
@@ -307,10 +309,10 @@ const deletePlan = () => {
                     </div>
 
                     <!-- 공정선택 -->
-                    <label for="selectProc" class="flex items-center col-span-1">공정선택</label>
+                    <!-- <label for="selectProc" class="flex items-center col-span-1">공정선택</label>
                     <div class="col-span-2">
                         <Select v-model="formData.process.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" />
-                    </div>
+                    </div> -->
 
                     <!-- ✅ 버튼 그룹들: 툴바 전체 기준 -->
                     <div class="absolute top-3 right-4 flex gap-2">
@@ -340,7 +342,7 @@ const deletePlan = () => {
             <Column field="modelCode" header="제품코드" sortable style="min-width: 10rem"></Column>
             <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
             <Column field="modelName" header="제품명" sortable style="min-width: 10rem"></Column>
-            <Column field="procName" header="공정" sortable style="min-width: 8rem"></Column>
+            <Column field="procName" header="최종공정" sortable style="min-width: 8rem"></Column>
             <Column field="totalInordQty" header="수주량" sortable style="min-width: 9rem"></Column>
             <Column field="unshippedQty" header="미 출하량" sortable style="min-width: 9rem"></Column>
         </DataTable>

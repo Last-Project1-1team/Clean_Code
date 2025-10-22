@@ -29,7 +29,7 @@ JOIN tb_code c
   ON c.common_code = r.proc_code
 WHERE r.proc_code LIKE ?
   AND TO_CHAR(p.create_date, 'YYYY-MM-DD') LIKE ?
-ORDER BY r.proc_seq DESC
+ORDER BY p.create_date, m.model_code, m.revision, p.prod_plan_no
 `;
 
 // 생산계획번호

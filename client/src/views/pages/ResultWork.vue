@@ -68,7 +68,7 @@ const onWorkOrderSelected = async (data) => {
 
     // 받은 allProcs 데이터를 가공하여 저장
     receivedAllProcs.value = (data.allProcs || []).map((proc) => ({
-        // allProcs 배열의 각 요소가 { proc_code: 'P01', proc_name: '절단' } 이런 형태라고 가정
+        // 사용자 데이터 구조에 맞게 `name` 또는 `code` 필드를 조정
         ...proc, // 원래 공정 데이터
         name: proc.proc_name || proc.proc_code || String(proc), // 화면 표시용 이름 (사용자 데이터에 맞춰 조정)
         proc_code: proc.proc_code || '', // 공정 코드 (실적 업데이트 시 사용)
@@ -107,7 +107,7 @@ const bomList = ref([]);
 // BOM(Lot) 데이터 조회
 const fetchBomList = async (modelCode, revision, workOrdNo) => {
     try {
-        console.log('BOM 조회 요청:', modelCode, revision, workOrdNo);
+        // console.log('BOM 조회 요청:', modelCode, revision, workOrdNo);
         const res = await axios.get(`${apiUrl}/resultwork/bomlist`, {
             params: { modelCode, revision, workOrdNo }
         });
@@ -164,6 +164,8 @@ const onSelectLot = (data) => {
         openLotModal.value = false;
         return;
     }
+
+    // Bom에는 반제품이 들어가서 modelCode가 있지만 lot에는 자재만 있어서 modelCode 검증 필요가 없음
 
     // 2단계: itemCode 일치    조건 추가하려면 && 넣고 추가하면됨
     // targetBom에서 itemCode가 일치하면 true로 나와서 if(true)로 작동   == some의 결과는 true or false
@@ -372,12 +374,15 @@ const toggleWorkOrderRunning = async () => {
         successMsg = '✅ 작업이 시작되었습니다.';
     } else {
         // CASE 2: 작업이 진행 중인 상태 ('일시정지' 버튼 클릭 = 정지 및 초기화)
-        url = `${apiUrl}/resultwork/updatepause`; // 'UPDATE' 로직 - 여기를 updateEnd로 변경!
+        url = `${apiUrl}/resultwork/updateEnd`; // 'UPDATE' 로직 - 여기를 updateEnd로 변경!
         payload = [
             {
                 workOrdNo: selectedWorkOrder.value.workOrdNo,
                 proc_code: currentProcess.value ? currentProcess.value.proc_code || currentProcess.value.proc || '' : selectedWorkOrder.value.proc_code || '',
-                status: 'STOP', // 'PAUSE' 대신 'STOP' (또는 서버에 맞는 상태값)
+                proc_seq: currentProcess.value ? currentProcess.value.proc_seq || 1 : selectedWorkOrder.value.workOrderSeq || 1, // 이 부분 삭제했었음
+
+                work_qty: realWorkQty.value, // 최종 작업수량 이 부분 삭제했었음
+                status: 'STOP', // 'PAUSE' 대신 'STOP' (또는 'END', 서버에 맞춰 사용)
                 workEndTime: formatDateForMySQL(new Date()) // 정지 시각 기록
             }
         ];
@@ -433,6 +438,7 @@ const toggleWorkOrderRunning = async () => {
 };
 
 // ---------------------- 5. 개별 공정 컨트롤 (공정시작/공정완료) ----------------------
+
 const startProcessStep = async () => {
     if (!currentProcess.value || currentProcess.value.status !== 'WAITING') {
         toast.add({
@@ -482,7 +488,7 @@ const startProcessStep = async () => {
     }
 };
 
-// 공정 완료버튼
+// 공정버튼
 const completeProcessStep = async () => {
     if (!currentProcess.value || currentProcess.value.status !== 'IN_PROGRESS') {
         toast.add({
@@ -495,7 +501,7 @@ const completeProcessStep = async () => {
     }
 
     // 서버로 해당 공정 완료 정보 전송
-    const url = `${apiUrl}/resultwork/updateproc`;
+    const url = `${apiUrl}/resultwork/update`;
     const payload = [
         {
             work_qty: realWorkQty.value,
@@ -541,6 +547,7 @@ const completeProcessStep = async () => {
 };
 
 // ---------------------- 6. 최종 작업 종료 ----------------------
+
 const finishWorkOrder = async () => {
     // ⚠️ 모든 공정이 완료되었는지 다시 한 번 확인
     if (!allProcsCompleted.value) {
@@ -562,60 +569,33 @@ const finishWorkOrder = async () => {
         return;
     }
 
-    // ⭐️⭐️⭐️ 여기가 가장 중요하게 변경될 부분! ⭐️⭐️⭐️
-    // receivedAllProcs 배열에서 실제 마지막으로 완료된 공정의 코드를 찾습니다.
-    const lastCompletedProc = receivedAllProcs.value
-        .slice() // 원본 배열 변경 방지
-        .reverse() // 뒤에서부터 찾기 위해 뒤집음
-        .find((proc) => proc.status === 'COMPLETED'); // 상태가 'COMPLETED'인 첫 번째 (즉, 원래 배열의 마지막) 공정을 찾음
-
-    let currentProcCode = '';
-    if (lastCompletedProc) {
-        currentProcCode = lastCompletedProc.proc_code || lastCompletedProc.proc || '';
-    }
-
-    // 만약 마지막 공정 코드를 찾지 못했다면 (비정상적인 상황), 에러 처리
-    if (!currentProcCode) {
-        toast.add({
-            severity: 'error', // 에러 레벨로 변경
-            summary: '작업 종료 실패',
-            detail: '❌ 마지막 공정 정보를 찾을 수 없습니다. 관리자에게 문의하세요.',
-            life: 3500
-        });
-        return; // 작업 종료 중단
-    }
-
-    console.log('⭐️ 최종 확정된 마지막 공정 코드 (p_location):', currentProcCode);
-
-    // 프로시저 호출용 payload 준비
-    const url = `${apiUrl}/resultwork/finishAndInsertLot`;
-    const payload = {
-        p_proc_code: currentProcCode, // 마지막 완료된 공정 코드를 사용
-        p_work_qty: Number(realWorkQty.value),
-        p_work_end_time: formatDateForMySQL(new Date()),
-        p_work_ord_no: selectedWorkOrder.value.workOrdNo,
-        p_model_code: selectedWorkOrder.value.modelCode,
-        p_revision: selectedWorkOrder.value.revision,
-        p_lot_qty: Number(realWorkQty.value),
-        p_location: currentProcCode // 마지막 공정 코드를 위치로 사용
-    };
+    // 서버로 최종 작업 종료 정보 전송 (realWorkQty 사용)
+    const url = `${apiUrl}/resultwork/updateEnd`;
+    const payload = [
+        {
+            proc_code: currentProcess.value ? currentProcess.value.proc_code || currentProcess.value.proc || '' : selectedWorkOrder.value.proc_code || '',
+            work_qty: Number(realWorkQty.value),
+            status: 'END',
+            workEndTime: formatDateForMySQL(new Date()),
+            workOrdNo: selectedWorkOrder.value.workOrdNo
+        }
+    ];
 
     try {
         const response = await axios.post(url, payload);
-        console.log('서버 응답 (작업 종료 및 생산 LOT 등록):', response.data);
-
-        // 서버에서 생성한 LOT 번호 가져오기
-        const prodLotNo = response.data.result?.prodLotNo || '생성된 LOT 번호';
+        console.log('서버 응답 (최종 작업 종료):', response.data);
 
         workOrderEndTime.value = new Date();
         toast.add({
             severity: 'success',
             summary: '작업 종료 성공',
-            detail: `🎉 작업이 정상적으로 종료되었고, LOT 번호 '${prodLotNo}'가 등록되었습니다.`,
-            life: 3500
+            detail: '🎉 작업이 정상적으로 종료되었습니다.',
+            life: 2500
         });
 
+        // 모든 상태 초기화
         resetWorkOrderState();
+        // 선택된 작업지시 비우기
         selectedWorkOrder.value = {
             workOrdNo: '',
             modelCode: '',
@@ -623,16 +603,18 @@ const finishWorkOrder = async () => {
             workOrdQty: null
         };
         realWorkQty.value = 0;
-        currentProcess.value = null; // 모든 공정 종료 후 currentProcess 초기화
+        // 현재 작업 공정 비우기
+        currentProcess.value = null;
+        // 전체 작업 공정 비우기
         receivedAllProcs.value = [];
-        bomList.value = [];
+        bomList.value = []; // BOM 리스트 비우기
     } catch (error) {
-        console.error('작업 종료 및 LOT 등록 중 오류:', error);
+        console.error('작업 종료 및 LOT 등록 중 오류(최종 작업 종료):', error);
         toast.add({
             severity: 'warn',
             summary: '작업 종료 실패',
-            detail: '❌ 최종 작업 종료 및 LOT 등록에 실패했습니다.',
-            life: 3000
+            detail: '❌ 최종 작업 종료 실패',
+            life: 2500
         });
     }
 };
@@ -708,7 +690,7 @@ const finishWorkOrder = async () => {
         </div>
 
         <!-- LOT번호 조회 결과-->
-        <DataTable :value="bomList" v-model:selection="selectedLot" datakey="lotNo" scrollable scrollHeight="220px" class="custom-table" style="height: 22vh" @rowSelect="formData = { ...$event.data }">
+        <DataTable :value="bomList" v-model:selection="selectedLot" datakey="lotNo" scrollable scrollHeight="22vh" style="height: 22vh" class="custom-table" @rowSelect="formData = { ...$event.data }">
             <Column field="itemCode" header="소요품번" style="min-width: 150px"></Column>
             <Column field="itemName" header="소요품명" style="min-width: 250px"></Column>
             <Column field="needQty" header="필요수량" style="min-width: 150px"></Column>
