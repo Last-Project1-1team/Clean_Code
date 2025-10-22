@@ -46,7 +46,12 @@ const onSave = async () => {
     };
     try {
         const response = await axios.post(`${apiUrl}/itemOutput`, payload);
-        toast.add({ severity: 'success', summary: '출고가 저장되었습니다.', life: 3000 });
+        console.log(response);
+        if (response.data.result.code === 'E') {
+            toast.add({ severity: 'error', summary: response.data.result.message, life: 3000 });
+        } else {
+            toast.add({ severity: 'success', summary: '출고가 저장되었습니다.', life: 3000 });
+        }
         lotNo.value = '';
         itemCode.value = '';
         itemName.value = '';
@@ -69,13 +74,19 @@ const onEnter = async () => {
     }
     try {
         const response = await axios.get(`${apiUrl}/outputLot?lotNo=` + lotNo.value);
-        console.log(response.data[0].itemCode);
+        if (response.data.length == 0) {
+            toast.add({ severity: 'error', summary: '정상적인 LOT가 아닙니다.', life: 3000 });
+            lotNo.value = '';
+            return;
+        }
         itemCode.value = response.data[0].itemCode;
         itemName.value = response.data[0].itemName;
         lotQty.value = response.data[0].lotQty;
     } catch (error) {
         console.error(error);
         toast.add({ severity: 'error', summary: 'LOTNO 정보 조회 중 오류가 발생했습니다.', life: 3000 });
+        lotNo.value = '';
+        return;
     }
     if (autoOutput.value) {
         onSave();
@@ -158,6 +169,7 @@ const today = ref(new Date()); // 오늘 날짜
                 <Column field="spec" header="규격" sortable style="min-width: 10em"></Column>
                 <Column field="unit" header="단위" sortable style="min-width: 3em"></Column>
                 <Column field="lotNo" header="LOTNO" sortable style="min-width: 10em"></Column>
+                <Column field="outStock" header="출고창고" sortable style="min-width: 5em"></Column>
                 <Column field="outputQty" header="출고수량" sortable style="min-width: 3em"> </Column>
                 <Column field="status" header="상태구분" sortable style="min-width: 3em"> </Column>
             </DataTable>

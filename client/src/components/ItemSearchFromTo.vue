@@ -19,7 +19,7 @@ const selectOutord = () => {
             <div class="flex flex-col gap-2 w-full">
                 <!-- 첫 번째 줄 -->
                 <div class="grid grid-cols-12 gap-2 items-center">
-                    <label for="itemCode" class="col-span-1 text-right">입고일자</label>
+                    <label for="itemCode" class="col-span-1 text-right">일자</label>
                     <div class="col-span-2">
                         <DatePicker v-model="lastweek" class="w-full" dateFormat="yy-mm-dd" showIcon showButtonBar iconDisplay="input" />
                     </div>
