@@ -114,15 +114,6 @@ VALUES
 
 const updatePause = `
 UPDATE tb_prod_result
-SET status= ?,
-    work_end_time = ?
-WHERE work_ord_no = ?
-  AND proc_code = ?
-  AND status = 'IN_PROGRESS'
-`;
-
-const updateProc = `
-UPDATE tb_prod_result
 SET work_qty = ?,
     status= ?,
     work_end_time = ?
@@ -140,19 +131,11 @@ SET proc_code = ?,
 WHERE work_ord_no = ?
   AND status = 'START'
 `;
-
-// 프로시저 호출 쿼리 추가
-const callFinishWorkAndInsertLot = `
-CALL sp_finish_work_and_insert_lot(?, ?, ?, ?, ?, ?, ?, ?, ?)
-`;
 module.exports = {
   selectWorkOrd,
   selectBom,
   selectLot,
   insertProdResult,
   updatePause,
-  updateProc,
   updateEnd,
-  selectLastProdLotNo,
-  callFinishWorkAndInsertLot,
 };

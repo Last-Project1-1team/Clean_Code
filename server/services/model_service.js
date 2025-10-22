@@ -30,30 +30,22 @@ const findUnit = async () => {
 
 // 제품 등록, 수정
 const addNewModel = async (modelInfo) => {
-  // bookInfo : 사용자가 전달한 북정보, Object 타입
-
-  // tb_model_master 테이블에 등록하는 insert문에 정의된 컬럼들
   let insertColumns = [
     "model_code",
     "revision",
     "model_name",
     "model_flag",
     "lot_p_qty",
-    "model_class",
     "spec",
     "wid",
     "hei",
+    "unit",
   ];
-  // 사용자가 전달한 제품정보 중 insert문에 정의된 컬럼들 기준으로 값을 선별 : 객체 -> 배열
   let data = convertObjToAry(modelInfo, insertColumns);
-  // modelInfo 는 model_router에서 옴
-
-  let resInfo = await mariadb
+  const resInfo = await mariadb
     .query("insertModel", data)
     .catch((err) => console.log(err));
-  // mariadb 모듈은 DML(insert, update, delete)의 결과를 { affectedRows: 1, insertId: 1, warningStatus: 0 } 로 반환
-  // affectedRows : 실제 실행된 행수 (default : 0)
-  // insertId     : AUTO_INCREMENT를 사용하는 경우 자동 부여된 PRIMARY KEY를 가짐, 무조건 Number 타입 (default : 0)
+
   console.log(resInfo.insertId);
   let result = null;
   if (resInfo.insertId == 0) {
