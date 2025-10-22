@@ -17,7 +17,7 @@ const modelcode = ref([]);
 const selectedRows = ref([]);
 const custmodalVisible = ref(false);
 const modelmodalVisible = ref(false);
-const today = ref([]); // 오늘 날짜
+const today = ref(new Date()); // 오늘 날짜
 const selectedDate = ref(new Date(new Date().setDate(new Date().getDate() + 7)));
 const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -107,7 +107,7 @@ const getShipList = async () => {
             <ModelSearchModal @register="handleModelRegister" />
         </Dialog>
 
-        <DataTable :value="selectedmodel" scrollable scrollHeight="400px" style="height: 80vh; border: 1px solid #ddd">
+        <DataTable :value="selectedmodel" scrollable scrollHeight="580px" style="height: 80vh; border: 1px solid #ddd">
             <Column field="CUST_NO" header="업체코드" sortable style="min-width: 5em"></Column>
             <Column field="CUST_NAME" header="업체명" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>

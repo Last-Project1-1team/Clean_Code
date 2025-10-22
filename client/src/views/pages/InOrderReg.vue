@@ -79,7 +79,8 @@ const onSave = async () => {
         custCode: custCode.value,
         models: selectedRows.value.map((model) => ({
             modelCode: model.MODEL_CODE,
-            inordQty: model.INORD_QTY
+            inordQty: model.INORD_QTY,
+            revision: model.REVISION
         }))
     };
 
@@ -160,7 +161,7 @@ const onSave = async () => {
             <ModelSearchModal @register="handleModelRegister" />
         </Dialog>
 
-        <DataTable :value="selectedmodel" v-model:selection="selectedRows" scrollable scrollHeight="400px" style="height: 55vh; border: 1px solid #ddd">
+        <DataTable :value="selectedmodel" v-model:selection="selectedRows" scrollable scrollHeight="480px" style="height: 55vh; border: 1px solid #ddd">
             <Column selectionMode="multiple" style="width: 3rem"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>

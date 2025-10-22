@@ -74,6 +74,7 @@ const addNewInord = async (orderDate, paprdDate, custCode, models) => {
         detailNo,
         inordNo,
         model.modelCode,
+        model.revision,
         model.inordQty,
         createdBy,
       ];

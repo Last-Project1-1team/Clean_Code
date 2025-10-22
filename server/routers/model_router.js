@@ -15,6 +15,8 @@ router.get("/modelMaster", async (req, res) => {
   let modelCode = req.query.modelCode;
   let revision = req.query.revision;
   let modelName = req.query.modelName;
+  console.log("modelCode1: ", modelCode);
+  console.log("modelName1: ", modelName);
 
   let modelList = await modelService
     .findAll(modelCode, revision, modelName)
