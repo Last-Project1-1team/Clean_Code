@@ -220,7 +220,7 @@ const insertPlan = async () => {
             toast.add({
                 severity: 'error',
                 summary: '저장 실패',
-                detail: '생산계획 저장에 실패했습니다.',
+                detail: '생산계획 저장에 실패했습니다. 계획 수량을 입력해주세요.',
                 life: 3000
             });
         }
