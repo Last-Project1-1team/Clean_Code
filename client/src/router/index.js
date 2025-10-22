@@ -195,6 +195,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/BOMHistory.vue')
                 },
                 {
+                    path: '/pages/procrouting',
+                    name: 'procrouting',
+                    component: () => import('@/views/pages/ProcRouting.vue')
+                },
+                {
                     path: '/pages/workorder',
                     name: 'workorder',
                     component: () => import('@/views/pages/WorkOrder.vue')

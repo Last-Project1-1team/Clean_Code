@@ -152,6 +152,11 @@ const model = ref([
                         to: '/pages/bomhistory'
                     },
                     {
+                        label: '공정라우팅관리',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/procrouting'
+                    },
+                    {
                         label: '공정입고',
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/Receiving'
