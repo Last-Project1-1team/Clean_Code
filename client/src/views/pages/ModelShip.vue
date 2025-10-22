@@ -24,7 +24,7 @@ const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 const getInordList = async () => {
-    let result = await axios
+    const { data } = await axios
         .get(`${apiUrl}/customerNo?`, {
             params: {
                 inordCode: InordScan.value
@@ -34,6 +34,7 @@ const getInordList = async () => {
             console.error('수주 조회 실패:', err);
             customers.value = [];
         });
+    console.log('data: ', data);
     customers.value = result.data[0].cust_name;
     inordlist.value = result.data;
     console.log('수주리스트:', inordlist.value);
