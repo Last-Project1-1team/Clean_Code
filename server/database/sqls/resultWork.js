@@ -100,7 +100,7 @@ const selectLastProc = `
 SELECT proc_code
         FROM tb_proc_routing
        WHERE model_code = ?
-       ORDER BY seq DESC
+       ORDER BY proc_seq DESC
        LIMIT 1
 `;
 
