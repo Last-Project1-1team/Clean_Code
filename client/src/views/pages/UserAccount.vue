@@ -140,7 +140,6 @@ const saveButton = async () => {
         return;
     }
 
-    //퇴사 여부 Y/N시 체크로직
     let result = await axios.post(`${apiUrl}/useraccount`, payload).catch((err) => console.log(err));
     let addRes = result.data;
     if (addRes.isSuccessed) {
@@ -148,6 +147,7 @@ const saveButton = async () => {
     } else {
         toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
     }
+    //퇴사 여부 날짜선택시 체크로직
     if (formData.value.retireDate && formData.value.retireYn === 'N') {
         toast.add({
             severity: 'warn',
