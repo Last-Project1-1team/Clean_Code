@@ -74,7 +74,7 @@ router.post("/resultwork/save", async (req, res) => {
   }
 });
 
-// 일시정지 버튼 UPDATE
+// 공정완료 버튼 UPDATE
 router.post("/resultwork/update", async (req, res) => {
   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
   // const resultInfoList = req.body;
@@ -94,8 +94,8 @@ router.post("/resultwork/update", async (req, res) => {
   }
 });
 
-// 정지 버튼 UPDATE
-router.post("/resultwork/updateEnd", async (req, res) => {
+// 일시정지 버튼 insert
+router.post("/resultwork/pauseinsert", async (req, res) => {
   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
   // const resultInfoList = req.body;
   const resultInfoList = Array.isArray(req.body) ? req.body : [req.body];
@@ -103,7 +103,7 @@ router.post("/resultwork/updateEnd", async (req, res) => {
   try {
     const results = [];
     for (const resultInfo of resultInfoList) {
-      const result = await resultWorkService.updateEnd(resultInfo);
+      const result = await resultWorkService.pauseInsert(resultInfo);
       results.push(result);
     }
 
@@ -113,4 +113,52 @@ router.post("/resultwork/updateEnd", async (req, res) => {
     res.status(500).send({ isSuccessed: false, message: err.message });
   }
 });
+
+// 정지 버튼 UPDATE
+router.post("/resultwork/updateEnd", async (req, res) => {
+  try {
+    // const result = await resultWorkService.updateEnd(req.body);
+    const resultInfoList = Array.isArray(req.body) ? req.body : [req.body];
+    let result = {};
+
+    for (const info of resultInfoList) {
+      result = await resultWorkService.updateEnd(info);
+      if (!result.isSuccessed) break;
+    }
+
+    if (result.isSuccessed) {
+      res.json({
+        isSuccessed: true,
+        message: "전체 작업 종료 처리 완료",
+      });
+    } else {
+      res.status(500).json({
+        isSuccessed: false,
+        message: "전체 작업 종료 중 오류 발생",
+        error: result.error,
+      });
+    }
+  } catch (err) {
+    console.error("🚨 finishAll API 에러:", err);
+    res.status(500).json({ isSuccessed: false, message: "서버 오류" });
+  }
+});
+// router.post("/resultwork/updateEnd", async (req, res) => {
+//   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
+//   // const resultInfoList = req.body;
+//   const resultInfoList = Array.isArray(req.body) ? req.body : [req.body];
+//   console.log("resultInfoList : ", resultInfoList);
+//   try {
+//     const results = [];
+//     for (const resultInfo of resultInfoList) {
+//       const result = await resultWorkService.updateEnd(resultInfo);
+//       results.push(result);
+//     }
+
+//     res.send({ isSuccessed: true, results });
+//   } catch (err) {
+//     console.error("💥 등록 실패:", err);
+//     res.status(500).send({ isSuccessed: false, message: err.message });
+//   }
+// });
 module.exports = router;

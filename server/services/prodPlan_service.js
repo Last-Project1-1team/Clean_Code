@@ -12,8 +12,7 @@ const findAll = async (
   endPlanDate = "",
   modelCode = "",
   revision = "",
-  procCode = "",
-  lastProcName = ""
+  procCode = ""
 ) => {
   try {
     const params = [];
@@ -41,7 +40,7 @@ const findAll = async (
     params.push(param3_startDateForLower);
     params.push(modelCode ? `%${modelCode}%` : "%");
     params.push(revision ? `%${revision}%` : "%");
-    // params.push(procCode ? `%${procCode}%` : "%");
+    params.push(procCode ? `%${procCode}%` : "%");
 
     // 1. 먼저 조건에 맞는 모든 계획 목록을 조회한다.
     let list = await mariadb.query("searchProdPlan", params);
@@ -104,10 +103,10 @@ async function addDaysToDate(dateString, days) {
 }
 
 // 공정
-// const findProc = async () => {
-//   let list = await mariadb.query("selectProc").catch((err) => console.log(err));
-//   return list;
-// };
+const findProc = async () => {
+  let list = await mariadb.query("selectProc").catch((err) => console.log(err));
+  return list;
+};
 
 // 수주량 합계
 const findInordQty = async (
@@ -196,8 +195,9 @@ const insertProdPlan = async (planData) => {
   return result;
 };
 module.exports = {
+  // 해당 객체에 등록해야지 외부로 노출
   findAll,
-  // findProc,
+  findProc,
   findInordQty,
   insertProdPlan,
 };

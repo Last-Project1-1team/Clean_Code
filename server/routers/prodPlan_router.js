@@ -12,8 +12,8 @@ const prodPlanService = require("../services/prodPlan_service.js");
 router.get("/prodplan", async (req, res) => {
   // 쿼리 파라미터는 undefined일 수도 있으니 기본값을 ''로 주는 게 안전
   const regPlanDate = req.query.regPlanDate || "";
-  const startPlanDate = req.query.startPlanDate || "";
   const endPlanDate = req.query.endPlanDate || "";
+  const startPlanDate = req.query.startPlanDate || "";
   const modelCode = req.query.modelCode || "";
   const revision = req.query.revision || "";
   const procCode = req.query.procCode || "";
@@ -21,8 +21,8 @@ router.get("/prodplan", async (req, res) => {
   try {
     const prodList = await prodPlanService.findAll(
       regPlanDate,
-      startPlanDate,
       endPlanDate,
+      startPlanDate,
       modelCode,
       revision,
       procCode

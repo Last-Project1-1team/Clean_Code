@@ -95,6 +95,15 @@ SELECT prod_lot_no
  LIMIT 1
 `;
 
+// 마지막 공정 조회
+const selectLastProc = `
+SELECT proc_code
+        FROM tb_proc_routing
+       WHERE model_code = ?
+       ORDER BY seq DESC
+       LIMIT 1
+`;
+
 const insertProdResult = `
 INSERT INTO tb_prod_result
 (work_ord_no,
@@ -110,6 +119,23 @@ VALUES
 ?,
 ?,
 ?)
+`;
+
+const pauseInsert = `
+INSERT INTO tb_prod_result
+( work_ord_no,
+  model_code,
+  revision,
+  proc_code,
+  status,
+  work_end_time)
+VALUES
+(?, 
+?, 
+?, 
+?, 
+?, 
+?);
 `;
 
 const updatePause = `
@@ -131,11 +157,57 @@ SET proc_code = ?,
 WHERE work_ord_no = ?
   AND status = 'START'
 `;
+
+const updateEndWorkOrd = `
+UPDATE tb_work_ord
+   SET work_qty = ?,
+       work_start_time = ?,
+       work_end_time = ?
+ WHERE work_ord_no = ?
+   AND model_code = ?
+   AND revision = ?
+`;
+
+const updateEndProdLot = `
+INSERT INTO tb_prod_lot
+( prod_lot_no,
+  model_code,
+  revision,
+  work_ord_no,
+  lot_qty,
+  location,
+  use_yn,
+  status,
+  create_date)
+VALUES
+(?,
+?,
+?,
+?,
+?,
+?,
+?,
+?,
+?)
+`;
+
+const updateLotYn = `
+UPDATE tb_lot
+   SET use_yn = 'N'
+ WHERE work_ord_no = ?
+`;
+
 module.exports = {
   selectWorkOrd,
   selectBom,
   selectLot,
   insertProdResult,
+  pauseInsert,
   updatePause,
   updateEnd,
+  selectLastProdLotNo,
+  updateEndWorkOrd,
+  updateEndProdLot,
+  selectLastProc,
+  updateLotYn,
 };
