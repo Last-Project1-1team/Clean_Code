@@ -39,7 +39,7 @@ const insertInordDetail = `
       (?
      , ?
      , ?
-     , '0'
+     , ?
      , ?
      , ?
      , NOW())

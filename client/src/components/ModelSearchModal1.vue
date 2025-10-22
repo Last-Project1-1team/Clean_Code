@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import axios from 'axios';
-import ModelMasterSearchSaveVue from './ModelMasterSearchSave.vue';
+import ModelMasterSearchSaveVue from './ModelMasterRevSearchSave.vue';
 
 const emit = defineEmits(['register']);
 
@@ -19,18 +19,19 @@ const registerModels = () => {
 };
 
 const handleSubmit = (model) => {
-    getModelList(model.code, model.name);
+    getModelList(model.code, model.revision, model.name);
 };
 const handleToss = () => {
     registerModels();
 };
 
-const getModelList = async (code, rivision, name) => {
+const getModelList = async (code, revision, name) => {
+    console.log('getModelList작동: ', code, revision, name);
     let result = await axios
         .get(`${apiUrl}/modelMaster?`, {
             params: {
                 modelCode: code || '',
-                revision: rivision || '',
+                revision: revision || '',
                 modelName: name || ''
             }
         })
@@ -44,7 +45,7 @@ const getModelList = async (code, rivision, name) => {
 
 <template>
     <div>
-        <ModelMasterSearchSaveVue @submit="handleSubmit" @toss="handleToss" />
+        <ModelMasterSearchSaveVue @search="handleSubmit" @toss="handleToss" />
         <!-- <Toolbar class="mb-6">
             <template #start>
                 <div class="grid grid-cols-12 gap-2">

@@ -7,7 +7,9 @@ const modelName = ref('');
 
 // 버튼 클릭 시 부모로 데이터 전달
 const selectModel = () => {
+    console.log('selectModel:', modelCode.value, modelName.value);
     emit('submit', { code: modelCode.value, name: modelName.value });
+    console.log('submit:', modelCode.value, modelName.value);
 };
 const tossModel = () => {
     emit('toss');

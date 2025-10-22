@@ -12,8 +12,8 @@ SELECT m.model_code modelCode,
         m.lot_p_qty lotPQty,
         m.model_class modelClass,
         m.spec,
-        m.wid width,
-        m.hei height,
+        m.wid,
+        m.hei,
         m.unit
 FROM tb_model_master m
 JOIN tb_code c1
@@ -47,10 +47,10 @@ revision,
 model_name,
 model_flag,
 lot_p_qty,
-model_class,
 spec,
 wid,
-hei)
+hei,
+unit)
 VALUES
 (?,
 ?,
@@ -66,10 +66,10 @@ revision = VALUES(revision),
 model_name = VALUES(model_name),
 model_flag = VALUES(model_flag),
 lot_p_qty = VALUES(lot_p_qty),
-model_class = VALUES(model_class),
 spec = VALUES(spec),
 wid = VALUES(wid),
-hei = VALUES(hei)
+hei = VALUES(hei),
+unit = VALUES(unit)
 `;
 
 const modalSearch = `

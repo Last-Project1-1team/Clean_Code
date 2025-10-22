@@ -13,7 +13,7 @@ const selectedRows = ref([]);
 const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-const handleSubmit = ({ itemCode, itemName, lastdate, nextdate }) => {
+const handleSubmit = ({ code, name, lastdate, nextdate }) => {
     getInput(itemCode, itemName, lastdate, nextdate);
 };
 
@@ -26,12 +26,11 @@ const getInput = async (itemcode, itemname, fromdate, todate) => {
     const formatfromdate = fromDate instanceof Date ? fromDate.toISOString().slice(0, 10) : typeof fromDate === 'string' ? fromDate : '';
 
     const formattodate = toDate instanceof Date ? toDate.toISOString().slice(0, 10) : typeof toDate === 'string' ? toDate : '';
-
     try {
         const result = await axios.get(`${apiUrl}/iteminput`, {
             params: {
-                itemCode: itemcode || '',
-                itemName: itemname || '',
+                itemCode: itemcode.value || '',
+                itemName: itemname.value || '',
                 fromDate: formatfromdate,
                 toDate: formattodate
             }

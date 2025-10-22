@@ -47,6 +47,10 @@ const handleSave = () => {
 };
 
 const saveInputList = async () => {
+    if (selectedRows.value.length === 0) {
+        toast.add({ severity: 'error', summary: '입고건을 먼저 선택해주세요.', life: 3000 });
+        return;
+    }
     const payload = {
         items: selectedRows.value.map((item) => ({
             inputNo: item.inputNo

@@ -100,11 +100,11 @@ const addProdResult = async (resultInfo) => {
 
 // 일시정지버튼 종료시간 업데이트
 const updatePause = async (resultInfo) => {
-  const { status, workEndTime, workOrdNo, proc_code } = resultInfo;
+  const { work_qty, status, workEndTime, workOrdNo, proc_code } = resultInfo;
   // resultInfo : 사용자가 전달한 실적정보, Object 타입
   // console.log("resultInfo : ", resultInfo);
 
-  let insertColumns = [status, workEndTime, workOrdNo, proc_code];
+  let insertColumns = [work_qty, status, workEndTime, workOrdNo, proc_code];
   console.log("🧩 insertColumns:", insertColumns);
 
   const resInfo = await mariadb
@@ -126,36 +126,6 @@ const updatePause = async (resultInfo) => {
   }
   return result;
 };
-
-// 공정완료버튼 종료시간 업데이트
-const updateProc = async (resultInfo) => {
-  const { work_qty, status, workEndTime, workOrdNo, proc_code } = resultInfo;
-  // resultInfo : 사용자가 전달한 실적정보, Object 타입
-  // console.log("resultInfo : ", resultInfo);
-
-  let insertColumns = [work_qty, status, workEndTime, workOrdNo, proc_code];
-  console.log("🧩 insertColumns:", insertColumns);
-
-  const resInfo = await mariadb
-    .query("updateProc", insertColumns)
-    .catch((err) => console.log(err));
-
-  console.log(resInfo.insertId);
-  let result = null;
-  if (resInfo.insertId == 0) {
-    // 정상적으로 등록된 경우
-    result = {
-      isSuccessed: true,
-    };
-  } else {
-    // 등록되지 않은 경우
-    result = {
-      isSuccessed: false,
-    };
-  }
-  return result;
-};
-
 // 종료버튼 실적UPDATE 생산LOT INSERT
 const finishAndInsertLot = async (payload) => {
   const {
@@ -330,7 +300,6 @@ module.exports = {
   findLot,
   addProdResult,
   updatePause,
-  updateProc,
   updateEnd,
-  finishAndInsertLot,
+  // finishAndInsertLot,
 };

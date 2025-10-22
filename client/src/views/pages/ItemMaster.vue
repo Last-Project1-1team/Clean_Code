@@ -37,6 +37,7 @@ const deleteProductsDialog = ref(false);
 const product = ref({});
 const selectedProduct = ref();
 const selectedAutoValue = ref(null);
+const selectedRows = ref([]);
 const radioValue = ref(null);
 const autoFilteredValue = ref([]);
 const submitted = ref(false);
@@ -124,9 +125,14 @@ const onSave = async () => {
         safety_stock: formData.value.safetyStock,
         use_yn: formData.value.useYn
     };
-
-    console.log('저장 payload:', payload);
-
+    if (payload.item_code == '') {
+        toast.add({ severity: 'error', summary: '자재코드를 입력해주세요', life: 3000 });
+        return;
+    }
+    if (payload.item_name == '') {
+        toast.add({ severity: 'error', summary: '자재명을 입력해주세요', life: 3000 });
+        return;
+    }
     let result = await axios.post(`${apiUrl}/itemMaster`, payload).catch((err) => console.log(err));
     let addRes = result.data;
     if (addRes.isSuccessed) {
@@ -134,6 +140,7 @@ const onSave = async () => {
     } else {
         toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
     }
+    getItemList('', '');
 };
 </script>
 <template>
@@ -194,6 +201,22 @@ const onSave = async () => {
                     <div class="col-span-3"><InputText id="safetyStock" type="text" class="w-full" v-model="formData.safetyStock" /></div>
                     <label for="eaPQty" class="flex items-center">사용여부</label>
                     <div class="col-span-3">
+                        <div class="col-span-3">
+                            <div class="flex flex-col md:flex-row gap-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center gap-2">
+                                        <RadioButton id="useYnY" value="Y" v-model="formData.useYn" />
+                                        <label for="useYnY" class="leading-none">Y</label>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <RadioButton id="useYnN" value="N" v-model="formData.useYn" />
+                                        <label for="useYnN" class="leading-none">N</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="col-span-3">
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex items-center">
                                 <RadioButton id="useYnY" value="Y" v-model="formData.useYn" />
@@ -202,7 +225,7 @@ const onSave = async () => {
                                 <label for="useYnN" class="leading-none ml-2">N</label>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <!-- 버튼 영역 (absolute: 오른쪽 위 고정) -->

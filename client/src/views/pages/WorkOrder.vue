@@ -6,15 +6,6 @@ import { useToast } from 'primevue/usetoast';
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 const toast = useToast();
 
-const selectRow = (row) => {
-    // 이미 선택된 항목인지 확인
-    const exists = selectedPlans.value.some((item) => item.prodPlanDate === row.prodPlanDate && item.modelCode === row.modelCode && item.revision === row.revision);
-
-    if (!exists) {
-        selectedPlans.value = [...selectedPlans.value, row];
-    }
-};
-
 onMounted(async () => {
     const response = await axios.get(`${apiUrl}/workorder/proc`);
     procDropDown.value = response.data.map((proc) => ({
@@ -84,7 +75,17 @@ const saveWorkOrder = () => {
         return;
     }
 
-    // 선택된 행들만 서버로 전송
+    if (!selectedPlans.value.workOrdQty || selectedPlans.value.workOrdQty === 0) {
+        toast.add({
+            severity: 'warn',
+            summary: '저장 실패',
+            detail: '작업지시수량을 입력해주세요.',
+            life: 2500
+        });
+        return;
+    }
+
+    // 선택된 행 서버로 전송
     axios
         .post(`${apiUrl}/workorder/save`, selectedPlans.value)
         .then((res) => {
@@ -105,20 +106,19 @@ const saveWorkOrder = () => {
                 life: 2500
             });
         });
+    searchProdPlan();
 };
 // 선택된 행 처리 함수
 const checkon = (rowData) => {
-    // 이미 선택된 항목인지 확인
-    const isAlreadySelected = selectedPlans.value.some((item) => item === rowData);
+    selectedPlans.value = rowData;
+    // // 이미 선택된 항목인지 확인
+    // const isAlreadySelected = selectedPlans.value.some((item) => item === rowData);
 
-    // 선택되지 않은 항목이면 선택 목록에 추가
-    if (!isAlreadySelected) {
-        // 이전 선택 항목은 유지하면서 현재 항목 추가 (다중 선택 모드이므로)
-        selectedPlans.value = [...selectedPlans.value, rowData];
-    }
-
-    // 필요하다면 여기에 다른 로직을 추가할 수 있어
-    // 예: 수정된 값 검증 또는 다른 계산 수행
+    // // 선택되지 않은 항목이면 선택 목록에 추가
+    // if (!isAlreadySelected) {
+    //     // 이전 선택 항목은 유지하면서 현재 항목 추가 (다중 선택 모드이므로)
+    //     selectedPlans.value = [...selectedPlans.value, rowData];
+    // }
 };
 
 // 셀 편집 완료 핸들러

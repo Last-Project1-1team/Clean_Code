@@ -1,6 +1,6 @@
 const selectItemList =
-  //
-  `SELECT itm.item_code itemCode
+    //
+    `SELECT itm.item_code itemCode
         , itm.item_name itemName
         , itm.spec spec
         , itm.item_class itemClass
@@ -21,14 +21,14 @@ const selectItemList =
     WHERE itm.item_code LIKE ?
       AND itm.item_name LIKE ?`;
 const selectClass =
-  //
-  `SELECT common_code code
+    //
+    `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'item_class'`;
 const selectUnit =
-  //
-  `SELECT common_code code
+    //
+    `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'unit'`;
@@ -239,16 +239,16 @@ const selectItemInput = `
      ORDER BY itm.item_code
 `;
 const selectOutputStock =
-  //
-  `SELECT common_code code
+    //
+    `SELECT common_code code
           , code_name name
        FROM tb_code
       WHERE group_code = 'STOCK'
         AND common_code <> '0H01'`;
 
 const selectOutputLot =
-  //
-  ` SELECT lot.item_code itemCode
+    //
+    ` SELECT lot.item_code itemCode
           , itm.item_name itemName
           , lot.lot_qty  lotQty
         FROM tb_lot lot 
@@ -273,14 +273,15 @@ const selectOutputList = `
          , itm.spec spec
          , (SELECT code_name FROM tb_code WHERE itm.unit = common_code AND group_code = 'unit') unit
          , opt.lot_no lotNo
-         , opt.output_qty outputQty
-         , opt.output_status status
+         , (SELECT code_name FROM tb_code WHERE opt.output_stock = common_code AND group_code = 'STOCK') outStock
+         , cast(opt.output_qty as char) outputQty
+         , CASE opt.output_status WHEN 0 THEN '출고완료' WHEN 5 THEN '공정입고대기' END status
       FROM tb_output opt
       JOIN tb_item_master itm
         ON opt.item_code = itm.item_code
      WHERE opt.item_code like ?
        AND itm.item_name like ?
-       AND opt.output_date BETWEEN ? AND DATE_ADD(?, INTERVAL 1 DAY);
+       AND opt.output_date BETWEEN ? AND DATE_ADD(?, INTERVAL 1 DAY)
 `;
 const selectInspList = `
 SELECT mst.insp_code inspCode
@@ -315,7 +316,7 @@ SELECT mst.outord_no outordNo
     ON mst.outord_no = dtl.outord_no
   JOIN tb_item_master itm
     ON dtl.item_code = itm.item_code
- WHERE mst.OUTORD_DATE BETWEEN ? AND ?
+ WHERE mst.OUTORD_DATE BETWEEN ? AND DATE_ADD(?, INTERVAL 1 DAY)
  ORDER BY mst.outord_no, dtl.OUTORD_DETAIL_NO
  `;
 const selectItemStock = `
@@ -399,30 +400,30 @@ const selectProdLotList = `
 `;
 
 module.exports = {
-  selectItemList,
-  selectClass,
-  selectUnit,
-  insertItems,
-  itemOutordSelect,
-  custOutordSelect,
-  insertOutordMaster,
-  insertOutordDetail,
-  selectLastOutordNo,
-  outordListSelect,
-  outorderDetailSelect,
-  selectLastInputNo,
-  selectInputList,
-  selectOutputStock,
-  selectOutputLot,
-  selectLastOutputNo,
-  selectOutputList,
-  selectInspList,
-  selectLastInspNo,
-  outordSelect,
-  selectItemInput,
-  selectItemStock,
-  selectItemLot,
-  selectLastModelInspNo,
-  selectModelInspList,
-  selectProdLotList,
+    selectItemList,
+    selectClass,
+    selectUnit,
+    insertItems,
+    itemOutordSelect,
+    custOutordSelect,
+    insertOutordMaster,
+    insertOutordDetail,
+    selectLastOutordNo,
+    outordListSelect,
+    outorderDetailSelect,
+    selectLastInputNo,
+    selectInputList,
+    selectOutputStock,
+    selectOutputLot,
+    selectLastOutputNo,
+    selectOutputList,
+    selectInspList,
+    selectLastInspNo,
+    outordSelect,
+    selectItemInput,
+    selectItemStock,
+    selectItemLot,
+    selectLastModelInspNo,
+    selectModelInspList,
+    selectProdLotList,
 };

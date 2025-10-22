@@ -34,8 +34,8 @@ const formData = ref({
     modelFlag: '',
     lotPQty: '',
     spec: '',
-    width: '',
-    height: '',
+    wid: '',
+    hei: '',
     unit: ''
 });
 
@@ -49,8 +49,8 @@ function onClearItem() {
         modelFlag: '',
         lotPQty: null,
         spec: '',
-        width: '',
-        height: '',
+        wid: '',
+        hei: '',
         unit: ''
     };
 }
@@ -86,16 +86,16 @@ const saveButton = async () => {
         revision: formData.value.revision,
         model_name: formData.value.modelName,
         model_flag: formData.value.modelFlag,
-        lot_p_qty: formData.value.lotPQty,
+        lot_p_qty: Number(formData.value.lotPQty) || 0,
         spec: formData.value.spec,
-        wid: formData.value.width,
-        hei: formData.value.height,
+        wid: Number(formData.value.wid) || null,
+        hei: Number(formData.value.hei) || null,
         unit: formData.value.unit
     };
 
     console.log('저장 payload:', payload);
 
-    let result = await axios.post(`${apiUrl}/modelMaster`, payload).catch((err) => console.log(err));
+    let result = await axios.post(`${apiUrl}/modelMaster/save`, payload).catch((err) => console.log(err));
     let addRes = result.data;
     if (addRes.isSuccessed) {
         toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
@@ -119,7 +119,7 @@ const saveButton = async () => {
             selectionMode="single"
             datakey="modelCode"
             scrollable
-            scrollHeight="40.8px"
+            scrollHeight="40.8vh"
             style="height: 41.1vh; border: 1px solid #ddd"
             @rowSelect="formData = { ...$event.data }"
         >
@@ -129,8 +129,8 @@ const saveButton = async () => {
             <Column field="modelFlagName" header="제품구분" style="min-width: 150px"></Column>
             <Column field="lotPQty" header="LOT당 수량" style="min-width: 150px"></Column>
             <Column field="spec" header="규격" style="min-width: 200px"></Column>
-            <Column field="width" header="폭" style="min-width: 100px"></Column>
-            <Column field="height" header="길이" style="min-width: 100px"></Column>
+            <Column field="wid" header="폭" style="min-width: 100px"></Column>
+            <Column field="hei" header="길이" style="min-width: 100px"></Column>
             <Column field="unit" header="단위" style="min-width: 100px"></Column>
         </DataTable>
 
@@ -190,14 +190,14 @@ const saveButton = async () => {
 
                     <label for="width" class="flex items-center col-span-1 mb-2 md:mb-0">폭</label>
                     <div class="col-span-3">
-                        <InputText id="width" type="text" class="w-full" v-model="formData.width" />
+                        <InputText id="width" type="text" class="w-full" v-model="formData.wid" />
                     </div>
 
                     <div class="col-span-1"></div>
 
                     <label for="height" class="flex items-center col-span-1 mb-2 md:mb-0">길이</label>
                     <div class="col-span-3">
-                        <InputText id="height" type="text" class="w-full" v-model="formData.height" />
+                        <InputText id="height" type="text" class="w-full" v-model="formData.hei" />
                     </div>
 
                     <div id="button_" class="absolute top-0 right-0 flex gap-2">

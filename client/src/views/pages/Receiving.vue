@@ -16,7 +16,8 @@ const lotInfo = ref({
     itemName: '',
     lotQty: '',
     location: '',
-    status: ''
+    status: '',
+    locationName: ''
 });
 
 const handleLotNoEnter = () => {
@@ -39,14 +40,15 @@ const getScanData = async (lotNo = '') => {
                 itemName: result.data.itemName,
                 lotQty: result.data.lotQty,
                 location: result.data.location,
-                status: result.data.status
+                status: result.data.status,
+                locationName: result.data.locationName
             };
 
             // 조건 체크
-            if (lotInfo.value.location !== '0H01') {
-                errorMessage.value = '잘못된 LOT입니다!';
+            if (lotInfo.value.location == '0H01') {
+                errorMessage.value = '출고되지 않은 LOT입니다!';
             } else if (lotInfo.value.status !== '5') {
-                errorMessage.value = '잘못된 LOT입니다!';
+                errorMessage.value = '이미 공정 입고된 LOT입니다!';
             } else {
                 // 정상 LOT
                 errorMessage.value = '정상 LOT입니다!';
@@ -57,10 +59,11 @@ const getScanData = async (lotNo = '') => {
         console.error('Lot 조회 실패:', err);
         errorMessage.value = 'LOT 조회 중 오류가 발생했습니다.';
     }
+    selectLotInfo.value = '';
 };
 </script>
 <template>
-    <div class="p-4">
+    <div class="card" style="height: 87.8vh">
         <!-- 제목 -->
         <h1 class="text-center text-3xl font-bold mb-6">스캔</h1>
 
@@ -87,6 +90,10 @@ const getScanData = async (lotNo = '') => {
             <div class="grid grid-cols-2 border-b border-gray-300 p-10">
                 <div class="font-semibold">LOT수량</div>
                 <div>{{ lotInfo.lotQty }}</div>
+            </div>
+            <div class="grid grid-cols-2 border-b border-gray-300 p-10">
+                <div class="font-semibold">현재위치</div>
+                <div>{{ lotInfo.locationName }}</div>
             </div>
 
             <div class="flex items-center justify-center h-20 p-5">

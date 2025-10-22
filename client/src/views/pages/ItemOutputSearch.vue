@@ -13,7 +13,7 @@ const selectedRows = ref([]);
 const toast = useToast();
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-const handleSubmit = ({ itemCode, itemName, lastdate, nextdate }) => {
+const handleSubmit = ({ code, name, lastdate, nextdate }) => {
     getOutput(itemCode, itemName, lastdate, nextdate);
 };
 
@@ -30,8 +30,8 @@ const getOutput = async (itemcode, itemname, fromdate, todate) => {
     try {
         const result = await axios.get(`${apiUrl}/itemoutput`, {
             params: {
-                itemCode: itemcode || '',
-                itemName: itemname || '',
+                itemCode: itemcode.value || '',
+                itemName: itemname.value || '',
                 outputDatefr: formatfromdate,
                 outputDateto: formattodate
             }
@@ -86,9 +86,9 @@ const totalInQty = (outputDate) => {
             <Column field="itemName" header="자재명" style="min-width: 10em" />
             <Column field="spec" header="규격" style="min-width: 8em" />
             <Column field="unit" header="단위" style="min-width: 5em; text-align: center" />
-            <Column field="outputQty" header="출고수량" style="min-width: 6em; text-align: right">
-                <template #body="{ data }">{{ formatNumber(data.inputQty) }}</template>
-            </Column>
+            <Column field="outputQty" header="출고수량" style="min-width: 6em; text-align: right" />
+            <Column field="outStock" header="출고창고" style="min-width: 6em; text-align: right" />
+            <Column field="status" header="출고상태" style="min-width: 6em; text-align: right" />
         </DataTable>
     </div>
     <!-- </div> -->

@@ -15,6 +15,8 @@ router.get("/modelMaster", async (req, res) => {
   let modelCode = req.query.modelCode;
   let revision = req.query.revision;
   let modelName = req.query.modelName;
+  console.log("modelCode1: ", modelCode);
+  console.log("modelName1: ", modelName);
 
   let modelList = await modelService
     .findAll(modelCode, revision, modelName)
@@ -39,7 +41,7 @@ router.get("/modelMaster/modelUnit", async (req, res) => {
 });
 
 // 등록    : 자원(데이터) -> books / 등록 -> POST
-router.post("/modelMaster", async (req, res) => {
+router.post("/modelMaster/save", async (req, res) => {
   // METHOD 중 POST와 PUT은 Http Request의 Body 영역을 가지며 req(Http Request에 대응되는 변수)의 body 속성에 등록됨
   let modelInfo = req.body;
   console.log(modelInfo);

@@ -11,7 +11,7 @@ import axios from 'axios';
 const itemStock = ref([]); // 모달에서 넘어온 데이터 저장
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-const handleSubmit = ({ itemCode, itemName }) => {
+const handleSubmit = ({ code, name }) => {
     getInput(itemCode, itemName);
 };
 
@@ -19,8 +19,8 @@ const getInput = async (itemcode, itemname) => {
     try {
         const result = await axios.get(`${apiUrl}/itemStock`, {
             params: {
-                itemCode: itemcode || '',
-                itemName: itemname || ''
+                itemCode: itemcode.value || '',
+                itemName: itemname.value || ''
             }
         });
 
