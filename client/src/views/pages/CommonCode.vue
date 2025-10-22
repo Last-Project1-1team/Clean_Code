@@ -75,6 +75,20 @@ const getCommonList = async (codeGroup) => {
 
 //저장(등록)
 const saveButton = async () => {
+    // 입력값 검증
+    if (!formData.value.groupCode?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '코드그룹를 입력하세요', life: 3000 });
+        return;
+    }
+    if (!formData.value.commonCode?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '코드ID을 입력하세요', life: 3000 });
+        return;
+    }
+    if (!formData.value.codeName?.trim()) {
+        toast.add({ severity: 'warn', summary: '입력 오류', detail: '코드명을 입력하세요', life: 3000 });
+        return;
+    }
+
     const payload = {
         groupCode: formData.value.groupCode,
         commonCode: formData.value.commonCode,

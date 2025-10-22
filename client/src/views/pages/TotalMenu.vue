@@ -289,6 +289,28 @@ const saveSMenuButton = async () => {
         });
     }
 };
+
+//저장(등록)
+const saveButton = async () => {
+    const payload = {
+        bMenuCode: formData.value.bMenuCode,
+        bMenuName: formData.value.bMenuName,
+        sMenuCode: formData.value.sMenuCode,
+        sMenuName: formData.value.sMenuName,
+        programName: formData.value.programName
+    };
+
+    console.log('저장 payload:', payload);
+
+    let result = await axios.post(`${apiUrl}/totalMenu/viewAll`, payload).catch((err) => console.log(err));
+    let addRes = result.data;
+    if (addRes.isSuccessed) {
+        toast.add({ severity: 'success', summary: '저장 성공', life: 3000 });
+    } else {
+        toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
+    }
+    getTotalList();
+};
 </script>
 
 <template>
@@ -297,6 +319,7 @@ const saveSMenuButton = async () => {
             <!-- 🔹 상단 버튼 -->
             <div class="w-full flex justify-end gap-2">
                 <Button label="신규" :fluid="false" class="p-button-success px-6 py-3 text-lg font-bold" @click="openModal"></Button>
+                <Button label="저장" :fluid="false" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton"></Button>
                 <!-- <Button label="저장" :fluid="false" @click="saveButton"></Button> -->
             </div>
 
@@ -399,7 +422,7 @@ const saveSMenuButton = async () => {
 
 <style scoped>
 button {
-    margin-right: 10px;
+    margin-right: 2px;
     width: 100px;
     height: 50px;
 }

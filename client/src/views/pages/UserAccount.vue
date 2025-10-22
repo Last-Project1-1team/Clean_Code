@@ -133,13 +133,6 @@ const saveButton = async () => {
         return;
     }
 
-    // 중복 체크
-    const isDuplicate = formData.value.some((item) => item.userId === formData.value.userId);
-    if (isDuplicate) {
-        toast.add({ severity: 'warn', summary: '중복 오류', detail: '이미 존재하는 계정ID입니다', life: 3000 });
-        return;
-    }
-
     let result = await axios.post(`${apiUrl}/useraccount`, payload).catch((err) => console.log(err));
     let addRes = result.data;
     if (addRes.isSuccessed) {
@@ -147,6 +140,14 @@ const saveButton = async () => {
     } else {
         toast.add({ severity: 'error', summary: '저장 실패', life: 3000 });
     }
+
+    // 중복 체크
+    const isDuplicate = formData.value.some((item) => item.userId === formData.value.userId);
+    if (isDuplicate) {
+        toast.add({ severity: 'warn', summary: '중복 오류', detail: '이미 존재하는 계정ID입니다', life: 3000 });
+        return;
+    }
+
     //퇴사 여부 날짜선택시 체크로직
     if (formData.value.retireDate && formData.value.retireYn === 'N') {
         toast.add({
@@ -159,6 +160,7 @@ const saveButton = async () => {
     }
     getAccountList();
 };
+
 // ✅ 퇴사일자 감시 → 값이 선택되면 자동으로 Y 설정
 watch(
     () => formData.value.retireDate,
