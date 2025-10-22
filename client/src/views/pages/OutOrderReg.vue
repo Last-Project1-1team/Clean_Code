@@ -58,16 +58,17 @@ const onSave = async () => {
         toast.add({ severity: 'error', summary: '거래처를 먼저 선택해주세요.', life: 3000 });
         return;
     }
-    if (selectedItems.value == '') {
+    if (selectedRows.value == '') {
         toast.add({ severity: 'error', summary: '자재 정보가 없습니다.', life: 3000 });
         return;
     }
+    const validItems = selectedRows.value.filter((item) => item.OUTORD_QTY && item.OUTORD_QTY > 0);
 
     const payload = {
         orderDate: today.value,
         deliveryDate: selectedDate.value,
         custCode: custCode.value,
-        items: selectedItems.value.map((item) => ({
+        items: validItems.map((item) => ({
             itemCode: item.ITEM_CODE,
             qty: item.OUTORD_QTY
         }))
@@ -93,6 +94,13 @@ const modelopen = ref(false);
 const saveinord = ref([]);
 const today = ref(new Date()); // 오늘 날짜
 const selectedDate = ref(new Date(new Date().setDate(new Date().getDate() + 7)));
+
+const checkon = (row) => {
+    const alreadySelected = selectedRows.value.some((r) => r.ITEM_CODE === row.ITEM_CODE);
+    if (!alreadySelected) {
+        selectedRows.value = [...selectedRows.value, row]; // ✅ 새 배열로 갱신
+    }
+};
 </script>
 
 <template>
@@ -180,7 +188,7 @@ const selectedDate = ref(new Date(new Date().setDate(new Date().getDate() + 7)))
                 <!-- 수주량 인풋박스 -->
                 <Column field="OUTORD_QTY" header="발주량" sortable style="min-width: 3em">
                     <template #body="{ data }">
-                        <input v-model.number="data.OUTORD_QTY" type="number" min="0" step="1" class="w-24 border p-1" />
+                        <input v-model.number="data.OUTORD_QTY" type="number" min="0" step="1" class="w-24 border p-1" @blur="checkon(data)" />
                     </template>
                 </Column>
             </DataTable>
