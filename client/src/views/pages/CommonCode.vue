@@ -97,21 +97,23 @@ const saveButton = async () => {
 <template>
     <div class="card flex flex-col gap-4">
         <div class="flex flex-wrap items-start gap-4 justify-between w-full">
-            <div class="grid grid-cols-12 gap-2">
+            <div class="grid grid-cols-6 gap-2">
                 <label for="codeGroup" class="grid grid-cols-2 flex items-center">코드그룹</label>
                 <div class="col-span-3">
                     <Select class="w-full" v-model="selectedCommon" :options="commonDropdown" optionLabel="label" optionValue="value" placeholder="코드그룹선택" @change="getCommonList(selectedCommon)" />
                 </div>
             </div>
 
-            <div class="col-span-4">
-                <Button label="초기화" :fluid="false" @click="onClearItem"></Button>
-                <Button label="저장" :fluid="false" @click="saveButton"></Button>
-                <Button label="조회" :fluid="false" @click="commonSearch"></Button>
+            <div class="col-span-3">
+                <Button label="초기화" :fluid="false" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem"></Button>
+                <div class="inline-flex items-center"></div>
+                <Button label="저장" :fluid="false" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton"></Button>
+                <div class="inline-flex items-center"></div>
+                <Button label="조회" :fluid="false" class="p-button-success px-6 py-3 text-lg font-bold" @click="commonSearch"></Button>
             </div>
         </div>
         <!-- 하단: 좌/우 그리드 -->
-        <div class="flex gap-4 w-full h-[620px]">
+        <div class="flex gap-4 w-full h-[720px]">
             <!-- 왼쪽 그리드 -->
             <div class="flex-1 border rounded p-2 overflow-auto">
                 <DataTable :value="leftGrid" v-model:selection="selectedRow" selectionMode="single" class="w-full" @rowSelect="formData = { ...$event.data }" dataKey="commonCode">
@@ -149,3 +151,11 @@ const saveButton = async () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+button {
+    margin-right: 10px;
+    width: 100px;
+    height: 50px;
+}
+</style>

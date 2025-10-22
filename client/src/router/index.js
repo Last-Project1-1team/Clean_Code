@@ -171,6 +171,11 @@ const router = createRouter({
                     name: 'itemlot',
                     component: () => import('@/views/pages/ItemLotSearch.vue')
                 },
+                {
+                    path: '/pages/modelinspreg',
+                    name: 'modelinspreg',
+                    component: () => import('@/views/pages/ModelInspReg.vue')
+                },
                 //
                 // 생산관리
                 //
@@ -188,6 +193,11 @@ const router = createRouter({
                     path: '/pages/bomhistory',
                     name: 'bomhistory',
                     component: () => import('@/views/pages/BOMHistory.vue')
+                },
+                {
+                    path: '/pages/procrouting',
+                    name: 'procrouting',
+                    component: () => import('@/views/pages/ProcRouting.vue')
                 },
                 {
                     path: '/pages/workorder',
@@ -231,6 +241,11 @@ const router = createRouter({
                     path: '/pages/ModelShip',
                     name: 'ModelShip',
                     component: () => import('@/views/pages/ModelShip.vue')
+                },
+                {
+                    path: '/pages/ShipList',
+                    name: 'ShipList',
+                    component: () => import('@/views/pages/ShipList.vue')
                 },
 
                 //

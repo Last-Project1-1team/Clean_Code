@@ -256,7 +256,6 @@ const saveSMenuButton = async () => {
         console.log('응답 데이터:', res.data);
 
         if (res.data.success) {
-            // ✅ 여기를 변경!
             toast.add({ severity: 'success', summary: '저장 완료', detail: res.data.message, life: 3000 });
 
             await getSubMenu(formData.value.bMenuCode, true);
@@ -290,7 +289,7 @@ const saveSMenuButton = async () => {
         <div class="flex flex-wrap items-start gap-4 justify-between w-full">
             <!-- 🔹 상단 버튼 -->
             <div class="w-full flex justify-end gap-2">
-                <Button label="신규" :fluid="false" @click="openModal"></Button>
+                <Button label="신규" :fluid="false" class="p-button-success px-6 py-3 text-lg font-bold" @click="openModal"></Button>
                 <!-- <Button label="저장" :fluid="false" @click="saveButton"></Button> -->
             </div>
 
@@ -347,7 +346,7 @@ const saveSMenuButton = async () => {
             </Dialog>
 
             <!-- 하단: 좌/우 그리드 -->
-            <div class="flex gap-4 w-full h-[620px]">
+            <div class="flex gap-4 w-full h-[720px]">
                 <!-- 왼쪽 그리드 -->
                 <div class="flex-1 border rounded p-2 overflow-auto">
                     <DataTable :value="leftGrid" v-model:selection="selectedRow" selectionMode="single" class="w-full" @rowSelect="onBMenuSelect" dataKey="bMenuCode">
@@ -368,3 +367,11 @@ const saveSMenuButton = async () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+button {
+    margin-right: 10px;
+    width: 100px;
+    height: 50px;
+}
+</style>

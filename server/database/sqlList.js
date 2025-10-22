@@ -9,9 +9,11 @@ const common = require("./sqls/common.js");
 const codeGroup = require("./sqls/codeGroup.js");
 const ship = require("./sqls/ship.js");
 
-const totalMenu = require("./sqls/totalMenu.js")
-const receiving = require("./sqls/receiving.js")
+const totalMenu = require("./sqls/totalMenu.js");
+const receiving = require("./sqls/receiving.js");
 const prodPlan = require("./sqls/prodPlan.js");
+const procRouting = require("./sqls/procRouting.js");
+
 
 module.exports = {
   ...models,
@@ -27,4 +29,5 @@ module.exports = {
   ...totalMenu,
   ...receiving,
   ...prodPlan,
+  ...procRouting,
 };

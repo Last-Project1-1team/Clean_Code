@@ -100,11 +100,6 @@ const model = ref([
                         to: '/pages/iteminput'
                     },
                     {
-                        label: '수입검사',
-                        icon: 'pi pi-fw pi-book',
-                        to: '/pages/iteminspreg'
-                    },
-                    {
                         label: '자재입고확정',
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/iteminputconfirm'
@@ -155,6 +150,11 @@ const model = ref([
                         label: 'BOM이력관리',
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/bomhistory'
+                    },
+                    {
+                        label: '공정라우팅관리',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/procrouting'
                     },
                     {
                         label: '공정입고',
@@ -230,6 +230,27 @@ const model = ref([
                         label: '수주조회',
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/OrderList'
+                    },
+                    {
+                        label: '출하조회',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/ShipList'
+                    }
+                ]
+            },
+            {
+                label: '품질관리',
+                icon: 'pi pi-fw pi-user',
+                items: [
+                    {
+                        label: '수입검사',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/iteminspreg'
+                    },
+                    {
+                        label: '완제품검사',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/modelinspreg'
                     }
                 ]
             }

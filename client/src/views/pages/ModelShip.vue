@@ -34,12 +34,9 @@ const getInordList = async () => {
             console.error('수주 조회 실패:', err);
             customers.value = [];
         });
-    console.log('수주업체: ', result);
     customers.value = result.data[0].cust_name;
     inordlist.value = result.data;
-    console.log('inordlist:', inordlist.value);
-    console.log('inordlist.value.CUST_CODE', inordlist.value[0].CUST_CODE);
-    // console.log(result.data[0].cust_name);
+    console.log('수주리스트:', inordlist.value);
 };
 
 //생산lot조회
@@ -54,21 +51,18 @@ const getLotList = async () => {
             console.error('LOT번호 조회 실패:', err);
             customers.value = [];
         });
-    console.log('result1: ', result1);
-    lotNolist.value = result1.data;
-    console.log('lotNolist: ', lotNolist.value);
-    // console.log('selectedmodel.value', selectedmodel.value);
-    // console.log('selectedRows.value', selectedRows.value);
+    lotNolist.value.push(...result1.data);
+    console.log('생산LOT리스트: ', lotNolist.value);
 
     const shipcheck = inordlist.value.some((inordno) => lotNolist.value.some((lotno) => lotno.MODEL_CODE === inordno.MODEL_CODE || lotno.REVISION === inordno.REVISION));
     console.log('일치확인: ', shipcheck);
 
+    // matchedlot.value = lotNolist.value.filter((lot) => inordlist.value.some((inord) => inord.MODEL_CODE === lot.MODEL_CODE || inord.REVISION === lot.REVISION));
     matchedlot.value = lotNolist.value.filter((lot) => inordlist.value.some((inord) => inord.MODEL_CODE === lot.MODEL_CODE || inord.REVISION === lot.REVISION));
     matchedinord.value = inordlist.value.filter((inord) => lotNolist.value.some((lot) => lot.MODEL_CODE === inord.MODEL_CODE || lot.REVISION === inord.REVISION));
-    console.log('matchedlot.value: ', matchedlot.value);
-    console.log('matchedinord.value: ', matchedinord.value);
+    console.log('일치생산LOT리스트: ', matchedlot.value);
+    console.log('일치수주리스트: ', matchedinord.value);
     // selectedmodel.value = matchedlot.value;
-    selectedmodel.value.push(...matchedlot.value);
 
     merged.value = inordlist.value
         .map((inord) => {
@@ -76,14 +70,16 @@ const getLotList = async () => {
             return matched ? { ...inord, ...matched } : null;
         })
         .filter(Boolean);
+    console.log('모든속성리스트(merged.value): ', merged.value);
 
-    console.log('merged: ', merged.value);
+    selectedmodel.value = merged.value;
+    console.log('데이터테이블(selectedmodel.value): ', selectedmodel.value);
 
     const prodLotNos = merged.value.map((item) => item.PROD_LOT_NO);
-    console.log('prodLotNos: ', prodLotNos);
+    console.log('수주량공백확인: ', prodLotNos);
 
     if (shipcheck == false) {
-        toast.add({ severity: 'error', summary: ' 수주서에 일치하는 값이 없음.', life: 3000 });
+        toast.add({ severity: 'error', summary: ' 수주에 일치하는 제품이 없음.', life: 3000 });
         return;
     }
 };
@@ -93,9 +89,9 @@ const onSave = async () => {
         toast.add({ severity: 'error', summary: '제품 정보가 없습니다.', life: 3000 });
         return;
     }
-
+    console.log('merged: ', merged);
     const payload = {
-        ships: merged.value.map((ship) => ({
+        ships: selectedmodel.value.map((ship) => ({
             custcode: ship.CUST_CODE,
             inordno: ship.INORD_NO,
             prodlotno: ship.PROD_LOT_NO,
@@ -105,7 +101,15 @@ const onSave = async () => {
             revision: ship.REVISION
         }))
     };
-    console.log('payload:', payload);
+    console.log('payload: ', payload.ships);
+
+    const shipnull = payload.ships.some((m) => m.lotpqty === null || m.lotpqty === undefined || m.lotpqty === '');
+    console.log(shipnull);
+    if (shipnull) {
+        toast.add({ severity: 'error', summary: 'LOT량을 모두 입력해주세요.', life: 3000 });
+        return;
+    }
+
     try {
         const response = await axios.post(`${apiUrl}/insertship`, payload);
         toast.add({ severity: 'success', summary: '출하가 등록되었습니다.', life: 3000 });
@@ -171,11 +175,7 @@ const handleLotEnter = async () => {
             <Column field="MODEL_NAME" header="제품명" sortable style="min-width: 10em"></Column>
             <Column field="SPEC" header="규격" sortable style="min-width: 10em"></Column>
             <Column field="UNIT" header="단위" sortable style="min-width: 3em"></Column>
-            <Column field="LOT_QTY" header="LOT수량" sortable style="min-width: 3em">
-                <template #body="{ data }">
-                    <input v-model.number="data.LOT_QTY" type="number" min="0" step="1" class="w-24 border p-1" />
-                </template>
-            </Column>
+            <Column field="LOT_QTY" header="LOT수량" sortable style="min-width: 3em"> </Column>
         </DataTable>
     </div>
 </template>

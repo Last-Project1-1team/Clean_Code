@@ -23,6 +23,7 @@ WHERE wo.work_ord_no LIKE ?
         AND routing.revision = wo.revision
         AND routing.proc_code = wo.proc_code
   )
+  AND wo.work_qty IS NULL
 ORDER BY pr.proc_seq, wo.work_ord_no
 `;
 
@@ -68,6 +69,7 @@ FROM tb_lot lot
 JOIN v_item_master itm
   ON (lot.item_code = itm.item_code)
 WHERE lot.item_code LIKE ?
+  AND lot.use_yn = 'Y'
 UNION ALL
 SELECT plot.prod_lot_no lotNo,
        itm.item_code itemCode,
@@ -82,6 +84,7 @@ FROM tb_prod_lot plot
 JOIN v_item_master itm
   ON (plot.model_code = itm.item_code)
 WHERE itm.item_code LIKE ?
+  AND plot.use_yn = 'Y'
 `;
 
 // 생산계획번호 조회용 쿼리
@@ -111,8 +114,7 @@ VALUES
 
 const updatePause = `
 UPDATE tb_prod_result
-SET work_qty = ?,
-    status= ?,
+SET status= ?,
     work_end_time = ?
 WHERE work_ord_no = ?
   AND proc_code = ?

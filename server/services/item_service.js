@@ -328,6 +328,63 @@ const finditemLotList = async (itemCode, itemName) => {
   return list;
 };
 
+const findprodLotList = async (status, modelCode, modelRevision, modelName) => {
+  let list = await mariadb.query("selectProdLotList", [status, `%${modelCode || ""}%`, `%${modelRevision || ""}%`, `%${modelName || ""}%`]).catch((err) => console.log(err));
+  return list;
+};
+const findmodelinspList = async (modelCode) => {
+  let list = await mariadb.query("selectModelInspList", modelCode).catch((err) => console.log(err));
+  return list;
+};
+
+const addNewModelInsp = async (prodLot, result, items) => {
+  let conn;
+  console.log("수입검사 결과등록 시작");
+  try {
+    conn = await mariadb.getConnection();
+    const datePart = formatDate(new Date()); // YYMMDD
+
+    const [last] = await conn.query(sqlList.selectLastModelInspNo, [`MI${datePart}%`]);
+    console.log(last);
+    let seq = 1;
+    if (last && last.model_insp_no) {
+      const lastSeq = parseInt(last.model_insp_no.slice(-5));
+      seq = lastSeq + 1;
+    }
+
+    const payload = {
+      prodLot,
+      createdBy: "tester",
+      inspNoPrefix: `MI${datePart}`,
+      startSeq: seq,
+      result,
+      items,
+    };
+    console.log("프로시저 호출 시작");
+    console.log(payload);
+    await conn.query(` CALL SP_MODEL_INSP(?, @P_RETURN_CODE, @P_RETURN_MSG)  `, [JSON.stringify(payload)]);
+    console.log("프로시저 정상 작동");
+    const [inspResult] = await conn.query(`
+      SELECT 
+        @P_RETURN_CODE AS CODE,
+        @P_RETURN_MSG AS MSG
+    `);
+
+    console.log("DB 결과:", inspResult);
+
+    return {
+      success: inspResult.CODE === "S",
+      code: inspResult.CODE,
+      message: inspResult.MSG,
+    };
+  } catch (error) {
+    if (conn) await conn.rollback();
+    console.error("수입검사 등록 실패:", error);
+    throw error;
+  } finally {
+    if (conn) conn.release?.();
+  }
+};
 module.exports = {
   findAll,
   findClass,
@@ -351,6 +408,9 @@ module.exports = {
   findInput,
   finditemStockList,
   finditemLotList,
+  findprodLotList,
+  findmodelinspList,
+  addNewModelInsp,
 
   // findByBookNo,
   // addNewBook,

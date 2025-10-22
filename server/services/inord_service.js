@@ -20,7 +20,12 @@ const findinord = async (custcode, inorddate) => {
   let inordDate = formatFullDate(inorddate);
   console.log("inordDate:", inordDate);
   let inordlist = await mariadb
-    .query("selectInord", [`${custcode}%`, inordDate])
+    .query("selectInord", [
+      `${custcode}%`,
+      `${custcode}%`,
+      inordDate,
+      inordDate,
+    ])
     .catch((err) => console.log(err));
   return inordlist;
 };

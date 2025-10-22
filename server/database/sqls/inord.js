@@ -1,13 +1,10 @@
 // 조건없이 업체 전체조회
-const selectInordList = `SELECT    CUST_CODE
+const selectInordList = `
+SELECT    CUST_CODE
         ,  CUST_NAME
         ,  PSCH_PHONE
   FROM     TB_CUST
   ORDER BY CUST_CODE`;
-// PRIMARY KEY를 활용한 단건조회 -> 제품master 관리에서 단건 조회는 pk로 하는게 아니라 제품코드, 리비전, 제품명으로 하는거니까 확인
-const selectInordOne = ``;
-
-// 시퀀스 호출
 
 // 등록
 const insertInordMaster = `
@@ -65,13 +62,14 @@ SELECT 	MAS.CUST_CODE
       , MM.MODEL_NAME
       , MM.REVISION
       , DET.INORD_QTY
-      , MAS.INORD_DATE
-      , MAS.PAPRD_DATE
+      , to_char(MAS.INORD_DATE, 'YYYY-MM-DD') INORD_DATE 
+      , TO_CHAR(MAS.PAPRD_DATE, 'YYYY-MM-DD') PAPRD_DATE
 FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	MAS.INORD_NO = DET.INORD_NO
                           JOIN TB_MODEL_MASTER MM	 ON DET.MODEL_CODE = MM.MODEL_CODE
                           JOIN TB_CUST C			     ON MAS.CUST_CODE = C.CUST_CODE
-WHERE MAS.CUST_CODE LIKE ?
-  AND MAS.INORD_DATE = STR_TO_DATE(?, '%Y-%m-%d')`;
+WHERE   ( ? IS NULL OR MAS.CUST_CODE LIKE ? )
+  AND   ( ? IS NULL OR MAS.INORD_DATE = STR_TO_DATE(?, '%Y-%m-%d') )
+`;
 
 // 삭제
 const deleteinorddetail = `DELETE TB_INORD_DETAIL

@@ -220,7 +220,7 @@ const insertPlan = async () => {
             toast.add({
                 severity: 'error',
                 summary: '저장 실패',
-                detail: '생산계획 저장에 실패했습니다.',
+                detail: '생산계획 저장에 실패했습니다. 계획 수량을 입력해주세요.',
                 life: 3000
             });
         }
@@ -270,58 +270,68 @@ const deletePlan = () => {
 </script>
 <template>
     <div class="card">
-        <Toolbar class="mb-6">
+        <Toolbar class="mb-6 relative">
             <template #start>
-                <div class="grid grid-cols-12 gap-2">
-                    <label for="startPlan" class="flex items-center col-span-1 mb-2 md:mb-0">계획시작일</label>
+                <div class="grid grid-cols-12 gap-2 w-full">
+                    <!-- 계획시작일 -->
+                    <label for="startPlan" class="flex items-center col-span-1">계획시작일</label>
                     <div class="col-span-3">
-                        <DatePicker id="startPlan" :showIcon="true" :showButtonBar="true" v-model="formData.planPeriod.startDate" date-format="yy-mm-dd" style="width: 250px"></DatePicker>
+                        <DatePicker id="startPlan" :showIcon="true" :showButtonBar="true" v-model="formData.planPeriod.startDate" date-format="yy-mm-dd" style="width: 250px" />
                     </div>
 
-                    <label for="endPlan" class="flex items-center col-span-1 mb-2 md:mb-0">계획종료일</label>
+                    <!-- 계획종료일 -->
+                    <label for="endPlan" class="flex items-center col-span-1">계획종료일</label>
                     <div class="col-span-2">
-                        <DatePicker id="endPlan" :showIcon="true" :showButtonBar="true" v-model="formData.planPeriod.endDate" date-format="yy-mm-dd"></DatePicker>
-                    </div>
-
-                    <div class="col-span-2"></div>
-
-                    <Button label="초기화" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="initPlan"></Button>
-                    <Button label="입력" class="p-button-success px-6 py-3 text-lg font-bold" @click="addPlan"></Button>
-                    <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" @click="insertPlan"></Button>
-
-                    <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품코드</label>
-                    <div class="col-span-3">
-                        <InputText v-model="formData.product.modelCode" id="modelName" type="text" style="width: 175px" readonly />
-                        <Button @click="ModalSearch = true" class="w-full" type="button" icon="pi pi-search" />
-                    </div>
-                    <label for="revision" class="flex items-center col-span-1 mb-2 md:mb-0">리비전</label>
-                    <div class="col-span-2">
-                        <InputText v-model="formData.product.revision" id="revision" type="text" class="w-full" readonly />
+                        <DatePicker id="endPlan" :showIcon="true" :showButtonBar="true" v-model="formData.planPeriod.endDate" date-format="yy-mm-dd" />
                     </div>
 
                     <div class="col-span-5"></div>
 
-                    <label for="modelName" class="flex items-center col-span-1 mb-2 md:mb-0">제품명</label>
+                    <!-- 제품코드 -->
+                    <label for="modelCode" class="flex items-center col-span-1">제품코드</label>
+                    <div class="col-span-3 flex items-center gap-1">
+                        <InputText v-model="formData.product.modelCode" id="modelCode" type="text" style="width: 175px" readonly />
+                        <Button @click="ModalSearch = true" icon="pi pi-search" class="lensButton p-button-success" />
+                    </div>
+
+                    <!-- 리비전 -->
+                    <label for="revision" class="flex items-center col-span-1 mb-2 md:mb-0">리비전</label>
+                    <div class="col-span-2"><InputText v-model="formData.product.revision" id="revision" type="text" class="w-full" readonly /></div>
+
+                    <div class="col-span-5"></div>
+
+                    <!-- 제품명 -->
+                    <label for="modelName" class="flex items-center col-span-1">제품명</label>
                     <div class="col-span-3">
                         <InputText v-model="formData.product.modelName" id="modelName" type="text" style="width: 210px" readonly />
                     </div>
+
+                    <!-- 공정선택 -->
                     <label for="selectProc" class="flex items-center col-span-1">공정선택</label>
                     <div class="col-span-2">
                         <Select v-model="formData.process.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" />
                     </div>
 
-                    <div class="col-span-4"></div>
-                    <Button label="삭제" icon="pi pi-trash" class="p-button-danger px-4 py-2 font-bold" @click="deletePlan"></Button>
+                    <!-- ✅ 버튼 그룹들: 툴바 전체 기준 -->
+                    <div class="absolute top-3 right-4 flex gap-2">
+                        <Button label="초기화" class="p-button-outlined px-5 py-2 font-bold" @click="initPlan" />
+                        <Button label="입력" class="p-button-success px-5 py-2 font-bold" @click="addPlan" />
+                        <Button label="저장" class="p-button-success px-5 py-2 font-bold" @click="insertPlan" />
+                    </div>
+
+                    <div class="absolute bottom-3 right-4">
+                        <Button label="삭제" icon="pi pi-trash" class="p-button-danger px-4 py-2 font-bold" @click="deletePlan" />
+                    </div>
                 </div>
             </template>
         </Toolbar>
 
         <!-- 생산계획 등록 그리드 -->
-        <DataTable v-model:selection="selectedPlans" :value="prodPlan" selectionMode="multiple" :rows="10" style="border: 1px solid #ddd; height: 60.6vh">
+        <DataTable v-model:selection="selectedPlans" :value="prodPlan" selectionMode="multiple" scrollable scrollHeight="64.5vh" style="border: 1px solid #ddd; height: 64.8vh">
             <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
             <!-- <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 10rem"></Column> -->
             <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 10rem"></Column>
-            <Column field="endPlanDate" header="생산종료일자" sortable style="min-width: 10em"></Column>
+            <Column field="endPlanDate" header="계획종료일자" sortable style="min-width: 10em"></Column>
             <Column field="planQty" header="계획수량" sortable style="min-width: 12rem">
                 <template #body="{ data }">
                     <input v-model.number="data.planQty" type="number" min="0" step="1" class="w-40 border p-1" />
@@ -341,7 +351,13 @@ const deletePlan = () => {
     </div>
 </template>
 <style scoped>
-#button_ {
-    margin: 20px;
+button {
+    margin-right: 2px;
+    width: 100px;
+    height: 50px;
+}
+.lensButton {
+    width: 32px;
+    height: 32px;
 }
 </style>
