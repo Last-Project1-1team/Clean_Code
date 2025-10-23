@@ -159,7 +159,7 @@ const initPlan = () => {
                     </div>
 
                     <!-- 공정선택 -->
-                    <label for="selectProc" class="flex items-center col-span-1">공정</label>
+                    <label for="selectProc" class="flex items-center col-span-1">최종공정</label>
                     <div class="col-span-2">
                         <!-- <Select v-model="searchData.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" /> -->
                         <InputText v-model="searchData.procName" id="selectProc" class="w-full" readonly />
@@ -175,13 +175,13 @@ const initPlan = () => {
         </Toolbar>
 
         <!-- 생산계획 등록 그리드 -->
-        <DataTable :value="prodPlan" dataKey="prodPlanNo" scrollable scrollHeight="64.2vh" style="border: 1px solid #ddd; height: 64.5vh">
+        <DataTable :value="prodPlan" dataKey="prodPlanNo" scrollable scrollHeight="63.8vh" style="border: 1px solid #ddd; height: 63.8vh">
             <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 10rem"></Column>
             <Column field="endPlanDate" header="계획종료일자" sortable style="min-width: 10rem"></Column>
             <Column field="modelCode" header="제품코드" sortable style="min-width: 10rem"></Column>
             <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
             <Column field="modelName" header="제품명" sortable style="min-width: 10rem"></Column>
-            <Column field="procName" header="공정" sortable style="min-width: 8rem"></Column>
+            <Column field="procName" header="최종공정" sortable style="min-width: 8rem"></Column>
             <Column field="totalInordQty" header="수주량" sortable style="min-width: 9rem"></Column>
             <Column field="planQty" header="계획수량" sortable style="min-width: 9rem"></Column>
             <Column field="unit" header="단위" sortable style="min-width: 5rem"></Column>

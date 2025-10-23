@@ -73,7 +73,7 @@ const initPlan = () => {
             modelName: ''
         },
         process: {
-            procCode: procCode
+            procCode: formData.value.process.procCode
         },
         totalInordQty: 0,
         unshippedQty: 0
@@ -81,8 +81,8 @@ const initPlan = () => {
 };
 
 // 수주량, 출하량 조회 후 그리드에 반영
-const fetchOrderQty = async (modelCode, revision, procCode) => {
-    if (!modelCode || !revision || !procCode) {
+const fetchOrderQty = async (modelCode, revision) => {
+    if (!modelCode || !revision) {
         formData.value.totalInordQty = 0;
         formData.value.totalShipQty = 0;
         formData.value.unshippedQty = 0;
@@ -91,7 +91,7 @@ const fetchOrderQty = async (modelCode, revision, procCode) => {
 
     try {
         const response = await axios.get(`${apiUrl}/prodplan/inordqty`, {
-            params: { modelCode, revision, procCode }
+            params: { modelCode, revision }
         });
 
         const data = response.data && response.data.length > 0 ? response.data[0] : null;
@@ -161,11 +161,25 @@ const addPlan = async () => {
     });
 
     // 폼 초기화
-    initPlan();
+    // initPlan();
+};
+
+// 선택된 행 처리 함수
+const checkon = (rowData) => {
+    const index = selectedPlans.value.findIndex((p) => p.modelCode === rowData.modelCode && p.revision === rowData.revision);
+    if (index === -1) {
+        selectedPlans.value.push(rowData); // 없으면 추가
+    } else {
+        selectedPlans.value.splice(index, 1); // 이미 있으면 제거 (토글)
+    }
 };
 
 // 저장 버튼 이벤트
 const insertPlan = async () => {
+    console.log('🟢 insertPlan 호출됨');
+    console.log('selectedPlans:', selectedPlans);
+    console.log('selectedPlans.value 타입:', typeof selectedPlans.value);
+    console.log('selectedPlans.value:', selectedPlans.value);
     try {
         // 그리드에 데이터가 없으면 알림
         if (!selectedPlans.value || selectedPlans.value.length === 0) {
@@ -177,8 +191,11 @@ const insertPlan = async () => {
         let successCount = 0;
         let failCount = 0;
 
+        const plans = Array.isArray(selectedPlans.value) ? selectedPlans.value : [selectedPlans.value]; // 객체라면 배열로 감싸기
+
         // 그리드의 각 행을 순회하면서 서버에 저장
         for (const plan of selectedPlans.value) {
+            console.log('🟡 처리 중인 plan:', plan);
             // 서버에 전송할 형태로 데이터 가공
             const planData = {
                 createDate: plan.regPlanDate,
@@ -190,11 +207,15 @@ const insertPlan = async () => {
                 procCode: formData.value.process.procCode
             };
 
+            console.log('🔵 전송할 planData:', planData);
+
             // 필수 데이터 검증
             if (!planData.planQty) {
                 failCount++;
                 continue; // 계획수량이 없으면 건너뛰기
             }
+
+            console.log(`✅ 저장 완료 - 성공 ${successCount}건 / 실패 ${failCount}건`);
 
             try {
                 // 서버에 POST 요청 보내기
@@ -202,6 +223,7 @@ const insertPlan = async () => {
                 successCount++;
             } catch (err) {
                 console.error('계획 저장 중 오류:', err);
+                console.log('selectedPlans.value (오류시점):', selectedPlans.value);
                 failCount++;
             }
         }
@@ -308,7 +330,7 @@ const deletePlan = () => {
                     </div>
 
                     <!-- 공정선택 -->
-                    <label for="selectProc" class="flex items-center col-span-1">공정</label>
+                    <label for="selectProc" class="flex items-center col-span-1">최종공정</label>
                     <div class="col-span-2">
                         <!-- <Select v-model="formData.process.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" /> -->
                         <InputText v-model="formData.process.procName" id="selectProc" class="w-full" readonly />
@@ -322,27 +344,27 @@ const deletePlan = () => {
                     </div>
 
                     <div class="absolute bottom-3 right-4">
-                        <Button label="삭제" icon="pi pi-trash" class="p-button-danger px-4 py-2 font-bold" @click="deletePlan" />
+                        <Button label="삭제" icon="pi pi-trash" class="deleteButton p-button-danger px-4 py-2 font-bold" @click="deletePlan" />
                     </div>
                 </div>
             </template>
         </Toolbar>
 
         <!-- 생산계획 등록 그리드 -->
-        <DataTable v-model:selection="selectedPlans" :value="prodPlan" selectionMode="multiple" scrollable scrollHeight="64.5vh" style="border: 1px solid #ddd; height: 64.8vh">
+        <DataTable v-model:selection="selectedPlans" :value="prodPlan" selectionMode="multiple" scrollable scrollHeight="63.8vh" style="border: 1px solid #ddd; height: 63.8vh">
             <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
             <!-- <Column field="regPlanDate" header="계획등록일자" sortable style="min-width: 10rem"></Column> -->
             <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 10rem"></Column>
             <Column field="endPlanDate" header="계획종료일자" sortable style="min-width: 10em"></Column>
             <Column field="planQty" header="계획수량" sortable style="min-width: 12rem">
                 <template #body="{ data }">
-                    <input v-model.number="data.planQty" type="number" min="0" step="1" class="w-40 border p-1" />
+                    <input v-model.number="data.planQty" type="number" min="0" step="1" class="w-40 border p-1" @blur="checkon(data)" />
                 </template>
             </Column>
             <Column field="modelCode" header="제품코드" sortable style="min-width: 10rem"></Column>
             <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
             <Column field="modelName" header="제품명" sortable style="min-width: 10rem"></Column>
-            <Column field="procName" header="공정" sortable style="min-width: 8rem"></Column>
+            <Column field="procName" header="최종공정" sortable style="min-width: 8rem"></Column>
             <Column field="totalInordQty" header="수주량" sortable style="min-width: 9rem"></Column>
             <Column field="unshippedQty" header="미 출하량" sortable style="min-width: 9rem"></Column>
         </DataTable>
@@ -361,5 +383,9 @@ button {
 .lensButton {
     width: 32px;
     height: 32px;
+}
+.deleteButton {
+    width: 100px;
+    height: 30px;
 }
 </style>

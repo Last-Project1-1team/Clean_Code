@@ -56,23 +56,9 @@ router.get("/prodplan/proc", async (req, res) => {
 // 수주량
 router.get("/prodplan/inordqty", async (req, res) => {
   try {
-    const {
-      regPlanDate,
-      startPlanDate,
-      endPlanDate,
-      modelCode,
-      revision,
-      procCode,
-    } = req.query;
+    const { modelCode, revision } = req.query;
 
-    const quantities = await prodPlanService.findInordQty(
-      regPlanDate,
-      startPlanDate,
-      endPlanDate,
-      modelCode,
-      revision,
-      procCode
-    );
+    const quantities = await prodPlanService.findInordQty(modelCode, revision);
 
     res.json(quantities);
   } catch (error) {
