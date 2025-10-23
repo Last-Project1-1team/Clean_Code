@@ -1,13 +1,11 @@
 const shipmodel = `
-SELECT   MAS.inord_no INORD_NO
+SELECT    MAS.inord_no INORD_NO
         , C.cust_name
         , C.CUST_CODE
         , DET.MODEL_CODE
         , DET.REVISION
-        , S.INORD_NO
-FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	MAS.INORD_NO = DET.INORD_NO
-							            JOIN TB_CUST C 			     ON	MAS.cust_code = C.cust_code
-                          JOIN TB_SHIP_MASTER S    ON MAS.INORD_NO = S.INORD_NO
+FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	 MAS.INORD_NO = DET.INORD_NO
+							JOIN TB_CUST C 			 ON	 MAS.cust_code = C.cust_code
 WHERE 	MAS.INORD_NO = ?`;
 
 const shipinordmatch = `
@@ -93,10 +91,10 @@ WHERE   ( ? IS NULL OR MAS.CUST_NO LIKE ? )
   AND   ( ? IS NULL OR MAS.SHIP_DATE = STR_TO_DATE(?, '%Y-%m-%d') )`;
 
 module.exports = {
-  shipmodel,
-  lotnoscan,
-  selectLastShipNo,
-  insertshipmaster,
-  insertshipdetail,
-  selectShip,
+    shipmodel,
+    lotnoscan,
+    selectLastShipNo,
+    insertshipmaster,
+    insertshipdetail,
+    selectShip,
 };
