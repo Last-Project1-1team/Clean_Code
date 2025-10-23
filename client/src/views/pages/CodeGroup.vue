@@ -47,14 +47,14 @@ onMounted(async () => {
     }));
 });
 
-const groupSearch = () => {
-    if (!selectedGroup.value) {
-        toast.add({ severity: 'warn', summary: '코드그룹을 선택하세요.', life: 2000 });
-        return;
-    }
-    console.log('선택된 그룹:', selectedGroup.value);
-    getGroupList(selectedGroup.value);
-};
+// const groupSearch = () => {
+//     if (!selectedGroup.value) {
+//         toast.add({ severity: 'warn', summary: '코드그룹을 선택하세요.', life: 2000 });
+//         return;
+//     }
+//     console.log('선택된 그룹:', selectedGroup.value);
+//     getGroupList(selectedGroup.value);
+// };
 
 //전체조회
 const getGroupList = async (groupCode) => {

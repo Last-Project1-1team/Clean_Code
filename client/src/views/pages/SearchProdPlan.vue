@@ -17,13 +17,14 @@ const formatDate = (date) => {
 
 onMounted(async () => {
     const response = await axios.get(`${apiUrl}/prodplan/proc`);
-    procDropDown.value = response.data.map((proc) => ({
-        label: proc.name, // 보여줄 이름
-        value: proc.code // 실제 값
-    }));
+    if (response.data.length > 0) {
+        const proc = response.data[0];
+        searchData.value.procCode = proc.code;
+        searchData.value.procName = proc.name;
+    }
 });
 
-const startPlanDate = ref(null);
+const startPlanDate = ref(new Date());
 const endPlanDate = ref(null);
 const regPlanDate = ref(null);
 const selectedModel = ref({});
@@ -107,8 +108,13 @@ const initPlan = () => {
     startPlanDate.value = null;
     endPlanDate.value = null;
     selectedModel.value = {};
-    searchData.value = {};
     selectedData.value = {};
+    if (searchData.value) {
+        // 필요한 검색 조건만 초기화
+        searchData.value.modelCode = '';
+        searchData.value.revision = '';
+        searchData.value.modelName = '';
+    }
 };
 </script>
 
@@ -153,9 +159,10 @@ const initPlan = () => {
                     </div>
 
                     <!-- 공정선택 -->
-                    <label for="selectProc" class="flex items-center col-span-1">공정선택</label>
+                    <label for="selectProc" class="flex items-center col-span-1">공정</label>
                     <div class="col-span-2">
-                        <Select v-model="searchData.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" />
+                        <!-- <Select v-model="searchData.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" /> -->
+                        <InputText v-model="searchData.procName" id="selectProc" class="w-full" readonly />
                     </div>
 
                     <!-- ✅ 버튼 그룹 (등록 화면과 동일 구조) -->

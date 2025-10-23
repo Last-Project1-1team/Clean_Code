@@ -62,13 +62,14 @@ const onWorkOrderSelected = async (data) => {
     openWorkOrdModal.value = false; // 모달 닫기
 
     // 선택된 modelCode, revision 이용해 BOM 조회 실행
-    if (data.modelCode && data.revision && data.workOrdNo) {
+    if (data.modelCode && data.revision) {
         await fetchBomList(data.modelCode, data.revision, data.workOrdNo);
     }
 
     // 받은 allProcs 데이터를 가공하여 저장
     receivedAllProcs.value = (data.allProcs || []).map((proc) => ({
-        // 사용자 데이터 구조에 맞게 `name` 또는 `code` 필드를 조정
+        // allProcs 배열의 각 요소가 { proc_code: 'P01', proc_name: '절단' } 이런 형태라고 가정
+        // 사용자 데이터 구조에 맞게 `name` 또는 `code` 필드를 조정해줘!
         ...proc, // 원래 공정 데이터
         name: proc.proc_name || proc.proc_code || String(proc), // 화면 표시용 이름 (사용자 데이터에 맞춰 조정)
         proc_code: proc.proc_code || '', // 공정 코드 (실적 업데이트 시 사용)
@@ -84,14 +85,24 @@ const onWorkOrderSelected = async (data) => {
     console.log('✨ 새로운 작업지시 데이터 수신, 공정 및 작업 상태 초기화!');
 };
 
-// 작업 상태 초기화 함수 (새로운 작업지시 선택 또는 전체 작업 종료 시 호출)
-const resetWorkOrderState = () => {
+// 작업 상태 초기화 함수
+// 전체 종료일 때만 완전 초기화
+// 일시정지일 때는 현재 공정 인덱스와 상태 유지
+const resetWorkOrderState = (isPause = false) => {
+    if (isPause) {
+        // 일시정지: 상태만 변경하고 진행 중인 공정은 유지
+        isWorkOrderRunning.value = false;
+        workOrderPaused.value = true; // 재개 가능 상태로 전환
+        workOrderEndTime.value = new Date(); // 정지 시각 기록
+        return;
+    }
+
+    // 전체 종료 시 (완전 초기화)
     isWorkOrderRunning.value = false;
     workOrderPaused.value = false;
     workOrderStartTime.value = null;
     workOrderEndTime.value = null;
     currentProcIndex.value = 0;
-    // 모든 공정의 상태도 'WAITING'으로 초기화
     receivedAllProcs.value.forEach((proc) => {
         proc.status = 'WAITING';
         proc.procStartTime = null;
@@ -99,6 +110,21 @@ const resetWorkOrderState = () => {
         proc.realWorkQty = 0;
     });
 };
+// // 작업 상태 초기화 함수 (새로운 작업지시 선택 또는 전체 작업 종료 시 호출)
+// const resetWorkOrderState = () => {
+//     isWorkOrderRunning.value = false;
+//     workOrderPaused.value = false;
+//     workOrderStartTime.value = null;
+//     workOrderEndTime.value = null;
+//     currentProcIndex.value = 0;
+//     // 모든 공정의 상태도 'WAITING'으로 초기화
+//     receivedAllProcs.value.forEach((proc) => {
+//         proc.status = 'WAITING';
+//         proc.procStartTime = null;
+//         proc.procEndTime = null;
+//         proc.realWorkQty = 0;
+//     });
+// };
 
 // --------------------------------------- Bom 부분 ---------------------------------------
 // 여러 작업지시 데이터 저장 그리드 연결
@@ -107,7 +133,6 @@ const bomList = ref([]);
 // BOM(Lot) 데이터 조회
 const fetchBomList = async (modelCode, revision, workOrdNo) => {
     try {
-        // console.log('BOM 조회 요청:', modelCode, revision, workOrdNo);
         const res = await axios.get(`${apiUrl}/resultwork/bomlist`, {
             params: { modelCode, revision, workOrdNo }
         });
@@ -211,14 +236,31 @@ const onSelectLot = (data) => {
         });
 
         // 초과량 저장
-        overQtyMap.value[targetBom.itemCode] = over;
+        // overQtyMap.value[targetBom.itemCode] = over;
 
-        // 초과된 상태 반영 (선택은 허용)
-        targetBom.lotQty = newTotal;
+        // 초과량 저장 lot까지 저장되도록 변경
+        if (!overQtyMap.value[targetBom.itemCode]) {
+            overQtyMap.value[targetBom.itemCode] = [];
+        }
+
+        // ✅ 어떤 LOT이 초과를 일으켰는지까지 기록
+        overQtyMap.value[targetBom.itemCode].push({
+            lotNo: data.lotNo,
+            overQty: over
+        });
+
         // 초과된 itemCode를 차단리스트에 추가
         blockedItems.value.add(data.itemCode);
-        // ✅ lot 선택 해제 (다시 선택 불가)
+
+        // lot 선택 해제 (다시 선택 불가)
         selectedLot.value = null;
+
+        // 초과된 상태 반영 (선택은 허용)
+        // targetBom.lotQty = newTotal; --------> 이렇게 하면 needQty 초과 상태로 남아 버튼 비활성화됨
+
+        // [수정] 준비수량은 needQty까지만 인정 (isReady 조건 통과 가능)
+        targetBom.lotQty = needQty;
+        selectedLotQtyMap.value[data.itemCode] = needQty;
 
         openLotModal.value = false;
         return;
@@ -254,19 +296,40 @@ const workOrderPaused = ref(false); // 전체 작업지시가 일시정지 상�
 const workOrderStartTime = ref(null); // 전체 작업지시 시작 시간
 const workOrderEndTime = ref(null); // 전체 작업지시 종료 시간
 
+//여기서 디버깅 추가
+console.log('bomList:', JSON.stringify(bomList.value));
+console.log('selectedLotQtyMap:', JSON.stringify(selectedLotQtyMap.value));
+console.log('realWorkQty:', realWorkQty.value);
+
 // ✅ 버튼 활성화 조건: 모든 품목이 needQty 이상 준비되면 true
 const isReady = computed(() => {
-    // 실 작업수량이 0 이하거나 입력되지 않았으면 false
-    if (!realWorkQty.value || realWorkQty.value <= 0) return false;
+    // 여기서부터 디버깅 추가
+    console.log('Checking isReady...');
+    console.log('realWorkQty:', realWorkQty.value);
 
-    // 기존 로직: 모든 품목이 준비되었는지 확인
-    if (!bomList.value || bomList.value.length === 0) return false;
-    return bomList.value.every((item) => {
+    // 실 작업수량이 0 이하거나 입력되지 않았으면 false
+    if (!realWorkQty.value || realWorkQty.value <= 0) {
+        // 여기서부터 디버깅 추가
+        console.log('realWorkQty 조건 실패');
+        return false;
+    }
+
+    if (!bomList.value || bomList.value.length === 0) {
+        // 여기서부터 디버깅 추가
+        console.log('bomList 조건 실패');
+        return false;
+    }
+
+    const result = bomList.value.every((item) => {
         const itemCode = item.itemCode;
         const needQty = Number(item.needQty) || 0;
         const lotQty = Number(selectedLotQtyMap.value[itemCode]) || 0;
+        console.log(`itemCode: ${itemCode}, needQty: ${needQty}, lotQty: ${lotQty}, 준비완료: ${lotQty >= needQty}`);
         return lotQty >= needQty;
     });
+
+    console.log('최종 isReady 결과:', result); // 여기까지 추가
+    return result;
 });
 
 const buttonSeverity = computed(() => (isWorkOrderRunning.value ? 'warn' : 'success'));
@@ -326,13 +389,33 @@ const displayedAllProcs = computed(() => {
         .join(' -> ');
 });
 
+// 작업 종료 시 일시정지버튼 비활성화
+const allProcessesCompleted = computed(() => {
+    return receivedAllProcs.value.length > 0 && receivedAllProcs.value.every((proc) => proc.status?.toUpperCase().trim() === 'COMPLETED');
+});
+
+watch(
+    receivedAllProcs,
+    (newVal) => {
+        console.log('📦 현재 공정 리스트:', newVal);
+        console.log('✅ 전체 완료 여부:', allProcessesCompleted.value);
+    },
+    { deep: true }
+);
+//
+//
+//
+//
+
+//
+//
+//
 // 시작버튼 클릭 이벤트
 const toggleWorkOrderRunning = async () => {
     console.log('currentProcess 확인:', currentProcess.value);
 
     // ⚠️ 시작 전 품목 준비량 확인 (작업이 시작되지 않은 상태에서만 검사)
     if (!isReady.value && !isWorkOrderRunning.value) {
-        // isWorkOrderRunning.value가 false일 때만 검사
         toast.add({
             severity: 'warn',
             summary: '선택 불가',
@@ -341,6 +424,7 @@ const toggleWorkOrderRunning = async () => {
         });
         return;
     }
+
     // ⚠️ 작업지시 선택 여부 확인
     if (!selectedWorkOrder.value || !selectedWorkOrder.value.workOrdNo) {
         toast.add({
@@ -356,67 +440,68 @@ const toggleWorkOrderRunning = async () => {
     let payload = [];
     let successMsg = '';
 
+    // 🟢 CASE 1: 처음 시작 또는 일시정지 후 재시작
     if (!isWorkOrderRunning.value) {
-        // CASE 1: 작업이 아예 시작되지 않은 상태 (첫 '작업시작' 클릭)
-        url = `${apiUrl}/resultwork/save`; // 'INSERT' 로직
+        url = `${apiUrl}/resultwork/save`;
         payload = [
             {
                 workOrdNo: selectedWorkOrder.value.workOrdNo,
                 modelCode: selectedWorkOrder.value.modelCode,
                 revision: selectedWorkOrder.value.revision,
-                proc_code: currentProcess.value ? currentProcess.value.proc_code || currentProcess.value.proc || '첫번째공정' : '첫번째공정',
-                proc_seq: currentProcess.value ? currentProcess.value.proc_seq || 1 : 1,
+                proc_code: currentProcess.value?.proc_code || '작업시작',
+                proc_seq: currentProcess.value?.proc_seq || 1,
                 work_qty: realWorkQty.value,
-                status: 'START',
+                status: workOrderPaused.value ? 'RESUME' : 'START', // ✅ 재개 구분
                 workStartTime: formatDateForMySQL(new Date())
             }
         ];
-        successMsg = '✅ 작업이 시작되었습니다.';
-    } else {
-        // CASE 2: 작업이 진행 중인 상태 ('일시정지' 버튼 클릭 = 정지 및 초기화)
-        url = `${apiUrl}/resultwork/updateEnd`; // 'UPDATE' 로직 - 여기를 updateEnd로 변경!
+        successMsg = workOrderPaused.value ? '✅ 작업이 재개되었습니다.' : '✅ 작업이 시작되었습니다.';
+    }
+    // 🟡 CASE 2: 작업 중 → 일시정지
+    else {
+        url = `${apiUrl}/resultwork/pauseinsert`;
         payload = [
             {
                 workOrdNo: selectedWorkOrder.value.workOrdNo,
-                proc_code: currentProcess.value ? currentProcess.value.proc_code || currentProcess.value.proc || '' : selectedWorkOrder.value.proc_code || '',
-                proc_seq: currentProcess.value ? currentProcess.value.proc_seq || 1 : selectedWorkOrder.value.workOrderSeq || 1, // 이 부분 삭제했었음
-
-                work_qty: realWorkQty.value, // 최종 작업수량 이 부분 삭제했었음
-                status: 'STOP', // 'PAUSE' 대신 'STOP' (또는 'END', 서버에 맞춰 사용)
-                workEndTime: formatDateForMySQL(new Date()) // 정지 시각 기록
+                modelCode: selectedWorkOrder.value.modelCode,
+                revision: selectedWorkOrder.value.revision,
+                proc_code: '일시정지',
+                work_qty: realWorkQty.value,
+                status: 'PAUSE',
+                workEndTime: formatDateForMySQL(new Date())
             }
         ];
+        successMsg = '⏸ 작업이 일시정지되었습니다.';
     }
 
     try {
         const response = await axios.post(url, payload);
         console.log('서버 응답 (작업지시 컨트롤):', response.data);
 
-        // UI 상태 업데이트
+        // ✅ 서버 응답 성공 시 상태 전환 처리
         if (response.data.isSuccessed && response.data.results[0].isSuccessed) {
             if (!isWorkOrderRunning.value) {
-                // '작업시작' 성공
+                // 작업 시작 or 재개
                 isWorkOrderRunning.value = true;
-                workOrderPaused.value = false; // 이 흐름에서는 사용되지 않지만 초기화
+                workOrderPaused.value = false;
                 workOrderStartTime.value = new Date();
+                toast.add({
+                    severity: 'success',
+                    summary: '작업 상태 변경',
+                    detail: successMsg,
+                    life: 2500
+                });
             } else {
-                // '일시정지' (정지) 성공
-                // 모든 상태 초기화하여 '시작' 버튼으로 되돌림
-                resetWorkOrderState(); // 이 함수는 모든 공정과 작업지시 관련 상태를 초기화해야 함
+                // 일시정지
+                isWorkOrderRunning.value = false;
+                workOrderPaused.value = true;
                 toast.add({
                     severity: 'warn',
                     summary: '작업 정지',
-                    detail: '⏸ 작업이 정지되었습니다. 다시 시작하려면 "작업시작"을 눌러주세요.',
+                    detail: successMsg,
                     life: 2500
                 });
-                return;
             }
-            toast.add({
-                severity: 'success',
-                summary: '작업 시작',
-                detail: '✅ 작업이 시작되었습니다.',
-                life: 2500
-            });
         } else {
             toast.add({
                 severity: 'warn',
@@ -436,6 +521,138 @@ const toggleWorkOrderRunning = async () => {
         });
     }
 };
+
+// const toggleWorkOrderRunning = async () => {
+//     console.log('currentProcess 확인:', currentProcess.value);
+
+//     // ⚠️ 시작 전 품목 준비량 확인 (작업이 시작되지 않은 상태에서만 검사)
+//     if (!isReady.value && !isWorkOrderRunning.value) {
+//         // isWorkOrderRunning.value가 false일 때만 검사
+//         toast.add({
+//             severity: 'warn',
+//             summary: '선택 불가',
+//             detail: '모든 품목의 준비수량이 필요수량에 도달해야 작업을 시작할 수 있습니다.',
+//             life: 2500
+//         });
+//         return;
+//     }
+//     // ⚠️ 작업지시 선택 여부 확인
+//     if (!selectedWorkOrder.value || !selectedWorkOrder.value.workOrdNo) {
+//         toast.add({
+//             severity: 'warn',
+//             summary: '선택 불가',
+//             detail: '작업지시가 선택되지 않았습니다.',
+//             life: 2500
+//         });
+//         return;
+//     }
+
+//     let url = '';
+//     let payload = [];
+//     let successMsg = '';
+
+//     if (!isWorkOrderRunning.value) {
+//         url = `${apiUrl}/resultwork/save`;
+//         payload = [
+//             {
+//                 workOrdNo: selectedWorkOrder.value.workOrdNo,
+//                 modelCode: selectedWorkOrder.value.modelCode,
+//                 revision: selectedWorkOrder.value.revision,
+//                 // ✅ 현재 공정이 있으면 그대로 재개, 없으면 첫 공정
+//                 proc_code: currentProcess.value?.proc_code || '첫번째공정',
+//                 proc_seq: currentProcess.value?.proc_seq || 1,
+//                 work_qty: realWorkQty.value,
+//                 status: workOrderPaused.value ? 'RESUME' : 'START', // ✅ 재개 상태 구분
+//                 workStartTime: formatDateForMySQL(new Date())
+//             }
+//         ];
+//         successMsg = workOrderPaused.value ? '✅ 작업이 재개되었습니다.' : '✅ 작업이 시작되었습니다.';
+//     } else {
+//         // CASE 2: 작업이 진행 중인 상태 ('일시정지' 버튼 클릭 = 정지 및 초기화)
+//         url = `${apiUrl}/resultwork/pauseinsert`; // 'UPDATE' 로직 - 여기를 updateEnd로 변경!
+//         payload = [
+//             {
+//                 workOrdNo: selectedWorkOrder.value.workOrdNo,
+//                 modelCode: selectedWorkOrder.value.modelCode,
+//                 revision: selectedWorkOrder.value.revision,
+//                 proc_code: currentProcess.value ? currentProcess.value.proc_code || currentProcess.value.proc : '첫번째공정',
+//                 work_qty: realWorkQty.value,
+//                 status: 'PAUSE',
+//                 workEndTime: formatDateForMySQL(new Date())
+//             }
+//             // {
+//             //     workOrdNo: selectedWorkOrder.value.workOrdNo,
+//             //     modelCode: selectedWorkOrder.value.modelCode,
+//             //     revision: selectedWorkOrder.value.revision,
+//             //     proc_code: currentProcess.value ? currentProcess.value.proc_code || currentProcess.value.proc || '첫번째공정' : '첫번째공정',
+//             //     proc_seq: currentProcess.value ? currentProcess.value.proc_seq || 1 : 1,
+//             //     work_qty: realWorkQty.value,
+//             //     status: 'PAUSE', // ✅ UPDATE 대신 INSERT로 기록만 남김
+//             //     workEndTime: formatDateForMySQL(new Date())
+//             // }
+//         ];
+//     }
+
+//     let workStatus = '';
+
+//     if (!isWorkOrderRunning.value && !workOrderPaused.value) {
+//         workStatus = 'START'; // 새로 시작
+//     } else if (isWorkOrderRunning.value && !workOrderPaused.value) {
+//         workStatus = 'PAUSE'; // 일시정지
+//     } else if (workOrderPaused.value) {
+//         workStatus = 'RESUME'; // 다시 시작
+//     }
+
+//     console.log('보내는 상태:', workStatus.value);
+
+//     try {
+//         const response = await axios.post(url, payload);
+//         //
+//         console.log('서버 응답 (작업지시 컨트롤):', response.data);
+
+//         // UI 상태 업데이트
+//         if (response.data.isSuccessed && response.data.results[0].isSuccessed) {
+//             if (!isWorkOrderRunning.value) {
+//                 // '작업시작' 성공
+//                 isWorkOrderRunning.value = true;
+//                 workOrderPaused.value = false; // 이 흐름에서는 사용되지 않지만 초기화
+//                 workOrderStartTime.value = new Date();
+//             } else {
+//                 // '일시정지' (정지) 성공
+//                 // resetWorkOrderState();  ---------------------> 이 부분 때문에 일시 정지 시 초기화 되어버림
+//                 toast.add({
+//                     severity: 'warn',
+//                     summary: '작업 정지',
+//                     detail: '⏸ 작업이 일시정지되었습니다. 다시 시작하려면 "작업시작"을 눌러주세요.',
+//                     life: 2500
+//                 });
+//                 return;
+//             }
+//             toast.add({
+//                 severity: 'success',
+//                 summary: '작업 시작',
+//                 detail: '✅ 작업이 시작되었습니다.',
+//                 life: 2500
+//             });
+//         } else {
+//             toast.add({
+//                 severity: 'warn',
+//                 summary: '서버 응답 실패',
+//                 detail: '❌ 작업 상태 변경이 서버에서 거부되었습니다.',
+//                 life: 2500
+//             });
+//             console.error('서버 응답 실패:', response.data);
+//         }
+//     } catch (error) {
+//         console.error('데이터 전송 중 오류 발생 (작업지시 컨트롤):', error);
+//         toast.add({
+//             severity: 'warn',
+//             summary: '서버 응답 실패',
+//             detail: '❌ 작업지시 상태 변경 실패',
+//             life: 2500
+//         });
+//     }
+// };
 
 // ---------------------- 5. 개별 공정 컨트롤 (공정시작/공정완료) ----------------------
 
@@ -488,7 +705,6 @@ const startProcessStep = async () => {
     }
 };
 
-// 공정버튼
 const completeProcessStep = async () => {
     if (!currentProcess.value || currentProcess.value.status !== 'IN_PROGRESS') {
         toast.add({
@@ -573,11 +789,15 @@ const finishWorkOrder = async () => {
     const url = `${apiUrl}/resultwork/updateEnd`;
     const payload = [
         {
-            proc_code: currentProcess.value ? currentProcess.value.proc_code || currentProcess.value.proc || '' : selectedWorkOrder.value.proc_code || '',
-            work_qty: Number(realWorkQty.value),
+            workOrdNo: selectedWorkOrder.value.workOrdNo,
+            modelCode: selectedWorkOrder.value.modelCode,
+            revision: selectedWorkOrder.value.revision,
+            proc_code: currentProcess.value?.proc_code || '',
+            workQty: realWorkQty.value,
             status: 'END',
-            workEndTime: formatDateForMySQL(new Date()),
-            workOrdNo: selectedWorkOrder.value.workOrdNo
+            workStartTime: workOrderStartTime.value,
+            workEndTime: new Date(),
+            usedLots: selectedLotNos.value // LOT 번호 배열 추가
         }
     ];
 
@@ -600,7 +820,9 @@ const finishWorkOrder = async () => {
             workOrdNo: '',
             modelCode: '',
             revision: '',
-            workOrdQty: null
+            workOrdQty: null // 숫자라면 null이나 0
+            // 기타 다른 속성들도 기본값으로 초기화
+            // 사용자 입력 실 작업수량 비우기
         };
         realWorkQty.value = 0;
         // 현재 작업 공정 비우기
@@ -609,7 +831,7 @@ const finishWorkOrder = async () => {
         receivedAllProcs.value = [];
         bomList.value = []; // BOM 리스트 비우기
     } catch (error) {
-        console.error('작업 종료 및 LOT 등록 중 오류(최종 작업 종료):', error);
+        console.error('데이터 전송 중 오류 발생 (최종 작업 종료):', error);
         toast.add({
             severity: 'warn',
             summary: '작업 종료 실패',
@@ -697,9 +919,14 @@ const finishWorkOrder = async () => {
             <Column field="lotQty" header="준비수량" style="min-width: 150px"></Column>
             <Column header="초과량" style="min-width: 150px">
                 <template #body="slotProps">
-                    {{ overQtyMap[slotProps.data.itemCode] || 0 }}
+                    {{ overQtyMap[slotProps.data.itemCode] ? overQtyMap[slotProps.data.itemCode].map((o) => `${o.lotNo} (${o.overQty})`).join(', ') : '' }}
                 </template>
             </Column>
+            <!-- <Column header="초과량" style="min-width: 150px">
+                <template #body="slotProps">
+                    {{ overQtyMap[slotProps.data.itemCode] || 0 }}
+                </template>
+            </Column> -->
             <Column field="unit" header="단위" style="min-width: 150px"></Column>
         </DataTable>
 
@@ -713,8 +940,7 @@ const finishWorkOrder = async () => {
     <div class="buttons">
         <!-- 전체 작업지시 컨트롤 버튼 -->
         <div class="col-span-12 text-center my-4">
-            <!-- <Button :label="workOrderButtonLabel" :severity="isWorkOrderRunning ? 'warning' : 'success'" @click="toggleWorkOrderRunning" :disabled="!isReady || !realWorkQty" /> -->
-            <Button :label="buttonLabel" :severity="buttonSeverity" @click="toggleWorkOrderRunning" :disabled="!isReady || !realWorkQty" />
+            <Button :label="buttonLabel" :severity="buttonSeverity" @click="toggleWorkOrderRunning" :disabled="!isReady || !realWorkQty || allProcessesCompleted" />
             <Button severity="danger" label="작업종료" @click="finishWorkOrder" :disabled="!isWorkOrderRunning || !allProcsCompleted" class="ml-2" />
         </div>
     </div>

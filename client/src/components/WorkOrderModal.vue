@@ -87,8 +87,19 @@ const onRowSelect = (event) => {
 </script>
 
 <template>
-    <InputText v-model="ModalWorkOrdNo" class="col-span-9" id="workord" type="text" />
-    <Button label="조회" @click="fetchWorkOrder(ModalWorkOrdNo)"></Button>
+    <Toolbar class="mb-6">
+        <template #start>
+            <div class="grid grid-cols-12 gap-2">
+                <label for="itemCode" class="flex items-center col-span-2">작업지시서 번호</label>
+                <div class="col-span-8">
+                    <InputText v-model="ModalWorkOrdNo" id="workord" type="text" />
+                </div>
+            </div>
+        </template>
+        <template #end>
+            <Button label="조회" @click="fetchWorkOrder(ModalWorkOrdNo)"></Button>
+        </template>
+    </Toolbar>
 
     <DataTable :value="workOrderList" v-model:selection="selectedWorkOrder" selectionMode="single" dataKey="workOrdNo" scrollable scrollHeight="60vh" @rowSelect="onRowSelect">
         <Column field="workOrdNo" header="작업지시번호" style="min-width: 200px" />
@@ -101,7 +112,16 @@ const onRowSelect = (event) => {
 </template>
 
 <style scoped>
-.modalform {
-    padding: 20px;
+.card.flex.flex-col.gap-1 {
+    padding: 5px;
+}
+.flex.items-center {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+button {
+    margin-right: 10px;
+    width: 100px;
+    height: 50px;
 }
 </style>

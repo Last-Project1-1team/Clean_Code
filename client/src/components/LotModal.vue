@@ -74,8 +74,22 @@ const onRowSelect = (event) => {
 </script>
 
 <template>
-    <InputText v-model="ModalLotNo" class="col-span-9" id="workord" type="text" placeholder="품번을 입력해주세요" />
-    <Button label="조회" @click="fetchLot(ModalLotNo)"></Button>
+    <Toolbar class="mb-6">
+        <template #start>
+            <div class="grid grid-cols-12 gap-2">
+                <label for="itemCode" class="flex items-center col-span-2">품번</label>
+                <div class="col-span-8">
+                    <InputText v-model="ModalLotNo" id="workord" type="text" placeholder="품번을 입력해주세요" />
+                </div>
+            </div>
+        </template>
+        <template #end>
+            <Button label="조회" @click="fetchLot(ModalLotNo)"></Button>
+        </template>
+    </Toolbar>
+
+    <!-- <InputText v-model="ModalLotNo"  id="workord" type="text" placeholder="품번을 입력해주세요" />
+    <Button label="조회" @click="fetchLot(ModalLotNo)"></Button> -->
 
     <DataTable :value="lotList" v-model:selection="selectedLot" selectionMode="single" dataKey="workOrdNo" scrollable scrollHeight="60vh" @rowSelect="onRowSelect">
         <Column field="lotNo" header="LOT번호" style="min-width: 250px"></Column>
@@ -87,7 +101,16 @@ const onRowSelect = (event) => {
 </template>
 
 <style scoped>
-.modalform {
-    padding: 20px;
+.card.flex.flex-col.gap-1 {
+    padding: 5px;
+}
+.flex.items-center {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+button {
+    margin-right: 10px;
+    width: 100px;
+    height: 50px;
 }
 </style>
