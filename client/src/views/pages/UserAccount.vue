@@ -232,8 +232,6 @@ watch(
 
                     <div class="col-span-3"></div>
 
-                    <!-- 여기에 제품구분(완/반제) , LOT당 수량 -->
-
                     <label for="workGrade" class="flex items-center col-span-1 mb-2">직급</label>
                     <div class="col-span-3">
                         <Select class="w-full" v-model="formData.workGrade" :options="workGradeOptions" optionLabel="label" optionValue="value" />

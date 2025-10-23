@@ -93,7 +93,6 @@ const findAll = async (
 };
 
 async function addDaysToDate(dateString, days) {
-  // 기존 addDaysToDate 함수 유지
   const date = new Date(dateString);
   date.setDate(date.getDate() + days);
   const year = date.getFullYear();
@@ -109,22 +108,11 @@ const findProc = async () => {
 };
 
 // 수주량 합계
-const findInordQty = async (
-  regPlanDate = "",
-  startPlanDate = "",
-  endPlanDate = "",
-  modelCode = "",
-  revision = "",
-  procCode = ""
-) => {
+const findInordQty = async (modelCode = "", revision = "") => {
   try {
     let quantities = await mariadb.query("sumQty", [
-      regPlanDate ? `%${regPlanDate}%` : "%",
-      startPlanDate ? `%${startPlanDate}%` : "%",
-      endPlanDate ? `%${endPlanDate}%` : "%",
       modelCode ? `%${modelCode}%` : "%",
       revision ? `%${revision}%` : "%",
-      procCode ? `%${procCode}%` : "%",
     ]);
     return quantities || [];
   } catch (err) {
