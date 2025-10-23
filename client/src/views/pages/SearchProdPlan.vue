@@ -39,15 +39,13 @@ const handleModelRegister = (data) => {
     selectedModel.value = data; // 제품 전체 정보 저장
     ModalSearch.value = false;
 };
-
 const getProdList = async (searchParams) => {
     try {
         prodPlan.value = [];
 
-        // 1) 제품계획 데이터 조회
+        // (1) 생산계획 목록 조회
         const response = await axios.get(`${apiUrl}/prodplan`, {
             params: {
-                regPlanDate: searchParams.regPlanDate,
                 startPlanDate: searchParams.startPlanDate,
                 endPlanDate: searchParams.endPlanDate,
                 modelCode: searchParams.modelCode,
@@ -58,21 +56,17 @@ const getProdList = async (searchParams) => {
 
         const prodList = Array.isArray(response.data) ? response.data : [];
 
-        // 수주량 합계 조회
+        // (2) 수주량 합계 조회
         const qtyResponse = await axios.get(`${apiUrl}/prodplan/inordqty`, {
             params: {
-                regPlanDate: searchParams.regPlanDate,
-                startPlanDate: searchParams.startPlanDate,
-                endPlanDate: searchParams.endPlanDate,
                 modelCode: searchParams.modelCode,
-                revision: searchParams.revision,
-                procCode: searchParams.procCode
+                revision: searchParams.revision
             }
         });
 
         const qtyList = Array.isArray(qtyResponse.data) ? qtyResponse.data : [];
 
-        // 수주량을 제품 리스트에 병합
+        // (3) 생산계획 목록과 수주량 리스트 병합
         const mergedList = prodList.map((prod) => {
             const matchQty = qtyList.find((qty) => qty.modelCode === prod.modelCode && qty.revision === prod.revision && qty.procCode === prod.procCode);
             return {
@@ -91,7 +85,6 @@ const getProdList = async (searchParams) => {
 // 조회 버튼 이벤트
 const searchPlan = () => {
     selectedData.value = {
-        regPlanDate: regPlanDate.value ? formatDate(regPlanDate.value) : '',
         startPlanDate: startPlanDate.value ? formatDate(startPlanDate.value) : '',
         endPlanDate: endPlanDate.value ? formatDate(endPlanDate.value) : '',
         modelCode: selectedModel.value.modelCode || '',
@@ -104,7 +97,6 @@ const searchPlan = () => {
 
 // 초기화 버튼 이벤트
 const initPlan = () => {
-    regPlanDate.value = null;
     startPlanDate.value = null;
     endPlanDate.value = null;
     selectedModel.value = {};
