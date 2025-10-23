@@ -18,7 +18,7 @@ const formatDate = (date) => {
 };
 
 // 공정드롭다운
-const procDropDown = ref([]);
+// const procDropDown = ref([]);
 const prodPlan = ref([]);
 const totalInordQty = ref(0);
 // 그리드 선택 행 정보 저장
@@ -26,10 +26,11 @@ const selectedPlans = ref([]);
 
 onMounted(async () => {
     const response = await axios.get(`${apiUrl}/prodplan/proc`);
-    procDropDown.value = response.data.map((proc) => ({
-        label: proc.name, // 보여줄 이름
-        value: proc.code // 실제 값
-    }));
+    if (response.data.length > 0) {
+        const proc = response.data[0];
+        formData.value.process.procCode = proc.code;
+        formData.value.process.procName = proc.name; // InputText로 표시될 값
+    }
 });
 
 // 모달에서 가져온 제품정보
@@ -72,7 +73,7 @@ const initPlan = () => {
             modelName: ''
         },
         process: {
-            procCode: null
+            procCode: procCode
         },
         totalInordQty: 0,
         unshippedQty: 0
@@ -139,7 +140,7 @@ const addPlan = async () => {
         modelName: formData.value.product.modelName,
 
         // 공정
-        procName: procDropDown.value.find((proc) => proc.value === formData.value.process.procCode)?.label,
+        procName: formData.value.process.procName,
 
         totalInordQty: formData.value.totalInordQty,
         unshippedQty: formData.value.unshippedQty,
@@ -167,7 +168,7 @@ const addPlan = async () => {
 const insertPlan = async () => {
     try {
         // 그리드에 데이터가 없으면 알림
-        if (!prodPlan.value || prodPlan.value.length === 0) {
+        if (!selectedPlans.value || selectedPlans.value.length === 0) {
             toast.add({ severity: 'warn', summary: '알림', detail: '저장할 데이터가 없습니다. 먼저 계획을 입력해주세요.', life: 3000 });
             return;
         }
@@ -177,7 +178,7 @@ const insertPlan = async () => {
         let failCount = 0;
 
         // 그리드의 각 행을 순회하면서 서버에 저장
-        for (const plan of prodPlan.value) {
+        for (const plan of selectedPlans.value) {
             // 서버에 전송할 형태로 데이터 가공
             const planData = {
                 createDate: plan.regPlanDate,
@@ -186,7 +187,7 @@ const insertPlan = async () => {
                 planQty: plan.planQty,
                 modelCode: plan.modelCode,
                 revision: plan.revision,
-                procCode: procDropDown.value.find((proc) => proc.label === plan.procName)?.value
+                procCode: formData.value.process.procCode
             };
 
             // 필수 데이터 검증
@@ -294,13 +295,11 @@ const deletePlan = () => {
                         <Button @click="ModalSearch = true" icon="pi pi-search" class="lensButton p-button-success" />
                     </div>
 
-                    <div class="col-span-8"></div>
-
                     <!-- 리비전 -->
                     <label for="revision" class="flex items-center col-span-1 mb-2 md:mb-0">리비전</label>
                     <div class="col-span-2"><InputText v-model="formData.product.revision" id="revision" type="text" class="w-full" readonly /></div>
 
-                    <div class="col-span-1"></div>
+                    <div class="col-span-5"></div>
 
                     <!-- 제품명 -->
                     <label for="modelName" class="flex items-center col-span-1">제품명</label>
@@ -309,10 +308,11 @@ const deletePlan = () => {
                     </div>
 
                     <!-- 공정선택 -->
-                    <!-- <label for="selectProc" class="flex items-center col-span-1">공정선택</label>
+                    <label for="selectProc" class="flex items-center col-span-1">공정</label>
                     <div class="col-span-2">
-                        <Select v-model="formData.process.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" />
-                    </div> -->
+                        <!-- <Select v-model="formData.process.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" /> -->
+                        <InputText v-model="formData.process.procName" id="selectProc" class="w-full" readonly />
+                    </div>
 
                     <!-- ✅ 버튼 그룹들: 툴바 전체 기준 -->
                     <div class="absolute top-3 right-4 flex gap-2">
@@ -342,7 +342,7 @@ const deletePlan = () => {
             <Column field="modelCode" header="제품코드" sortable style="min-width: 10rem"></Column>
             <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
             <Column field="modelName" header="제품명" sortable style="min-width: 10rem"></Column>
-            <Column field="procName" header="최종공정" sortable style="min-width: 8rem"></Column>
+            <Column field="procName" header="공정" sortable style="min-width: 8rem"></Column>
             <Column field="totalInordQty" header="수주량" sortable style="min-width: 9rem"></Column>
             <Column field="unshippedQty" header="미 출하량" sortable style="min-width: 9rem"></Column>
         </DataTable>
