@@ -62,22 +62,18 @@ const formData = ref({
 
 // 초기화 버튼 이벤트
 const initPlan = () => {
-    formData.value = {
-        planPeriod: {
-            startDate: new Date(),
-            endDate: new Date()
-        },
-        product: {
-            modelCode: '',
-            revision: '',
-            modelName: ''
-        },
-        process: {
-            procCode: formData.value.process.procCode
-        },
-        totalInordQty: 0,
-        unshippedQty: 0
+    formData.value.planPeriod = {
+        startDate: new Date(),
+        endDate: new Date()
     };
+    formData.value.product = {
+        modelCode: '',
+        revision: '',
+        modelName: ''
+    };
+    formData.value.totalInordQty = 0;
+    formData.value.unshippedQty = 0;
+    // formData.value.process는 건드리지 않음 → procCode 유지됨
 };
 
 // 수주량, 출하량 조회 후 그리드에 반영
