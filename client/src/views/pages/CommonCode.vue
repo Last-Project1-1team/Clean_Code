@@ -25,7 +25,7 @@ const commonCode = ref([]);
 //초기화버튼
 const onClearItem = () => {
     formData.value = {
-        groupCode: formData.value.groupCode,
+        groupCode: '',
         commonCode: '',
         codeName: ''
     };
@@ -143,7 +143,7 @@ const saveButton = async () => {
                     <div class="grid grid-cols-12 gap-4">
                         <label for="groupCode" class="flex items-center col-span-2">코드그룹</label>
                         <div class="col-span-10">
-                            <InputText v-model="formData.groupCode" type="text" class="w-full" readonly="true" />
+                            <InputText v-model="formData.groupCode" type="text" class="w-full" />
                         </div>
                     </div>
 

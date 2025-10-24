@@ -101,7 +101,7 @@ const onRowSelect = (event) => {
         </template>
     </Toolbar>
 
-    <DataTable :value="workOrderList" v-model:selection="selectedWorkOrder" selectionMode="single" dataKey="workOrdNo" scrollable scrollHeight="60vh" @rowSelect="onRowSelect">
+    <DataTable :value="workOrderList" v-model:selection="selectedWorkOrder" selectionMode="single" dataKey="workOrdNo" scrollable scrollHeight="59vh" @rowSelect="onRowSelect">
         <Column field="workOrdNo" header="작업지시번호" style="min-width: 200px" />
         <Column header="작업제품정보">
             <template #body="slotProps"> {{ slotProps.data.modelCode }} / {{ slotProps.data.revision }} / {{ slotProps.data.modelName }} </template>

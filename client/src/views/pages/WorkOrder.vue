@@ -137,12 +137,12 @@ const onCellEditComplete = (event) => {
             <template #start>
                 <!-- 화면 상단 생산계획 검색 부분-->
                 <div class="grid grid-cols-12 gap-2">
-                    <label for="proc" class="grid grid-cols-1 flex items-center">최종공정</label>
+                    <!-- <label for="proc" class="grid grid-cols-1 flex items-center">최종공정</label>
                     <div class="col-span-3">
                         <Select class="w-full" v-model="searchData.proc" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" />
                     </div>
 
-                    <div class="col-span-1"></div>
+                    <div class="col-span-1"></div> -->
 
                     <label for="prodPlanDate" class="grid grid-cols-1 flex items-center">생산계획일자</label>
                     <div class="col-span-3">
@@ -165,12 +165,12 @@ const onCellEditComplete = (event) => {
             v-model:selection="selectedPlans"
             :value="prodPlanList"
             scrollable
-            scrollHeight="69.7vh"
+            scrollHeight="69vh"
             :filters="filters"
             selectionMode="single"
             editMode="cell"
             @cell-edit-complete="onCellEditComplete"
-            style="border: 1px solid #ddd; height: 70vh"
+            style="border: 1px solid #ddd; height: 69vh"
         >
             <Column selectionMode="single" style="width: 3rem" :exportable="false"></Column>
             <Column field="prodPlanDate" header="생산계획일자" sortable style="min-width: 9rem"></Column>

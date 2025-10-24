@@ -119,8 +119,8 @@ const saveButton = async () => {
             selectionMode="single"
             datakey="modelCode"
             scrollable
-            scrollHeight="40.8vh"
-            style="height: 41.1vh; border: 1px solid #ddd"
+            scrollHeight="40vh"
+            style="height: 40.4vh; border: 1px solid #ddd"
             @rowSelect="formData = { ...$event.data }"
         >
             <Column field="modelCode" header="제품코드" style="min-width: 200px"></Column>

@@ -91,7 +91,7 @@ const onRowSelect = (event) => {
     <!-- <InputText v-model="ModalLotNo"  id="workord" type="text" placeholder="품번을 입력해주세요" />
     <Button label="조회" @click="fetchLot(ModalLotNo)"></Button> -->
 
-    <DataTable :value="lotList" v-model:selection="selectedLot" selectionMode="single" dataKey="workOrdNo" scrollable scrollHeight="60vh" @rowSelect="onRowSelect">
+    <DataTable :value="lotList" v-model:selection="selectedLot" selectionMode="single" dataKey="workOrdNo" scrollable scrollHeight="59vh" @rowSelect="onRowSelect">
         <Column field="lotNo" header="LOT번호" style="min-width: 250px"></Column>
         <Column field="itemCode" header="품번" style="min-width: 150px"></Column>
         <Column field="itemName" header="품명" style="min-width: 250px"></Column>
