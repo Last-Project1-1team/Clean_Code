@@ -8,38 +8,27 @@ const prodPlanService = require("../services/prodPlan_service.js");
 // 라우팅  = 사용자의 요청(URL+METHOD) + Service + 응답형태(View or Data)
 
 // 실제 라우팅 등록 영역
-
 router.get("/prodplan", async (req, res) => {
-  // 쿼리 파라미터는 undefined일 수도 있으니 기본값을 ''로 주는 게 안전
-  const regPlanDate = req.query.regPlanDate || "";
-  const endPlanDate = req.query.endPlanDate || "";
   const startPlanDate = req.query.startPlanDate || "";
+  const endPlanDate = req.query.endPlanDate || "";
   const modelCode = req.query.modelCode || "";
   const revision = req.query.revision || "";
   const procCode = req.query.procCode || "";
 
   try {
     const prodList = await prodPlanService.findAll(
-      regPlanDate,
-      endPlanDate,
       startPlanDate,
+      endPlanDate,
       modelCode,
       revision,
       procCode
     );
 
-    // 조회 성공 시 200 OK와 함께 데이터 전송
     res.json(prodList);
   } catch (err) {
-    // 서비스 단에서 발생한 오류를 여기서 처리하고 클라이언트에게 응답
     console.error("생산계획 조회 라우터 오류 발생:", err);
-
-    // 클라이언트에게 500 Internal Server Error 상태와 함께 오류 메시지 전송
     res.status(500).json({
       message: "생산계획 조회 중 서버 오류가 발생했습니다.",
-      // 개발 단계에서는 상세 오류 메시지를 포함할 수 있지만,
-      // 실제 배포 환경에서는 보안상 err.message는 제외하는 게 좋음
-      // error: err.message
     });
   }
 });

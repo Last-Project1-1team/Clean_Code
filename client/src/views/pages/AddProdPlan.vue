@@ -267,13 +267,18 @@ const deletePlan = () => {
         });
         return;
     }
+
+    // 선택된 행을 제외한 나머지만 남기기
+    prodPlan.value = prodPlan.value.filter((plan) => !selectedPlans.value.includes(plan));
+
+    // ---------------------생산계획번호가 아직 부여되지 않아서 인덱스 사용해야함
     // 선택된 항목들을 prodPlan 배열에서 제거
-    selectedPlans.value.forEach((selectedItem) => {
-        const index = prodPlan.value.findIndex((item) => item.prodPlanNo === selectedItem.prodPlanNo);
-        if (index !== -1) {
-            prodPlan.value.splice(index, 1);
-        }
-    });
+    // selectedPlans.value.forEach((selectedItem) => {
+    //     const index = prodPlan.value.findIndex((item) => item.prodPlanNo === selectedItem.prodPlanNo);
+    //     if (index !== -1) {
+    //         prodPlan.value.splice(index, 1);
+    //     }
+    // });
 
     // 선택 초기화
     selectedPlans.value = [];

@@ -7,7 +7,6 @@ const {
 
 // 전체 조회
 const findAll = async (
-  regPlanDate = "",
   startPlanDate = "",
   endPlanDate = "",
   modelCode = "",
@@ -15,79 +14,29 @@ const findAll = async (
   procCode = ""
 ) => {
   try {
-    const params = [];
-    params.push(regPlanDate ? `%${regPlanDate}%` : "%");
+    // 🔹 기본 검색 기간
+    let startDate = startPlanDate || "1900-01-01";
+    let endDate = endPlanDate
+      ? await addDaysToDate(endPlanDate, 1)
+      : "9999-12-31";
 
-    let param2_endDateForUpper = "9999-12-31";
-    let param3_startDateForLower = "1900-01-01";
+    // 🔹 SQL 파라미터 순서 맞춰서 넣기
+    const params = [
+      startDate,
+      endDate, // 1~2
+      startDate,
+      endDate, // 3~4
+      startDate,
+      endDate, // 5~6
+      modelCode ? `%${modelCode}%` : "%", // 7
+      revision ? `%${revision}%` : "%", // 8
+      procCode ? `%${procCode}%` : "%", // 9
+    ];
 
-    if (startPlanDate && endPlanDate) {
-      param2_endDateForUpper = endPlanDate
-        ? await addDaysToDate(endPlanDate, 1)
-        : "9999-12-31";
-      param3_startDateForLower = startPlanDate;
-    } else if (startPlanDate) {
-      param2_endDateForUpper = "9999-12-31";
-      param3_startDateForLower = startPlanDate;
-    } else if (endPlanDate) {
-      param2_endDateForUpper = endPlanDate
-        ? await addDaysToDate(endPlanDate, 1)
-        : "9999-12-31";
-      param3_startDateForLower = "1900-01-01";
-    }
-
-    params.push(param2_endDateForUpper);
-    params.push(param3_startDateForLower);
-    params.push(modelCode ? `%${modelCode}%` : "%");
-    params.push(revision ? `%${revision}%` : "%");
-    params.push(procCode ? `%${procCode}%` : "%");
-
-    // 1. 먼저 조건에 맞는 모든 계획 목록을 조회한다.
-    let list = await mariadb.query("searchProdPlan", params);
-
-    // 2. 조회된 목록이 없으면 그냥 빈 배열 반환
-    if (!list || list.length === 0) {
-      return [];
-    }
-
-    // 3. 가장 오래된 계획 종료일과 가장 최근 계획 시작일 찾기 (Node.js에서!)
-    //    list의 각 item은 객체 형태로 startPlanDate와 endPlanDate를 가지고 있을 거야.
-    //    이 값들은 이미 DATE_FORMAT으로 'YYYY-MM-DD' 문자열 형태로 변환되어있으니,
-    //    비교를 위해 Date 객체로 다시 변환해야 정확해.
-
-    let minEndDate = new Date("9999-12-31"); // 충분히 미래 날짜로 초기화
-    let maxStartDate = new Date("1900-01-01"); // 충분히 과거 날짜로 초기화
-
-    list.forEach((item) => {
-      const itemStartDate = new Date(item.startPlanDate); // 조회된 날짜 문자열을 Date 객체로
-      const itemEndDate = new Date(item.endPlanDate); // 조회된 날짜 문자열을 Date 객체로
-
-      if (itemEndDate < minEndDate) {
-        minEndDate = itemEndDate; // 가장 오래된 종료일 갱신
-      }
-      if (itemStartDate > maxStartDate) {
-        maxStartDate = itemStartDate; // 가장 최근 시작일 갱신
-      }
-    });
-
-    // 4. 조건 확인: 가장 오래된 계획 종료일이 가장 최근 계획 시작일보다 오래되었는지?
-    //    "가장 오래된 계획 종료일" < "가장 최근 계획 시작일" 이면 안 보이게 한다.
-    //    즉, minEndDate < maxStartDate 이면 이 조건에 부합하지 않는 것이므로 빈 배열 반환.
-    if (minEndDate > maxStartDate) {
-      console.log(
-        `[Validation Failed] minEndDate (${minEndDate
-          .toISOString()
-          .slice(0, 10)}) < maxStartDate (${maxStartDate
-          .toISOString()
-          .slice(0, 10)})`
-      );
-      return []; // 조건을 만족하지 않으므로 빈 배열 반환
-    }
-
-    // 5. 모든 조건을 만족하면 원래 조회된 목록 반환
-    return list;
+    const list = await mariadb.query("searchProdPlan", params);
+    return list || [];
   } catch (err) {
-    console.error("생산계획 조회 중 오류 발생:", err);
+    console.error("❌ 생산계획 조회 중 오류:", err);
     throw err;
   }
 };
