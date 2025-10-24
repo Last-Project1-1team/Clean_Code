@@ -63,18 +63,15 @@ const getScanData = async (lotNo = '') => {
 };
 </script>
 <template>
-    <div class="card" style="height: 87.8vh">
-        <!-- 제목 -->
-        <h1 class="text-center text-3xl font-bold mb-6">스캔</h1>
-
+    <div class="card" style="height: 87vh">
         <!-- LOT 입력창 -->
         <div class="flex justify-center mb-6">
-            <InputText v-model="selectLotInfo" placeholder="LOT번호를 스캔 또는 입력하세요" enter="handleToss" @keyup.enter="handleLotNoEnter" class="w-[400px] text-center p-inputtext-lg" />
+            <InputText v-model="selectLotInfo" placeholder="LOT번호를 스캔 또는 입력하세요" enter="handleToss" @keyup.enter="handleLotNoEnter" class="w-[480px] text-center p-inputtext-lg" />
             <Button label="입력" icon="pi pi-search" class="buttons p-button-success px-6 py-3 text-lg font-bold" enter="handleToss" @click="getScanData(selectLotInfo)" />
         </div>
 
         <!-- LOT 정보 표시 영역 -->
-        <div class="w-[600px] mx-auto border border-gray-300 rounded-lg p-6 text-lg">
+        <div class="w-[600px] mx-auto border border-gray-300 rounded-lg p-6 text-3xl">
             <div class="grid grid-cols-2 border-b border-gray-300 p-10">
                 <div class="font-semibold">LOT번호</div>
                 <div>{{ lotInfo.lotNo }}</div>
@@ -96,8 +93,8 @@ const getScanData = async (lotNo = '') => {
                 <div>{{ lotInfo.locationName }}</div>
             </div>
 
-            <div class="flex items-center justify-center h-20 p-5">
-                <span v-if="errorMessage" class="text-red-600 font-bold text-2xl">
+            <div class="grid grid-cols-1 border-b border-gray-300 p-10 text-center">
+                <span v-if="errorMessage" class="text-red-600 font-bold text-3xl">
                     {{ errorMessage }}
                 </span>
             </div>

@@ -141,30 +141,25 @@ const model = ref([
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/modelmaster'
                     },
-                    {
-                        label: 'BOM',
-                        icon: 'pi pi-fw pi-book',
-                        to: '/pages/bom'
-                    },
-                    {
-                        label: 'BOM이력관리',
-                        icon: 'pi pi-fw pi-book',
-                        to: '/pages/bomhistory'
-                    },
-                    {
-                        label: '공정라우팅관리',
-                        icon: 'pi pi-fw pi-book',
-                        to: '/pages/procrouting'
-                    },
+                    // {
+                    //     label: 'BOM',
+                    //     icon: 'pi pi-fw pi-book',
+                    //     to: '/pages/bom'
+                    // },
+                    // {
+                    //     label: 'BOM이력관리',
+                    //     icon: 'pi pi-fw pi-book',
+                    //     to: '/pages/bomhistory'
+                    // },
+                    // {
+                    //     label: '공정라우팅관리',
+                    //     icon: 'pi pi-fw pi-book',
+                    //     to: '/pages/procrouting'
+                    // },
                     {
                         label: '공정입고',
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/Receiving'
-                    },
-                    {
-                        label: '작업지시',
-                        icon: 'pi pi-fw pi-book',
-                        to: '/pages/workorder'
                     },
                     {
                         label: '생산계획등록',
@@ -177,7 +172,12 @@ const model = ref([
                         to: '/pages/searchprodplan'
                     },
                     {
-                        label: '생산실적',
+                        label: '작업지시',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/pages/workorder'
+                    },
+                    {
+                        label: '생산실적등록',
                         icon: 'pi pi-fw pi-book',
                         to: '/pages/resultwork'
                     }

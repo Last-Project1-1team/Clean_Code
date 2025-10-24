@@ -201,90 +201,84 @@ watch(
         </DataTable>
 
         <!--등록화면 -->
-        <!--단락 start-->
-        <div class="grid grid-cols-12 gap-2">
-            <label for="name" class="flex items-center col-span-1 mb-2">이름</label>
-            <div class="col-span-3">
-                <InputText id="name" type="text" class="w-full" v-model="formData.name" />
-            </div>
-
-            <div class="col-span-1"></div>
-
-            <label for="phone" class="flex items-center col-span-1 mb-2">전화번호</label>
-            <div class="col-span-3">
-                <InputText id="phone" type="text" class="w-full" v-model="formData.phone" />
-            </div>
-            <div class="col-span-3 flex justify-end items-center gap-2">
-                <Button label="초기화" :fluid="false" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem"></Button>
-                <Button label="저장" :fluid="false" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton"></Button>
-            </div>
-        </div>
-        <!--단락 end-->
-
-        <!--단락 start-->
-        <div class="grid grid-cols-12 gap-2">
-            <label for="userId" class="flex items-center col-span-1 mb-2">계정</label>
-            <div class="col-span-3">
-                <InputText id="userId" type="text" class="w-full" v-model="formData.userId" />
-            </div>
-
-            <div class="col-span-1"></div>
-
-            <label for="email" class="flex items-center col-span-1 mb-2">이메일</label>
-            <div class="col-span-3">
-                <InputText id="email" type="text" class="w-full" v-model="formData.email" />
-            </div>
-        </div>
-        <!--단락 end-->
-
-        <!--단락 start-->
-        <div class="grid grid-cols-12 gap-2">
-            <label for="workGrade" class="flex items-center col-span-1 mb-2">직급</label>
-            <div class="col-span-3">
-                <Select class="w-full" v-model="formData.workGrade" :options="workGradeOptions" optionLabel="label" optionValue="value" />
-            </div>
-
-            <div class="col-span-1"></div>
-
-            <label for="hireDate" class="flex items-center col-span-1 mb-2">입사일자</label>
-            <div class="col-span-3">
-                <DatePicker v-model="formData.hireDate" dateFormat="yy-mm-dd" :showIcon="true" :showButtonBar="true" inputStyle="width: 350px"></DatePicker>
-            </div>
-        </div>
-        <!--단락 end-->
-
-        <!--단락 start-->
-        <div class="grid grid-cols-12 gap-2">
-            <label for="department" class="flex items-center col-span-1 mb-2">부서</label>
-            <div class="col-span-3">
-                <Select class="w-full" v-model="formData.department" :options="departmentOptions" optionLabel="label" optionValue="value" />
-            </div>
-
-            <div class="col-span-1"></div>
-        </div>
-
-        <!--단락 end-->
-        <!--단락 start-->
-        <div class="grid grid-cols-12 gap-2">
-            <label for="retireYn" class="flex items-center">퇴사여부</label>
-            <div class="col-span-3">
-                <div class="flex items-center gap-6">
-                    <div class="flex items-center">
-                        <RadioButton id="retireYn" value="Y" v-model="formData.retireYn" class="mt-[4px]" />
-                        <label for="retireY" class="ml-2 leading-none">Y</label>
+        <div class="relative">
+            <div class="card flex flex-col gap-1">
+                <div class="grid grid-cols-12 gap-2">
+                    <label for="name" class="flex items-center col-span-1 mb-2">이름</label>
+                    <div class="col-span-3">
+                        <InputText id="name" type="text" class="w-full" v-model="formData.name" />
                     </div>
-                    <div class="flex items-center">
-                        <RadioButton id="retireYn" value="N" v-model="formData.retireYn" class="mt-[4px]" />
-                        <label for="retireN" class="ml-2 leading-none">N</label>
+
+                    <div class="col-span-1"></div>
+
+                    <label for="phone" class="flex items-center col-span-1 mb-2">전화번호</label>
+                    <div class="col-span-3">
+                        <InputText id="phone" type="text" class="w-full" v-model="formData.phone" />
+                    </div>
+
+                    <div class="col-span-3"></div>
+
+                    <label for="userId" class="flex items-center col-span-1 mb-2">계정</label>
+                    <div class="col-span-3">
+                        <InputText id="userId" type="text" class="w-full" v-model="formData.userId" />
+                    </div>
+
+                    <div class="col-span-1"></div>
+
+                    <label for="email" class="flex items-center col-span-1 mb-2">이메일</label>
+                    <div class="col-span-3">
+                        <InputText id="email" type="text" class="w-full" v-model="formData.email" />
+                    </div>
+
+                    <div class="col-span-3"></div>
+
+                    <label for="workGrade" class="flex items-center col-span-1 mb-2">직급</label>
+                    <div class="col-span-3">
+                        <Select class="w-full" v-model="formData.workGrade" :options="workGradeOptions" optionLabel="label" optionValue="value" />
+                    </div>
+
+                    <div class="col-span-1"></div>
+
+                    <label for="hireDate" class="flex items-center col-span-1 mb-2">입사일자</label>
+                    <div class="col-span-3">
+                        <DatePicker v-model="formData.hireDate" dateFormat="yy-mm-dd" :showIcon="true" :showButtonBar="true" inputStyle="width: 350px"></DatePicker>
+                    </div>
+
+                    <div class="col-span-3"></div>
+
+                    <label for="department" class="flex items-center col-span-1 mb-2">부서</label>
+                    <div class="col-span-3">
+                        <Select class="w-full" v-model="formData.department" :options="departmentOptions" optionLabel="label" optionValue="value" />
+                    </div>
+
+                    <div class="col-span-8"></div>
+
+                    <label for="retireYn" class="flex items-center">퇴사여부</label>
+                    <div class="col-span-3">
+                        <div class="flex items-center gap-6">
+                            <div class="flex items-center">
+                                <RadioButton id="retireYn" value="Y" v-model="formData.retireYn" class="mt-[4px]" />
+                                <label for="retireY" class="ml-2 leading-none">Y</label>
+                            </div>
+                            <div class="flex items-center">
+                                <RadioButton id="retireYn" value="N" v-model="formData.retireYn" class="mt-[4px]" />
+                                <label for="retireN" class="ml-2 leading-none">N</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-1"></div>
+
+                    <label for="retireDate" class="flex items-center col-span-1 mb-2">퇴사일자</label>
+                    <div class="col-span-3">
+                        <DatePicker v-model="formData.retireDate" dateFormat="yy-mm-dd" :showIcon="true" :showButtonBar="true" inputStyle="width: 350px"></DatePicker>
+                    </div>
+
+                    <div id="button_" class="absolute top-0 right-0 flex gap-2">
+                        <Button label="초기화" class="p-button-outlined px-6 py-3 text-lg font-bold" @click="onClearItem" />
+                        <Button label="저장" class="p-button-success px-6 py-3 text-lg font-bold" @click="saveButton" />
                     </div>
                 </div>
-            </div>
-
-            <div class="col-span-1"></div>
-
-            <label for="retireDate" class="flex items-center col-span-1 mb-2">퇴사일자</label>
-            <div class="col-span-3">
-                <DatePicker v-model="formData.retireDate" dateFormat="yy-mm-dd" :showIcon="true" :showButtonBar="true" inputStyle="width: 350px"></DatePicker>
             </div>
         </div>
     </div>
