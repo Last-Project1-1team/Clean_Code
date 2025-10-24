@@ -16,7 +16,6 @@ WHERE	s.inord_no = ?`;
 
 const lotnoscan = `
 SELECT 	L.PROD_LOT_NO
-      , LH.LOT_NO
       , L.MODEL_CODE MODEL_CODE
       , M.REVISION
       , M.MODEL_NAME MODEL_NAME
@@ -24,7 +23,6 @@ SELECT 	L.PROD_LOT_NO
       , M.SPEC SPEC
       , M.UNIT
 FROM	TB_PROD_LOT L JOIN TB_MODEL_MASTER M       ON L.MODEL_CODE = M.MODEL_CODE
-				        	  JOIN TB_LOT_INPUT_HISTORY LH ON L.PROD_LOT_NO = LH.PROD_LOT_NO
 WHERE	L.PROD_LOT_NO = ?`;
 
 //발주번호 가져오기
@@ -78,6 +76,7 @@ INSERT INTO tb_ship_detail
 
 const selectShip = `
   SELECT  MAS.CUST_NO
+        , MAS.SHIP_NO
         , C.CUST_NAME
         , DET.MODEL_CODE
         , MM.MODEL_NAME
@@ -91,10 +90,10 @@ WHERE   ( ? IS NULL OR MAS.CUST_NO LIKE ? )
   AND   ( ? IS NULL OR MAS.SHIP_DATE = STR_TO_DATE(?, '%Y-%m-%d') )`;
 
 module.exports = {
-    shipmodel,
-    lotnoscan,
-    selectLastShipNo,
-    insertshipmaster,
-    insertshipdetail,
-    selectShip,
+  shipmodel,
+  lotnoscan,
+  selectLastShipNo,
+  insertshipmaster,
+  insertshipdetail,
+  selectShip,
 };

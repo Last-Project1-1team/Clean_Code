@@ -108,6 +108,7 @@ const getInordList = async () => {
         </Dialog>
 
         <DataTable :value="selectedmodel" scrollable scrollHeight="580px" style="height: 65vh; border: 1px solid #ddd">
+            <Column field="INORD_NO" header="수주번호" sortable style="min-width: 5em"></Column>
             <Column field="CUST_CODE" header="업체코드" sortable style="min-width: 5em"></Column>
             <Column field="CUST_NAME" header="업체명" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>

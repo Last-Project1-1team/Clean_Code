@@ -108,6 +108,7 @@ const getShipList = async () => {
         </Dialog>
 
         <DataTable :value="selectedmodel" scrollable scrollHeight="580px" style="height: 80vh; border: 1px solid #ddd">
+            <Column field="SHIP_NO" header="출하번호" sortable style="min-width: 5em"></Column>
             <Column field="CUST_NO" header="업체코드" sortable style="min-width: 5em"></Column>
             <Column field="CUST_NAME" header="업체명" sortable style="min-width: 5em"></Column>
             <Column field="MODEL_CODE" header="제품코드" sortable style="min-width: 5em"></Column>
