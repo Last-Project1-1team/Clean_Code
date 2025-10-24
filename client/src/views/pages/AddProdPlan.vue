@@ -125,13 +125,21 @@ const addPlan = async () => {
     // 수주량 조회 그리드의 Qty에 사용
     await fetchOrderQty(formData.value.product.modelCode, formData.value.product.revision, formData.value.process.procCode);
 
+    const formatLocalDate = (date) => {
+        if (!date) return null;
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     // dataTable의 prodPlan에 추가할 데이터 객체 생성
     const newPlanItem = {
         // formData에서 가져온 데이터를 DataTable 컬럼에 사용
-        regPlanDate: new Date().toISOString().split('T')[0], // 현재 날짜
-        startPlanDate: formData.value.planPeriod.startDate ? formData.value.planPeriod.startDate.toISOString().split('T')[0] : null,
-        endPlanDate: formData.value.planPeriod.endDate ? formData.value.planPeriod.endDate.toISOString().split('T')[0] : null,
-        modelCode: formData.value.product.modelCode,
+        regPlanDate: formatLocalDate(new Date()), // 현재 날짜
+        startPlanDate: formatLocalDate(formData.value.planPeriod.startDate),
+        endPlanDate: formatLocalDate(formData.value.planPeriod.endDate),
         revision: formData.value.product.revision,
         modelName: formData.value.product.modelName,
 
