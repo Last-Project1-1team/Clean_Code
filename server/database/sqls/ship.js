@@ -7,7 +7,6 @@ SELECT   MAS.inord_no INORD_NO
         , S.INORD_NO
 FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	MAS.INORD_NO = DET.INORD_NO
 							            JOIN TB_CUST C 			     ON	MAS.cust_code = C.cust_code
-                          JOIN TB_SHIP_MASTER S    ON MAS.INORD_NO = S.INORD_NO
 WHERE 	MAS.INORD_NO = ?`;
 
 const shipinordmatch = `
@@ -18,7 +17,6 @@ WHERE	s.inord_no = ?`;
 
 const lotnoscan = `
 SELECT 	L.PROD_LOT_NO
-      , LH.LOT_NO
       , L.MODEL_CODE MODEL_CODE
       , M.REVISION
       , M.MODEL_NAME MODEL_NAME
@@ -26,7 +24,6 @@ SELECT 	L.PROD_LOT_NO
       , M.SPEC SPEC
       , M.UNIT
 FROM	TB_PROD_LOT L JOIN TB_MODEL_MASTER M       ON L.MODEL_CODE = M.MODEL_CODE
-				        	  JOIN TB_LOT_INPUT_HISTORY LH ON L.PROD_LOT_NO = LH.PROD_LOT_NO
 WHERE	L.PROD_LOT_NO = ?`;
 
 //발주번호 가져오기

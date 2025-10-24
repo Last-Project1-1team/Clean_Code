@@ -5,12 +5,11 @@ const shipService = require("../services/ship_service.js");
 //수주업체단건조회
 router.get("/customerNo", async (req, res) => {
   let customerNo = req.query.inordCode;
-  let data = await shipService
+  let customerInfo = await shipService
     .findCustCodeNo(customerNo)
     .catch((err) => console.log(err));
-  res.send(data);
+  res.send(customerInfo);
 });
-
 //
 //LOT단건조회
 router.get("/lotNo", async (req, res) => {
