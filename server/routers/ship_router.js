@@ -8,7 +8,6 @@ router.get("/customerNo", async (req, res) => {
     let customerInfo = await shipService.findCustCodeNo(customerNo).catch((err) => console.log(err));
     res.send(customerInfo);
 });
-
 //
 //LOT단건조회
 router.get("/lotNo", async (req, res) => {
