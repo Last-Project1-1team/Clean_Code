@@ -37,7 +37,7 @@ const getInputList = async (code, revision, name) => {
     let result = await axios
         .get(`${apiUrl}/prodLotList?`, {
             params: {
-                status: 0,
+                status: 5,
                 modelCode: code || '',
                 modelRevision: revision || '',
                 modelName: name || ''

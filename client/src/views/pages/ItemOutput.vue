@@ -162,7 +162,7 @@ const today = ref(new Date()); // 오늘 날짜
             </div>
         </div>
         <div>
-            <DataTable :value="outputItems" v-model:selection="selectedRows" scrollable scrollHeight="55vh" style="height: 60vh; border: 1px solid #ddd">
+            <DataTable :value="outputItems" v-model:selection="selectedRows" scrollable scrollHeight="55vh" style="height: 50vh; border: 1px solid #ddd">
                 <Column field="outputNo" header="출고번호" sortable style="min-width: 5em" @hidden="true"></Column>
                 <Column field="itemCode" header="자재코드" sortable style="min-width: 5em"></Column>
                 <Column field="itemName" header="자재명" sortable style="min-width: 10em"></Column>
