@@ -522,138 +522,6 @@ const toggleWorkOrderRunning = async () => {
     }
 };
 
-// const toggleWorkOrderRunning = async () => {
-//     console.log('currentProcess 확인:', currentProcess.value);
-
-//     // ⚠️ 시작 전 품목 준비량 확인 (작업이 시작되지 않은 상태에서만 검사)
-//     if (!isReady.value && !isWorkOrderRunning.value) {
-//         // isWorkOrderRunning.value가 false일 때만 검사
-//         toast.add({
-//             severity: 'warn',
-//             summary: '선택 불가',
-//             detail: '모든 품목의 준비수량이 필요수량에 도달해야 작업을 시작할 수 있습니다.',
-//             life: 2500
-//         });
-//         return;
-//     }
-//     // ⚠️ 작업지시 선택 여부 확인
-//     if (!selectedWorkOrder.value || !selectedWorkOrder.value.workOrdNo) {
-//         toast.add({
-//             severity: 'warn',
-//             summary: '선택 불가',
-//             detail: '작업지시가 선택되지 않았습니다.',
-//             life: 2500
-//         });
-//         return;
-//     }
-
-//     let url = '';
-//     let payload = [];
-//     let successMsg = '';
-
-//     if (!isWorkOrderRunning.value) {
-//         url = `${apiUrl}/resultwork/save`;
-//         payload = [
-//             {
-//                 workOrdNo: selectedWorkOrder.value.workOrdNo,
-//                 modelCode: selectedWorkOrder.value.modelCode,
-//                 revision: selectedWorkOrder.value.revision,
-//                 // ✅ 현재 공정이 있으면 그대로 재개, 없으면 첫 공정
-//                 proc_code: currentProcess.value?.proc_code || '첫번째공정',
-//                 proc_seq: currentProcess.value?.proc_seq || 1,
-//                 work_qty: realWorkQty.value,
-//                 status: workOrderPaused.value ? 'RESUME' : 'START', // ✅ 재개 상태 구분
-//                 workStartTime: formatDateForMySQL(new Date())
-//             }
-//         ];
-//         successMsg = workOrderPaused.value ? '✅ 작업이 재개되었습니다.' : '✅ 작업이 시작되었습니다.';
-//     } else {
-//         // CASE 2: 작업이 진행 중인 상태 ('일시정지' 버튼 클릭 = 정지 및 초기화)
-//         url = `${apiUrl}/resultwork/pauseinsert`; // 'UPDATE' 로직 - 여기를 updateEnd로 변경!
-//         payload = [
-//             {
-//                 workOrdNo: selectedWorkOrder.value.workOrdNo,
-//                 modelCode: selectedWorkOrder.value.modelCode,
-//                 revision: selectedWorkOrder.value.revision,
-//                 proc_code: currentProcess.value ? currentProcess.value.proc_code || currentProcess.value.proc : '첫번째공정',
-//                 work_qty: realWorkQty.value,
-//                 status: 'PAUSE',
-//                 workEndTime: formatDateForMySQL(new Date())
-//             }
-//             // {
-//             //     workOrdNo: selectedWorkOrder.value.workOrdNo,
-//             //     modelCode: selectedWorkOrder.value.modelCode,
-//             //     revision: selectedWorkOrder.value.revision,
-//             //     proc_code: currentProcess.value ? currentProcess.value.proc_code || currentProcess.value.proc || '첫번째공정' : '첫번째공정',
-//             //     proc_seq: currentProcess.value ? currentProcess.value.proc_seq || 1 : 1,
-//             //     work_qty: realWorkQty.value,
-//             //     status: 'PAUSE', // ✅ UPDATE 대신 INSERT로 기록만 남김
-//             //     workEndTime: formatDateForMySQL(new Date())
-//             // }
-//         ];
-//     }
-
-//     let workStatus = '';
-
-//     if (!isWorkOrderRunning.value && !workOrderPaused.value) {
-//         workStatus = 'START'; // 새로 시작
-//     } else if (isWorkOrderRunning.value && !workOrderPaused.value) {
-//         workStatus = 'PAUSE'; // 일시정지
-//     } else if (workOrderPaused.value) {
-//         workStatus = 'RESUME'; // 다시 시작
-//     }
-
-//     console.log('보내는 상태:', workStatus.value);
-
-//     try {
-//         const response = await axios.post(url, payload);
-//         //
-//         console.log('서버 응답 (작업지시 컨트롤):', response.data);
-
-//         // UI 상태 업데이트
-//         if (response.data.isSuccessed && response.data.results[0].isSuccessed) {
-//             if (!isWorkOrderRunning.value) {
-//                 // '작업시작' 성공
-//                 isWorkOrderRunning.value = true;
-//                 workOrderPaused.value = false; // 이 흐름에서는 사용되지 않지만 초기화
-//                 workOrderStartTime.value = new Date();
-//             } else {
-//                 // '일시정지' (정지) 성공
-//                 // resetWorkOrderState();  ---------------------> 이 부분 때문에 일시 정지 시 초기화 되어버림
-//                 toast.add({
-//                     severity: 'warn',
-//                     summary: '작업 정지',
-//                     detail: '⏸ 작업이 일시정지되었습니다. 다시 시작하려면 "작업시작"을 눌러주세요.',
-//                     life: 2500
-//                 });
-//                 return;
-//             }
-//             toast.add({
-//                 severity: 'success',
-//                 summary: '작업 시작',
-//                 detail: '✅ 작업이 시작되었습니다.',
-//                 life: 2500
-//             });
-//         } else {
-//             toast.add({
-//                 severity: 'warn',
-//                 summary: '서버 응답 실패',
-//                 detail: '❌ 작업 상태 변경이 서버에서 거부되었습니다.',
-//                 life: 2500
-//             });
-//             console.error('서버 응답 실패:', response.data);
-//         }
-//     } catch (error) {
-//         console.error('데이터 전송 중 오류 발생 (작업지시 컨트롤):', error);
-//         toast.add({
-//             severity: 'warn',
-//             summary: '서버 응답 실패',
-//             detail: '❌ 작업지시 상태 변경 실패',
-//             life: 2500
-//         });
-//     }
-// };
-
 // ---------------------- 5. 개별 공정 컨트롤 (공정시작/공정완료) ----------------------
 
 const startProcessStep = async () => {
@@ -917,9 +785,11 @@ const finishWorkOrder = async () => {
             <Column field="itemName" header="소요품명" style="min-width: 250px"></Column>
             <Column field="needQty" header="필요수량" style="min-width: 150px"></Column>
             <Column field="lotQty" header="준비수량" style="min-width: 150px"></Column>
-            <Column header="초과량" style="min-width: 150px">
+            <Column header="초과Lot번호(초과량)" style="min-width: 150px">
                 <template #body="slotProps">
-                    {{ overQtyMap[slotProps.data.itemCode] ? overQtyMap[slotProps.data.itemCode].map((o) => `${o.lotNo} (${o.overQty})`).join(', ') : '' }}
+                    <span class="text-red-600 font-bold">
+                        {{ overQtyMap[slotProps.data.itemCode] ? overQtyMap[slotProps.data.itemCode].map((o) => `${o.lotNo} (${o.overQty})`).join(', ') : '' }}
+                    </span>
                 </template>
             </Column>
             <!-- <Column header="초과량" style="min-width: 150px">

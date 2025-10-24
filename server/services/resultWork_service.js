@@ -222,13 +222,12 @@ const updateEnd = async (resultInfo) => {
     ];
     await conn.query(sqlList.updateEndWorkOrd, insertWorkOrder);
     console.log("✅ tb_work_ord 업데이트 완료");
-
-    // 1. 오늘 날짜 YYMMDD 구하기
-    const datePart = formatDate(new Date());
-
     // 마지막 공정 조회
     const [lastProc] = await conn.query(sqlList.selectLastProc, [modelCode]);
     const lastProcCode = lastProc?.proc_code || null;
+
+    // 1. 오늘 날짜 YYMMDD 구하기
+    const datePart = formatDate(new Date());
 
     // 2. 최근 LOT 번호 조회
     const lastList = await conn.query(sqlList.selectLastProdLotNo, [
@@ -237,7 +236,7 @@ const updateEnd = async (resultInfo) => {
 
     let seq = 1;
 
-    if (lastList && lastList.length > 0) {
+    if (lastList.length > 0) {
       const lastNo = lastList[0].prod_lot_no;
 
       // model_code로 시작하는 경우만 시퀀스 추출
@@ -246,9 +245,23 @@ const updateEnd = async (resultInfo) => {
         if (!isNaN(lastSeq)) seq = lastSeq + 1;
       }
     }
-
+    console.log("seq :" + seq);
     // 3. 신규 LOT 번호 생성 (model_code + 날짜 + 5자리 시퀀스)
     const prodLotNo = `${modelCode}${datePart}${String(seq).padStart(5, "0")}`;
+
+    let insertProdLot = [
+      prodLotNo,
+      modelCode,
+      revision,
+      workOrdNo,
+      workQty,
+      lastProcCode,
+      "Y",
+      5,
+      formattedEndTime,
+    ];
+    await conn.query(sqlList.insertEndProdLot, insertProdLot);
+    console.log("✅ 생산LOT 업데이트 완료");
 
     // lot 상태 업데이트
     // 7️⃣ 사용된 LOT use_yn = 'N' 처리

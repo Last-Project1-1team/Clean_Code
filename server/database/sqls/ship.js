@@ -1,5 +1,5 @@
 const shipmodel = `
-SELECT   MAS.inord_no INORD_NO
+SELECT    MAS.inord_no INORD_NO
         , C.cust_name
         , C.CUST_CODE
         , DET.MODEL_CODE
@@ -90,10 +90,10 @@ WHERE   ( ? IS NULL OR MAS.CUST_NO LIKE ? )
   AND   ( ? IS NULL OR MAS.SHIP_DATE = STR_TO_DATE(?, '%Y-%m-%d') )`;
 
 module.exports = {
-  shipmodel,
-  lotnoscan,
-  selectLastShipNo,
-  insertshipmaster,
-  insertshipdetail,
-  selectShip,
+    shipmodel,
+    lotnoscan,
+    selectLastShipNo,
+    insertshipmaster,
+    insertshipdetail,
+    selectShip,
 };

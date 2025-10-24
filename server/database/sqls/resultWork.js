@@ -91,6 +91,7 @@ WHERE itm.item_code LIKE ?
 const selectLastProdLotNo = `
 SELECT prod_lot_no
   FROM tb_prod_lot
+ WHERE prod_lot_no LIKE ?
  ORDER BY prod_lot_no DESC
  LIMIT 1
 `;
@@ -168,7 +169,7 @@ UPDATE tb_work_ord
    AND revision = ?
 `;
 
-const updateEndProdLot = `
+const insertEndProdLot = `
 INSERT INTO tb_prod_lot
 ( prod_lot_no,
   model_code,
@@ -207,7 +208,7 @@ module.exports = {
   updateEnd,
   selectLastProdLotNo,
   updateEndWorkOrd,
-  updateEndProdLot,
+  insertEndProdLot,
   selectLastProc,
   updateLotYn,
 };

@@ -39,15 +39,13 @@ const handleModelRegister = (data) => {
     selectedModel.value = data; // 제품 전체 정보 저장
     ModalSearch.value = false;
 };
-
 const getProdList = async (searchParams) => {
     try {
         prodPlan.value = [];
 
-        // 1) 제품계획 데이터 조회
+        // (1) 생산계획 목록 조회
         const response = await axios.get(`${apiUrl}/prodplan`, {
             params: {
-                regPlanDate: searchParams.regPlanDate,
                 startPlanDate: searchParams.startPlanDate,
                 endPlanDate: searchParams.endPlanDate,
                 modelCode: searchParams.modelCode,
@@ -58,21 +56,17 @@ const getProdList = async (searchParams) => {
 
         const prodList = Array.isArray(response.data) ? response.data : [];
 
-        // 수주량 합계 조회
+        // (2) 수주량 합계 조회
         const qtyResponse = await axios.get(`${apiUrl}/prodplan/inordqty`, {
             params: {
-                regPlanDate: searchParams.regPlanDate,
-                startPlanDate: searchParams.startPlanDate,
-                endPlanDate: searchParams.endPlanDate,
                 modelCode: searchParams.modelCode,
-                revision: searchParams.revision,
-                procCode: searchParams.procCode
+                revision: searchParams.revision
             }
         });
 
         const qtyList = Array.isArray(qtyResponse.data) ? qtyResponse.data : [];
 
-        // 수주량을 제품 리스트에 병합
+        // (3) 생산계획 목록과 수주량 리스트 병합
         const mergedList = prodList.map((prod) => {
             const matchQty = qtyList.find((qty) => qty.modelCode === prod.modelCode && qty.revision === prod.revision && qty.procCode === prod.procCode);
             return {
@@ -91,7 +85,6 @@ const getProdList = async (searchParams) => {
 // 조회 버튼 이벤트
 const searchPlan = () => {
     selectedData.value = {
-        regPlanDate: regPlanDate.value ? formatDate(regPlanDate.value) : '',
         startPlanDate: startPlanDate.value ? formatDate(startPlanDate.value) : '',
         endPlanDate: endPlanDate.value ? formatDate(endPlanDate.value) : '',
         modelCode: selectedModel.value.modelCode || '',
@@ -104,7 +97,6 @@ const searchPlan = () => {
 
 // 초기화 버튼 이벤트
 const initPlan = () => {
-    regPlanDate.value = null;
     startPlanDate.value = null;
     endPlanDate.value = null;
     selectedModel.value = {};
@@ -159,7 +151,7 @@ const initPlan = () => {
                     </div>
 
                     <!-- 공정선택 -->
-                    <label for="selectProc" class="flex items-center col-span-1">공정</label>
+                    <label for="selectProc" class="flex items-center col-span-1">최종공정</label>
                     <div class="col-span-2">
                         <!-- <Select v-model="searchData.procCode" :options="procDropDown" optionLabel="label" optionValue="value" placeholder="공정선택" id="selectProc" class="w-full" /> -->
                         <InputText v-model="searchData.procName" id="selectProc" class="w-full" readonly />
@@ -175,13 +167,13 @@ const initPlan = () => {
         </Toolbar>
 
         <!-- 생산계획 등록 그리드 -->
-        <DataTable :value="prodPlan" dataKey="prodPlanNo" scrollable scrollHeight="64.2vh" style="border: 1px solid #ddd; height: 64.5vh">
+        <DataTable :value="prodPlan" dataKey="prodPlanNo" scrollable scrollHeight="63.8vh" style="border: 1px solid #ddd; height: 63.8vh">
             <Column field="startPlanDate" header="계획시작일자" sortable style="min-width: 10rem"></Column>
             <Column field="endPlanDate" header="계획종료일자" sortable style="min-width: 10rem"></Column>
             <Column field="modelCode" header="제품코드" sortable style="min-width: 10rem"></Column>
             <Column field="revision" header="리비전" sortable style="min-width: 8rem"></Column>
             <Column field="modelName" header="제품명" sortable style="min-width: 10rem"></Column>
-            <Column field="procName" header="공정" sortable style="min-width: 8rem"></Column>
+            <Column field="procName" header="최종공정" sortable style="min-width: 8rem"></Column>
             <Column field="totalInordQty" header="수주량" sortable style="min-width: 9rem"></Column>
             <Column field="planQty" header="계획수량" sortable style="min-width: 9rem"></Column>
             <Column field="unit" header="단위" sortable style="min-width: 5rem"></Column>

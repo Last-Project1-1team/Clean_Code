@@ -78,7 +78,7 @@ const getModelList = async (code, revision, name) => {
             <Column field="modelCode" style="width: 100px" header="제품코드" />
             <Column field="modelName" style="width: 150px" header="제품명" />
             <Column field="revision" style="width: 150px" header="리비전" />
-            <Column field="modelFlag" style="width: 150px" header="제품구분" />
+            <Column field="modelFlagName" style="width: 150px" header="제품구분" />
             <Column field="unit" style="width: 50px" header="단위" />
         </DataTable>
     </div>
