@@ -378,7 +378,6 @@ const displayedAllProcs = computed(() => {
         .map((proc) => {
             // 여기서 proc.proc을 사용해서 공정명 가져오기
             const procName = proc.proc || '알 수 없는 공정';
-            // 현재 공정이라면 특별히 표시해줄 수도 있어!
             if (proc === currentProcess.value) {
                 return `[${procName}]`;
             } else if (proc.status === 'COMPLETED') {
@@ -405,16 +404,11 @@ watch(
 //
 //
 //
-//
-
-//
-//
-//
 // 시작버튼 클릭 이벤트
 const toggleWorkOrderRunning = async () => {
     console.log('currentProcess 확인:', currentProcess.value);
 
-    // ⚠️ 시작 전 품목 준비량 확인 (작업이 시작되지 않은 상태에서만 검사)
+    // 시작 전 품목 준비량 확인 (작업이 시작되지 않은 상태에서만 검사)
     if (!isReady.value && !isWorkOrderRunning.value) {
         toast.add({
             severity: 'warn',
@@ -425,7 +419,7 @@ const toggleWorkOrderRunning = async () => {
         return;
     }
 
-    // ⚠️ 작업지시 선택 여부 확인
+    // 작업지시 선택 여부 확인
     if (!selectedWorkOrder.value || !selectedWorkOrder.value.workOrdNo) {
         toast.add({
             severity: 'warn',
@@ -440,7 +434,7 @@ const toggleWorkOrderRunning = async () => {
     let payload = [];
     let successMsg = '';
 
-    // 🟢 CASE 1: 처음 시작 또는 일시정지 후 재시작
+    // 처음 시작 또는 일시정지 후 재시작
     if (!isWorkOrderRunning.value) {
         url = `${apiUrl}/resultwork/save`;
         payload = [
@@ -451,13 +445,13 @@ const toggleWorkOrderRunning = async () => {
                 proc_code: currentProcess.value?.proc_code || '작업시작',
                 proc_seq: currentProcess.value?.proc_seq || 1,
                 work_qty: realWorkQty.value,
-                status: workOrderPaused.value ? 'RESUME' : 'START', // ✅ 재개 구분
+                status: workOrderPaused.value ? 'RESUME' : 'START', // 재개 구분
                 workStartTime: formatDateForMySQL(new Date())
             }
         ];
         successMsg = workOrderPaused.value ? '✅ 작업이 재개되었습니다.' : '✅ 작업이 시작되었습니다.';
     }
-    // 🟡 CASE 2: 작업 중 → 일시정지
+    // 작업 중 → 일시정지
     else {
         url = `${apiUrl}/resultwork/pauseinsert`;
         payload = [
@@ -478,7 +472,7 @@ const toggleWorkOrderRunning = async () => {
         const response = await axios.post(url, payload);
         console.log('서버 응답 (작업지시 컨트롤):', response.data);
 
-        // ✅ 서버 응답 성공 시 상태 전환 처리
+        // 서버 응답 성공 시 상태 전환 처리
         if (response.data.isSuccessed && response.data.results[0].isSuccessed) {
             if (!isWorkOrderRunning.value) {
                 // 작업 시작 or 재개
@@ -535,7 +529,6 @@ const startProcessStep = async () => {
         return;
     }
 
-    // 서버로 해당 공정 시작 정보 전송
     const url = `${apiUrl}/resultwork/save`;
     const payload = [
         {
@@ -556,12 +549,18 @@ const startProcessStep = async () => {
         // UI 상태 업데이트
         currentProcess.value.status = 'IN_PROGRESS';
         currentProcess.value.procStartTime = new Date();
+
         toast.add({
             severity: 'success',
             summary: '공정 시작 성공',
             detail: '공정이 시작되었습니다.',
-            life: 2500
+            life: 2000
         });
+
+        // 3초 후 자동으로 공정 완료 실행
+        setTimeout(async () => {
+            await completeProcessStep();
+        }, 3000);
     } catch (error) {
         console.error('공정 시작 데이터 전송 중 오류:', error);
         toast.add({
@@ -577,14 +576,13 @@ const completeProcessStep = async () => {
     if (!currentProcess.value || currentProcess.value.status !== 'IN_PROGRESS') {
         toast.add({
             severity: 'warn',
-            summary: '공정 시작 실패',
+            summary: '공정 완료 실패',
             detail: '진행 중인 공정이 아니거나 이미 완료된 공정입니다.',
             life: 2500
         });
         return;
     }
 
-    // 서버로 해당 공정 완료 정보 전송
     const url = `${apiUrl}/resultwork/update`;
     const payload = [
         {
@@ -603,20 +601,34 @@ const completeProcessStep = async () => {
         // UI 상태 업데이트
         currentProcess.value.status = 'COMPLETED';
         currentProcess.value.procEndTime = new Date();
+
         toast.add({
             severity: 'success',
             summary: '공정 완료',
             detail: '공정이 완료되었습니다.',
-            life: 2500
+            life: 2000
         });
 
-        // 다음 공정으로 이동
-        // nextTick을 사용해서 DOM 업데이트가 완료된 후 인덱스를 변경하여 displayedCurrentProc가 정확히 반영되도록 함.
         nextTick(() => {
             currentProcIndex.value++;
-            // 만약 다음 공정이 있다면 'WAITING' 상태로 만들어주기
+
+            // 다음 공정이 있으면 WAITING으로 전환
             if (currentProcIndex.value < receivedAllProcs.value.length) {
                 receivedAllProcs.value[currentProcIndex.value].status = 'WAITING';
+                currentProcess.value = receivedAllProcs.value[currentProcIndex.value];
+
+                // ✅ 3초 후 다음 공정 자동 시작
+                setTimeout(async () => {
+                    await startProcessStep();
+                }, 3000);
+            } else {
+                // ✅ 마지막 공정 완료 시 종료
+                toast.add({
+                    severity: 'info',
+                    summary: '전체 공정 완료',
+                    detail: '모든 공정이 완료되었습니다.',
+                    life: 2500
+                });
             }
         });
     } catch (error) {
@@ -633,7 +645,7 @@ const completeProcessStep = async () => {
 // ---------------------- 6. 최종 작업 종료 ----------------------
 
 const finishWorkOrder = async () => {
-    // ⚠️ 모든 공정이 완료되었는지 다시 한 번 확인
+    // 모든 공정이 완료되었는지 다시 한 번 확인
     if (!allProcsCompleted.value) {
         toast.add({
             severity: 'warn',
