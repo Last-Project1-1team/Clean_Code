@@ -4,7 +4,7 @@ SELECT    MAS.inord_no INORD_NO
         , C.CUST_CODE
         , DET.MODEL_CODE
         , DET.REVISION
-        , S.INORD_NO
+        , MAS.INORD_NO
 FROM	TB_INORD_MASTER MAS JOIN TB_INORD_DETAIL DET ON	MAS.INORD_NO = DET.INORD_NO
 							            JOIN TB_CUST C 			     ON	MAS.cust_code = C.cust_code
 WHERE 	MAS.INORD_NO = ?`;
