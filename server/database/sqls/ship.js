@@ -77,6 +77,7 @@ INSERT INTO tb_ship_detail
 
 const selectShip = `
   SELECT  MAS.CUST_NO
+        , MAS.SHIP_NO
         , C.CUST_NAME
         , DET.MODEL_CODE
         , MM.MODEL_NAME
@@ -90,10 +91,10 @@ WHERE   ( ? IS NULL OR MAS.CUST_NO LIKE ? )
   AND   ( ? IS NULL OR MAS.SHIP_DATE = STR_TO_DATE(?, '%Y-%m-%d') )`;
 
 module.exports = {
-    shipmodel,
-    lotnoscan,
-    selectLastShipNo,
-    insertshipmaster,
-    insertshipdetail,
-    selectShip,
+  shipmodel,
+  lotnoscan,
+  selectLastShipNo,
+  insertshipmaster,
+  insertshipdetail,
+  selectShip,
 };

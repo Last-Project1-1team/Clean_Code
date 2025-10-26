@@ -57,6 +57,7 @@ const selectLastInordNo = `
 // 수주단건조회
 const selectInord = `
 SELECT 	MAS.CUST_CODE
+      , MAS.INORD_NO
 		  , C.CUST_NAME
       , DET.MODEL_CODE
       , MM.MODEL_NAME
