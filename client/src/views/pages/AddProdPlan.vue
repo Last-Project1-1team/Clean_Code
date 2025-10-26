@@ -140,6 +140,7 @@ const addPlan = async () => {
         regPlanDate: formatLocalDate(new Date()), // 현재 날짜
         startPlanDate: formatLocalDate(formData.value.planPeriod.startDate),
         endPlanDate: formatLocalDate(formData.value.planPeriod.endDate),
+        modelCode: formData.value.product.modelCode,
         revision: formData.value.product.revision,
         modelName: formData.value.product.modelName,
 
